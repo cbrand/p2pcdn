@@ -205,7 +205,7 @@ gulp.task('compile:server', function() {
 });
 
 gulp.task('jasmine:run:console', function() {
-    return gulp.src(dirs.serverSpec + '/**/*.js')
+    return gulp.src(dirs.serverSpec + '/**/*Spec.js')
                 .pipe(jasmine({
                     reporter: new reporters.TapReporter()
                 }));

@@ -94,6 +94,14 @@ describe('file.File', function() {
             });
 
         });
+
+        describe('chunks', function() {
+
+            it('should return the correct chunk', function() {
+
+            })
+
+        });
     });
 
 });
