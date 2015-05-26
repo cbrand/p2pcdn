@@ -1,15 +1,15 @@
 
-var fs = require('fs');
 var constants = require('../constants');
 var q = require('q');
 
 class File {
     constructor(path) {
         this.path = path;
+        this.fs = require('fs');
     }
 
     get _stat() {
-        var stat = fs.statSync(this.path);
+        var stat = this.fs.statSync(this.path);
         if(!stat.isFile()) {
             throw new Error('Path is not a file.');
         }
@@ -37,7 +37,7 @@ class File {
             throw new Error('number must be positive.');
         }
         var stat = this._stat;
-        return fs.createReadStream(
+        return this.fs.createReadStream(
             this.path,
             {
                 start: constants.CHUNK_SIZE * num,
