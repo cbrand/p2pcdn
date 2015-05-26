@@ -2,7 +2,8 @@
 var fs = require('fs'),
     file = require('../../dist/data/file.js'),
     constants = require('../../dist/constants.js'),
-    temp = require('temp')
+    temp = require('temp'),
+    mockery = require('mockery')
 ;
 
 describe('file.File', function() {
@@ -130,6 +131,53 @@ describe('file.File', function() {
                     cb();
                 }, function(err) {
                     cb(err);
+                });
+            });
+
+
+            describe('on read stream error', function() {
+                var events;
+                beforeEach(function() {
+                    mockery.enable();
+
+                    events = {};
+                    var fsMock = {
+                        createReadStream: function(path, options) {
+                            return {
+                                on: function(name, func) {
+                                    events[name] = events[name] || [];
+                                    events[name].push(func);
+                                }
+                            }
+                        },
+                        statSync: function() {
+                            return {
+                                size: constants.CHUNK_SIZE*10,
+                                isFile: function() {
+                                    return true;
+                                }
+                            }
+                        }
+                    };
+                    mockery.registerMock('fs', fsMock);
+                    f = new file.File('test.txt');
+                });
+
+                afterEach(function() {
+                    mockery.deregisterAll();
+                    mockery.disable();
+                });
+
+                it('should notify with an error', function() {
+                    f.chunk(0).then(function() {
+                        expect('should not').toEqual('be called');
+                    }, function(err) {
+                        expect(err.toString()).toEqual('Error: Internal error')
+                    });
+
+                    events["error"].forEach(function(func) {
+                        func(new Error('Internal error'));
+                    });
                 });
             });
 
