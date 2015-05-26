@@ -36,7 +36,7 @@ describe('file.File', function() {
         it('should throw an error', function () {
             expect(function () {
                 f.numChunks
-            }).toThrowError(Error);
+            }).toThrow();
         });
     });
 
@@ -48,7 +48,7 @@ describe('file.File', function() {
         });
 
         it('should throw an error if a directory exists on the given file location', function() {
-            expect(function() {f.numChunks}).toThrowError(Error);
+            expect(function() {f.numChunks}).toThrow();
         });
 
     });
@@ -97,9 +97,37 @@ describe('file.File', function() {
 
         describe('chunks', function() {
 
-            it('should return the correct chunk', function() {
+            it('should throw an error if a too high chunk number is passed', function() {
+                expect(function() {f.chunk(11)}).toThrow();
+            });
 
-            })
+            it('should throw an error if negative chunk number is passed', function() {
+                expect(function() {f.chunk(-1)}).toThrow();
+            });
+
+            it('should return the correct chunk', function(cb) {
+                f.chunk(1).then(function(data) {
+                    expect(data).toEqual(createChunk("1"));
+                    cb();
+                }, function(err) {
+                    cb(err);
+                });
+            });
+
+            it('should return data who does not align to chunk sizes', function() {
+                chunks = [];
+                chunks.push(createChunk('a'));
+                chunks.push(createChunk('b', constants.CHUNK_SIZE-2));
+
+                fs.writeFileSync(fName, chunks.join(''));
+
+                f.chunk(1).then(function(data) {
+                    expect(data).toEqual(createChunk('b', constants.CHUNK_SIZE-2));
+                    cb();
+                }, function(err) {
+                    cb(err);
+                });
+            });
 
         });
     });
