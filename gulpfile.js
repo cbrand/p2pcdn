@@ -5,7 +5,7 @@ var gulp = require('gulp');
 var jasmine = require('gulp-jasmine');
 var istanbul = require('gulp-istanbul');
 var reporters = require('jasmine-reporters');
-var to5 = require('gulp-6to5');
+var babel = require('gulp-babel');
 // var less = require('gulp-less');
 var concatCss = require('gulp-concat-css');
 var sourcemaps = require('gulp-sourcemaps');
@@ -199,33 +199,32 @@ gulp.task('concat:css', function() {
 gulp.task('compile:server', function() {
     return gulp.src(dirs.server + '/**/*.js')
             .pipe(sourcemaps.init())
-            .pipe(to5())
+            .pipe(babel())
             .pipe(sourcemaps.write('.'))
-            .pipe(gulp.dest(dirs.server_dist));
+            .pipe(gulp.dest(dirs.serverDist));
 });
 
 gulp.task('jasmine:run:console', function() {
-    return gulp.src(dirs.server_spec + "/**/*.js")
+    return gulp.src(dirs.serverSpec + '/**/*.js')
                 .pipe(jasmine({
                     reporter: new reporters.TapReporter()
                 }));
 });
 
 gulp.task('jasmine:run:junit', function(done) {
-    gulp.src([dirs.server_dist + '/**/*.js'])
+    gulp.src([dirs.serverDist + '/**/*.js'])
         .pipe(istanbul())
         .pipe(istanbul.hookRequire())
         .on('finish', function() {
-            return gulp.src(dirs.server_spec + "/**/*.js")
+            return gulp.src(dirs.serverSpec + '/**/*.js')
                 .pipe(jasmine({
                     reporter: new reporters.JUnitXmlReporter({
                         savePath:'testresults',
-                        filePrefix: 'junit'//,
-                        //consolidateAll:true
+                        filePrefix: 'junit'
                     })
                 }))
                 .pipe(istanbul.writeReports({
-                    reporters: [ 'lcov', 'json', 'text', 'text-summary', 'cobertura', 'html' ]
+                    reporters: ['lcov', 'json', 'text', 'text-summary', 'cobertura', 'html']
                 }))
                 .on('end', done);
         });
@@ -246,11 +245,11 @@ gulp.task('jasmine:console', function(done) {
 });
 
 gulp.task('jasmine:coverage', function(done) {
-    gulp.src([dirs.server_dist + '/**/*.js'])
+    gulp.src([dirs.serverDist + '/**/*.js'])
         .pipe(istanbul())
         .pipe(istanbul.hookRequire())
         .on('finish', function() {
-            gulp.src(dirs.server_spec + "/**/*.js")
+            gulp.src(dirs.serverSpec + '**/*.js')
                 .pipe(jasmine({
                     reporter: new reporters.TapReporter()
                 }))
@@ -273,12 +272,20 @@ gulp.task('archive', function (done) {
     done);
 });
 
-gulp.task('build', function (done) {
+gulp.task('build:client', function (done) {
     runSequence(
         ['clean', 'lint:js'],
         'copy',
         'concat',
     done);
 });
+
+gulp.task('build:server', function(done) {
+    runSequence(
+        'compile:server',
+    done);
+});
+
+gulp.task('build', ['build:server', 'build:client']);
 
 gulp.task('default', ['build']);
