@@ -23,6 +23,10 @@ describe('file.File', function() {
         temp.cleanup(cb);
     });
 
+    it('should throw an error if the constructor is initialized without new', function() {
+        expect(function() {file.File(testDir)}).toThrow();
+    });
+
     describe('when no file is present', function() {
         var f,
             fName;
