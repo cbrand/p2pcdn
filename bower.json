@@ -1,0 +1,26 @@
+{
+  "name": "p2pcdn",
+  "version": "0.0.0",
+  "authors": [
+    "Christoph Brand <christoph@brand.rest>"
+  ],
+  "description": "Peer to peer cdn implementation",
+  "moduleType": [
+    "amd",
+    "es6"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap-material-design": "~0.3.0"
+  },
+  "devDependencies": {
+    "bootstrap": "~3.3.4"
+  }
+}
