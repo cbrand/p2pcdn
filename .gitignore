@@ -57,3 +57,5 @@ archive
 node_modules
 bower_components
 dist
+coverage
+testresults

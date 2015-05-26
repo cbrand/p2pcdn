@@ -2,9 +2,13 @@ var fs = require('fs');
 var path = require('path');
 
 var gulp = require('gulp');
+var jasmine = require('gulp-jasmine');
+var istanbul = require('gulp-istanbul');
+var reporters = require('jasmine-reporters');
+var to5 = require('gulp-6to5');
 // var less = require('gulp-less');
-
 var concatCss = require('gulp-concat-css');
+var sourcemaps = require('gulp-sourcemaps');
 
 // Load all gulp plugins automatically
 // and attach them to the `plugins` object
@@ -192,6 +196,70 @@ gulp.task('concat:css', function() {
         .pipe(gulp.dest(dirs.dist));
 });
 
+gulp.task('compile:server', function() {
+    return gulp.src(dirs.server + '/**/*.js')
+            .pipe(sourcemaps.init())
+            .pipe(to5())
+            .pipe(sourcemaps.write('.'))
+            .pipe(gulp.dest(dirs.server_dist));
+});
+
+gulp.task('jasmine:run:console', function() {
+    return gulp.src(dirs.server_spec + "/**/*.js")
+                .pipe(jasmine({
+                    reporter: new reporters.TapReporter()
+                }));
+});
+
+gulp.task('jasmine:run:junit', function(done) {
+    gulp.src([dirs.server_dist + '/**/*.js'])
+        .pipe(istanbul())
+        .pipe(istanbul.hookRequire())
+        .on('finish', function() {
+            return gulp.src(dirs.server_spec + "/**/*.js")
+                .pipe(jasmine({
+                    reporter: new reporters.JUnitXmlReporter({
+                        savePath:'testresults',
+                        filePrefix: 'junit'//,
+                        //consolidateAll:true
+                    })
+                }))
+                .pipe(istanbul.writeReports({
+                    reporters: [ 'lcov', 'json', 'text', 'text-summary', 'cobertura', 'html' ]
+                }))
+                .on('end', done);
+        });
+});
+
+gulp.task('jasmine:junit', function(done) {
+    runSequence(
+        'compile:server',
+        'jasmine:run:junit',
+    done);
+});
+
+gulp.task('jasmine:console', function(done) {
+    runSequence(
+        'compile:server',
+        'jasmine:run:console',
+    done);
+});
+
+gulp.task('jasmine:coverage', function(done) {
+    gulp.src([dirs.server_dist + '/**/*.js'])
+        .pipe(istanbul())
+        .pipe(istanbul.hookRequire())
+        .on('finish', function() {
+            gulp.src(dirs.server_spec + "/**/*.js")
+                .pipe(jasmine({
+                    reporter: new reporters.TapReporter()
+                }))
+                .pipe(istanbul.writeReports())
+                .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 }}))
+                .on('end', done)
+            ;
+        });
+});
 
 // ---------------------------------------------------------------------
 // | Main tasks                                                        |

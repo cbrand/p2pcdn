@@ -19,7 +19,14 @@
     "run-sequence": "^1.0.2",
     "less": "~2.5.1",
     "gulp-less": "~3.0.3",
-    "gulp-concat-css": "~2.2.0"
+    "gulp-concat-css": "~2.2.0",
+    "gulp-6to5": "~3.0.0",
+    "gulp-sourcemaps": "~1.5.2",
+    "gulp-jasmine": "~2.0.1",
+    "jasmine-reporters": "~2.0.6",
+    "wrtc": "0.0.55",
+    "gulp-istanbul": "~0.9.0",
+    "temp": "~0.8.1"
   },
   "engines": {
     "node": ">=0.10.0"
@@ -30,7 +37,10 @@
       "dist": "dist",
       "src": "src",
       "test": "test",
-      "bower": "bower_components"
+      "bower": "bower_components",
+      "server": "server/src",
+      "server_dist": "server/dist",
+      "server_spec": "server/spec"
     }
   },
   "homepage": "https://html5boilerplate.com/",
