@@ -59,3 +59,4 @@ bower_components
 dist
 coverage
 client/testresults
+config.ini
