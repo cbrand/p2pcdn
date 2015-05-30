@@ -36,9 +36,9 @@
   "h5bp-configs": {
     "directories": {
       "archive": "archive",
-      "dist": "dist",
-      "src": "src",
-      "test": "test",
+      "dist": "client/dist",
+      "src": "client/src",
+      "test": "client/test",
       "bower": "bower_components",
       "server": "server/src",
       "serverDist": "server/dist",
