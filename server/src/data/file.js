@@ -37,16 +37,13 @@ class File {
             throw new Error('number must be positive.');
         }
         var stat = this._stat;
-        return this.fs.createReadStream(
-            this.path,
-            {
-                start: constants.CHUNK_SIZE * num,
-                end: Math.min(
-                    constants.CHUNK_SIZE * (num+1),
-                    stat.size
-                ) - 1
-            }
-        );
+        return this.stream({
+            start: constants.CHUNK_SIZE * num,
+            end: Math.min(
+                constants.CHUNK_SIZE * (num+1),
+                stat.size
+            ) - 1
+        });
     }
 
     /**
@@ -72,6 +69,20 @@ class File {
         });
 
         return deferred.promise;
+    },
+
+    /**
+     * Returns the complete data stream. Delegates the passed options if given
+     * to the fs.createReadStream function.
+     *
+     * @returns {fs.ReadStream} The opened read stream.
+     */
+    stream(options) {
+        options = options || {};
+        return this.fs.createReadStream(
+            this.path,
+            options
+        );
     }
 }
 
