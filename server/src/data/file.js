@@ -69,7 +69,7 @@ class File {
         });
 
         return deferred.promise;
-    },
+    }
 
     /**
      * Returns the complete data stream. Delegates the passed options if given
