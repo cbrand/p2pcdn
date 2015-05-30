@@ -9,6 +9,7 @@ var babel = require('gulp-babel');
 // var less = require('gulp-less');
 var concatCss = require('gulp-concat-css');
 var sourcemaps = require('gulp-sourcemaps');
+var server = require('gulp-express');
 
 // Load all gulp plugins automatically
 // and attach them to the `plugins` object
@@ -260,6 +261,32 @@ gulp.task('jasmine:coverage', function(done) {
         });
 });
 
+gulp.task('run:server', function() {
+    server.run(['server/src/server.js']);
+
+    gulp.watch([
+        'client/dist/**/*.html',
+        'client/dist/**/*.js',
+        'client/dist/**/*.css',
+        'client/dist/**/*.png',
+        'client/dist/**/*.jpeg'
+    ], server.notify);
+
+    gulp.watch([
+        'client/src/**/*.css',
+        'client/src/**/*.js',
+        'client/src/**/*.js'
+    ], ['build:client']);
+
+    gulp.watch([
+        'server/src/**/*.js'
+    ], ['build:server']);
+
+    gulp.watch([
+        'server/dist/**/*.js'
+    ], [server.run]);
+});
+
 // ---------------------------------------------------------------------
 // | Main tasks                                                        |
 // ---------------------------------------------------------------------
@@ -283,6 +310,13 @@ gulp.task('build:client', function (done) {
 gulp.task('build:server', function(done) {
     runSequence(
         'compile:server',
+    done);
+});
+
+gulp.task('server', function(done) {
+    runSequence(
+        'build',
+        'run:server',
     done);
 });
 
