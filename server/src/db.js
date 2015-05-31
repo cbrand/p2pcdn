@@ -34,6 +34,11 @@ var initDB = function(databaseConfig) {
     return sequelize;
 };
 
+/**
+ * Creates the schema definitions.
+ *
+ * @param sequelize
+ */
 var defineTables = function(sequelize) {
     db.File = sequelize.define('file', {
         uuid: {
@@ -44,6 +49,11 @@ var defineTables = function(sequelize) {
         fileName: {
             type: Sequelize.STRING,
             field: 'file_name'
+        },
+        mimeType: {
+            type: Sequelize.String,
+            field: 'mime_type',
+            defaultValue: 'application/octet-stream'
         }
     });
 };

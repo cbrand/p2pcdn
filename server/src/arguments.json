@@ -16,6 +16,12 @@
             "full": "run-server",
             "description": "Starts the server",
             "default": false
+        },
+        {
+            "full": "add-file",
+            "description": "Adds the given file to the repository",
+            "value": true,
+            "default": false
         }
     ],
     "defaults" : {
