@@ -35,7 +35,7 @@ class Config {
      * purposes.
      */
     get fileDirectory() {
-        return this.config.fileDirectory;
+        return this.config.fileDirectory || null;
     }
 }
 

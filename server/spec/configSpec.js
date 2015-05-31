@@ -143,5 +143,37 @@ describe('Config', function() {
             });
         });
 
+        describe('with an empty configuration', function() {
+            var config;
+
+            beforeEach(function() {
+                config = new Config();
+            });
+
+            it ('should return an empty file directory', function() {
+                expect(config.fileDirectory).toBeNull();
+            });
+
+            describe('database', function() {
+
+                var getDatabase = function() {
+                    return config.database;
+                };
+
+                it('should fallback to sqlite as a default entry', function() {
+                    expect(getDatabase().type).toEqual('sqlite');
+                });
+
+                it('should return an empty user', function() {
+                    expect(getDatabase().user).toBeNull();
+                });
+
+                it('should return an empty password', function() {
+                    expect(getDatabase().password).toBeNull();
+                });
+
+            });
+        });
+
     });
 });
