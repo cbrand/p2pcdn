@@ -60,6 +60,13 @@ describe('Config', function() {
             return initConfig().database;
         };
 
+        describe('type', function() {
+            it('should fallback to sqlite if the type is unknown', function() {
+                exampleConfig.database.type = 'special-sql';
+                expect(getDbConfig().type).toEqual('sqlite');
+            });
+        });
+
         describe('user', function() {
             it('should return if it is a network db', function() {
                 expect(getDbConfig().user).toEqual('root');
