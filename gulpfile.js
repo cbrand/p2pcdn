@@ -4,6 +4,7 @@ var path = require('path');
 var gulp = require('gulp');
 var jasmineRunner = require('gulp-jasmine');
 var istanbul = require('gulp-istanbul');
+var istanbulCoverageSourceMap = require('istanbul-coverage-source-map');
 var reporters = require('jasmine-reporters');
 var babel = require('gulp-babel');
 // var less = require('gulp-less');
@@ -214,22 +215,34 @@ gulp.task('jasmine:run:console', function() {
                 }));
 });
 
+var COVERAGE_VARIABLE = '$$1cov_' + new Date().getTime() + '$$';
+
 gulp.task('jasmine:run:junit', function(done) {
+    var covObj;
+
     gulp.src([dirs.serverDist + '/**/*.js'])
-        .pipe(istanbul())
+        .pipe(istanbul({coverageVariable: COVERAGE_VARIABLE}))
         .pipe(istanbul.hookRequire())
         .on('finish', function() {
-            return gulp.src(dirs.serverSpec + '/**/*.js')
+            var sourceFiles = dirs.serverSpec + '/**/*.js';
+            return gulp.src(sourceFiles)
                 .pipe(jasmineRunner({
                     reporter: new reporters.JUnitXmlReporter({
                         savePath:'testresults',
                         filePrefix: 'junit'
                     })
                 }))
-                .pipe(istanbul.writeReports({
-                    reporters: ['lcov', 'json', 'text', 'text-summary', 'cobertura', 'html']
-                }))
-                .on('end', done);
+                .on('finish', function() {
+                    covObj = JSON.stringify(global[COVERAGE_VARIABLE]);
+                    covObj = istanbulCoverageSourceMap(covObj);
+                    global[COVERAGE_VARIABLE] = JSON.parse(covObj);
+
+                    gulp.src(sourceFiles)
+                        .pipe(istanbul.writeReports({
+                            reporters: ['lcov', 'json', 'text', 'text-summary', 'cobertura', 'html']
+                        }))
+                        .on('end', done);
+                });
         });
 });
 
@@ -248,18 +261,27 @@ gulp.task('jasmine:console', function(done) {
 });
 
 gulp.task('jasmine:coverage', function(done) {
+    var covObj;
     gulp.src([dirs.serverDist + '/**/*.js'])
-        .pipe(istanbul())
+        .pipe(istanbul({coverageVariable: COVERAGE_VARIABLE}))
         .pipe(istanbul.hookRequire())
         .on('finish', function() {
-            gulp.src(dirs.serverSpec + '**/*.js')
-                .pipe(jasmineRunner({
-                    reporter: new reporters.TapReporter()
-                }))
-                .pipe(istanbul.writeReports())
-                .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 }}))
-                .on('end', done)
-            ;
+            var sourceFiles = dirs.serverSpec + '/**/*.js';
+            var console = require('console');
+            gulp.src(sourceFiles)
+                .pipe(jasmineRunner())
+                .on('finish', function() {
+                    var console = require('console');
+
+                    covObj = JSON.stringify(global[COVERAGE_VARIABLE]);
+                    covObj = istanbulCoverageSourceMap(covObj);
+                    global[COVERAGE_VARIABLE] = JSON.parse(covObj);
+
+                    gulp.src(sourceFiles)
+                        .pipe(istanbul.writeReports())
+                        .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 }}))
+                        .on('end', done);
+                });
         });
 });
 
