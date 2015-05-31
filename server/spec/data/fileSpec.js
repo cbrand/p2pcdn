@@ -1,11 +1,11 @@
 
 var fs = require('fs');
-var file = require('../../dist/data/file.js');
+var File = require('../../dist/data/file.js');
 var constants = require('../../dist/constants.js');
 var temp = require('temp');
 var mockery = require('mockery');
 
-describe('file.File', function() {
+describe('File', function() {
     var testDir;
 
     beforeEach(function(cb) {
@@ -25,7 +25,7 @@ describe('file.File', function() {
 
     it('should throw an error if the constructor is initialized without new', function() {
         expect(function() {
-            file.File(testDir);
+            File(testDir);
         }).toThrow();
     });
 
@@ -35,7 +35,7 @@ describe('file.File', function() {
 
         beforeEach(function () {
             fName = testDir + '/test.txt';
-            f = new file.File(fName);
+            f = new File(fName);
         });
 
 
@@ -50,7 +50,7 @@ describe('file.File', function() {
         var f;
 
         beforeEach(function() {
-            f = new file.File(testDir);
+            f = new File(testDir);
         });
 
         it('should throw an error if a directory exists on the given file location', function() {
@@ -83,7 +83,7 @@ describe('file.File', function() {
             }
 
             fs.writeFileSync(fName, chunks.join(''));
-            f = new file.File(fName);
+            f = new File(fName);
         });
 
         describe('numChunks', function() {
@@ -167,7 +167,7 @@ describe('file.File', function() {
                         }
                     };
                     mockery.registerMock('fs', fsMock);
-                    f = new file.File('test.txt');
+                    f = new File('test.txt');
                 });
 
                 afterEach(function() {

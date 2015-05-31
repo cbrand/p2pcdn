@@ -86,4 +86,4 @@ class File {
     }
 }
 
-exports.File = File;
+export default File;
