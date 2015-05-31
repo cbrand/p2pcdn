@@ -55,7 +55,7 @@ describe ('FileHandler', function() {
     it('should be able to add a file', function(done) {
         var fileHandler = new FileHandler(config);
         var stream = sendReadableStream('Testfile', 'More stuff');
-        fileHandler.add('test.txt', stream, {}).then(function(obj) {
+        fileHandler.add('test.txt', stream, null).then(function(obj) {
             expect(obj).not.toBeFalsy();
             done();
         });
