@@ -3,6 +3,7 @@
  */
 var fs = require('fs');
 var path = require('path');
+var crypto = require('crypto');
 var Q = require('q');
 
 class StorageHandler {
@@ -15,21 +16,22 @@ class StorageHandler {
     }
 
     get _temporaryName() {
+        var self = this;
         var i = 0;
         var tempFile = function() {
             i++;
-            return path.join(this._directory, 'file' + i + '.tmp');
+            return path.join(self._directory, 'file' + i + '.tmp');
         };
 
         while (true) {
-            var path = tempFile();
-            if (!fs.existsSync(path)) {
-                return path;
+            var tempPath = tempFile();
+            if (!fs.existsSync(tempPath)) {
+                return tempPath;
             }
         }
     }
 
-    function _pathForUUID(uuid) {
+    _pathForUUID(uuid) {
         return path.join(this._directory, uuid.toString());
     }
 
@@ -38,7 +40,7 @@ class StorageHandler {
      *
      * @param uuid
      */
-    function has(uuid) {
+    has(uuid) {
         var deferred = Q.defer();
         var uuidPath = this._pathForUUID(uuid);
         fs.exists(uuidPath, deferred.resolve);
@@ -62,18 +64,16 @@ class StorageHandler {
      * @return The uuid of the data passed.
      * @returns {Promise.<String>}
      */
-    function add(fileReadStream) {
+    add(fileReadStream) {
         var self = this;
         var sha256 = crypto.createHash('sha256');
         var deferred = Q.defer();
         var tempName = self._temporaryName;
-        var writeStream = fs.createWriteStream(tempName, {
-            encoding: 'utf-8'
-        });
+        var writeStream = fs.createWriteStream(tempName);
 
         fileReadStream.on('data', function(data) {
             sha256.update(data);
-            fs.writeSync(writeStream, data);
+            writeStream.write(data);
         });
         fileReadStream.on('end', function() {
             deferred.resolve();
@@ -82,9 +82,10 @@ class StorageHandler {
         return deferred.promise.then(function() {
             var hexSha256 = sha256.digest('hex');
             return new Q.Promise(function(resolve) {
-                fs.close(writeStream, resolve);
-                return hexSha256;
-            })
+                writeStream.end(function() {
+                    resolve(hexSha256);
+                });
+            });
         }).then(function(uuid) {
             return new Q.Promise(function(resolve) {
                 fs.rename(tempName, self._pathForUUID(uuid), function() {

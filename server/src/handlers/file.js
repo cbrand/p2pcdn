@@ -18,7 +18,7 @@ class FileHandler {
      * @param uuid
      * @returns {Promise.<Boolean>}
      */
-    function has(uuid) {
+    has(uuid) {
         return db.File.count({
             where: {
                 uuid: uuid
@@ -39,7 +39,7 @@ class FileHandler {
      *  mime type can be set with mimeType.
      * @returns {Promise.<Boolean>}
      */
-    function add(fileName, fileReadStream, options) {
+    add(fileName, fileReadStream, options) {
         var self = this;
         options = options || {};
         if (!options.mimeType) {
@@ -48,7 +48,7 @@ class FileHandler {
                 'application/octet-stream');
         }
 
-        self.storage.add(fileReadStream).then(function(uuid) {
+        return self.storage.add(fileReadStream).then(function(uuid) {
             return db.File.create({
                 uuid: uuid,
                 fileName: fileName,
@@ -64,9 +64,11 @@ class FileHandler {
      * @param uuid
      * @returns {Promise.<File>}
      */
-    function get(uuid) {
+    get(uuid) {
         // To Be done
     }
 
 
 }
+
+export default FileHandler;

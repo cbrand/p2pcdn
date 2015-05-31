@@ -40,7 +40,7 @@ var initDB = function(databaseConfig) {
  * @param sequelize
  */
 var defineTables = function(sequelize) {
-    db.File = sequelize.define('file', {
+    exports.File = db.File = sequelize.define('file', {
         uuid: {
             primaryKey: true,
             type: Sequelize.STRING,
@@ -51,7 +51,7 @@ var defineTables = function(sequelize) {
             field: 'file_name'
         },
         mimeType: {
-            type: Sequelize.String,
+            type: Sequelize.STRING,
             field: 'mime_type',
             defaultValue: 'application/octet-stream'
         }
