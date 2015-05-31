@@ -27,6 +27,7 @@
     "less": "~2.5.1",
     "mocha": "^2.2.4",
     "mockery": "~1.4.0",
+    "node-argument-parser": "^0.1.0",
     "normalize.css": "3.0.3",
     "q": "~1.4.1",
     "run-sequence": "^1.0.2",

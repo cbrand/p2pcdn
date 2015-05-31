@@ -1,0 +1,15 @@
+{
+    "arguments" : [
+        {
+            "full" : "config",
+            "short" : "c",
+            "value" : true,
+            "description" : "Configuration file to parse",
+            "default": "config.ini"
+        }
+    ],
+    "defaults" : {
+        "help" : true,
+        "helpExtras" : ""
+    }
+}

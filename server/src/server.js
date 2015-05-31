@@ -4,12 +4,20 @@
  */
 
 var httpServer = require('./http/server');
+var argumentParser = require("node-argument-parser");
+var path = require('path');
 
-var server = httpServer.app.listen(3000, function () {
+var argumentsPath = path.resolve(__dirname, 'arguments.json');
+var argv = argumentParser.parse(argumentsPath, process);
+var console = require('console');
 
-    var host = server.address().address;
-    var port = server.address().port;
+if(!argv.help) {
+    var server = httpServer.app.listen(3000, function () {
 
-    console.log('p2p cdn http://%s:%s', host, port);
+        var host = server.address().address;
+        var port = server.address().port;
 
-});
+        console.log('p2p cdn http://%s:%s', host, port);
+
+    });
+}
