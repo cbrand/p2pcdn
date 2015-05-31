@@ -6,6 +6,16 @@
             "value" : true,
             "description" : "Configuration file to parse",
             "default": "config.ini"
+        },
+        {
+            "full": "init-db",
+            "description": "Initializes the database",
+            "default": false
+        },
+        {
+            "full": "run-server",
+            "description": "Starts the server",
+            "default": false
         }
     ],
     "defaults" : {

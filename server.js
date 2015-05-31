@@ -3,3 +3,5 @@
  */
 
 var server = require('./server/dist/server');
+
+server.main();
