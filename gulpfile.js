@@ -2,7 +2,7 @@ var fs = require('fs');
 var path = require('path');
 
 var gulp = require('gulp');
-var jasmine = require('gulp-jasmine');
+var jasmineRunner = require('gulp-jasmine');
 var istanbul = require('gulp-istanbul');
 var reporters = require('jasmine-reporters');
 var babel = require('gulp-babel');
@@ -178,7 +178,9 @@ gulp.task('lint:js', function () {
     return gulp.src([
         'gulpfile.js',
         dirs.src + '/js/*.js',
-        dirs.test + '/*.js'
+        dirs.test + '/*.js',
+        dirs.serverSrc + '/**/*.js',
+        dirs.serverSpec + '/**/*.js'
     ]).pipe(plugins.jscs())
       .pipe(plugins.jshint())
       .pipe(plugins.jshint.reporter('jshint-stylish'))
@@ -207,7 +209,7 @@ gulp.task('compile:server', function() {
 
 gulp.task('jasmine:run:console', function() {
     return gulp.src(dirs.serverSpec + '/**/*Spec.js')
-                .pipe(jasmine({
+                .pipe(jasmineRunner({
                     reporter: new reporters.TapReporter()
                 }));
 });
@@ -218,7 +220,7 @@ gulp.task('jasmine:run:junit', function(done) {
         .pipe(istanbul.hookRequire())
         .on('finish', function() {
             return gulp.src(dirs.serverSpec + '/**/*.js')
-                .pipe(jasmine({
+                .pipe(jasmineRunner({
                     reporter: new reporters.JUnitXmlReporter({
                         savePath:'testresults',
                         filePrefix: 'junit'
@@ -251,7 +253,7 @@ gulp.task('jasmine:coverage', function(done) {
         .pipe(istanbul.hookRequire())
         .on('finish', function() {
             gulp.src(dirs.serverSpec + '**/*.js')
-                .pipe(jasmine({
+                .pipe(jasmineRunner({
                     reporter: new reporters.TapReporter()
                 }))
                 .pipe(istanbul.writeReports())

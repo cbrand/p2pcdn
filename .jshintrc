@@ -27,6 +27,7 @@
 
     "browser": true,
     "jquery": true,
-    "node": true
+    "node": true,
+    "jasmine": true
 
 }

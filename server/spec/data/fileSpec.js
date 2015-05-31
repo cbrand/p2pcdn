@@ -1,10 +1,9 @@
 
-var fs = require('fs'),
-    file = require('../../dist/data/file.js'),
-    constants = require('../../dist/constants.js'),
-    temp = require('temp'),
-    mockery = require('mockery')
-;
+var fs = require('fs');
+var file = require('../../dist/data/file.js');
+var constants = require('../../dist/constants.js');
+var temp = require('temp');
+var mockery = require('mockery');
 
 describe('file.File', function() {
     var testDir;
@@ -13,7 +12,7 @@ describe('file.File', function() {
         temp.track();
         testDir = temp.mkdir('filetest', function(err, dirPath) {
             testDir = dirPath;
-            if(err) {
+            if (err) {
                 cb(err);
             }
             cb();
@@ -25,12 +24,14 @@ describe('file.File', function() {
     });
 
     it('should throw an error if the constructor is initialized without new', function() {
-        expect(function() {file.File(testDir)}).toThrow();
+        expect(function() {
+            file.File(testDir);
+        }).toThrow();
     });
 
     describe('when no file is present', function() {
-        var f,
-            fName;
+        var f;
+        var fName;
 
         beforeEach(function () {
             fName = testDir + '/test.txt';
@@ -40,7 +41,7 @@ describe('file.File', function() {
 
         it('should throw an error', function () {
             expect(function () {
-                f.numChunks
+                return f.numChunks;
             }).toThrow();
         });
     });
@@ -53,19 +54,21 @@ describe('file.File', function() {
         });
 
         it('should throw an error if a directory exists on the given file location', function() {
-            expect(function() {f.numChunks}).toThrow();
+            expect(function() {
+                return f.numChunks;
+            }).toThrow();
         });
 
     });
 
     describe('when file is present', function() {
-        var f,
-            fName,
-            chunks,
-            createChunk = function(character, chunkSize) {
+        var f;
+        var fName;
+        var chunks;
+        var createChunk = function(character, chunkSize) {
                 chunkSize = chunkSize || constants.CHUNK_SIZE;
-                var chunk = "";
-                for(var chunkIndex = 0; chunkIndex < chunkSize; chunkIndex++) {
+                var chunk = '';
+                for (var chunkIndex = 0; chunkIndex < chunkSize; chunkIndex++) {
                     chunk += String(character);
                 }
                 return chunk;
@@ -75,7 +78,7 @@ describe('file.File', function() {
             fName = testDir + '/test.txt';
             chunks = [];
 
-            for(var i = 0; i < 10; i++) {
+            for (var i = 0; i < 10; i++) {
                 chunks.push(createChunk(i));
             }
 
@@ -92,7 +95,7 @@ describe('file.File', function() {
             it('should return the correct number of chunks when uneven', function() {
                 chunks = [];
                 chunks.push(createChunk('a'));
-                chunks.push(createChunk('b', constants.CHUNK_SIZE-2));
+                chunks.push(createChunk('b', constants.CHUNK_SIZE - 2));
 
                 fs.writeFileSync(fName, chunks.join(''));
                 expect(f.numChunks).toEqual(2);
@@ -103,31 +106,35 @@ describe('file.File', function() {
         describe('chunks', function() {
 
             it('should throw an error if a too high chunk number is passed', function() {
-                expect(function() {f.chunk(11)}).toThrow();
+                expect(function() {
+                    f.chunk(11);
+                }).toThrow();
             });
 
             it('should throw an error if negative chunk number is passed', function() {
-                expect(function() {f.chunk(-1)}).toThrow();
+                expect(function() {
+                    f.chunk(-1);
+                }).toThrow();
             });
 
             it('should return the correct chunk', function(cb) {
                 f.chunk(1).then(function(data) {
-                    expect(data).toEqual(createChunk("1"));
+                    expect(data).toEqual(createChunk('1'));
                     cb();
                 }, function(err) {
                     cb(err);
                 });
             });
 
-            it('should return data who does not align to chunk sizes', function() {
+            it('should return data who does not align to chunk sizes', function(cb) {
                 chunks = [];
                 chunks.push(createChunk('a'));
-                chunks.push(createChunk('b', constants.CHUNK_SIZE-2));
+                chunks.push(createChunk('b', constants.CHUNK_SIZE - 2));
 
                 fs.writeFileSync(fName, chunks.join(''));
 
                 f.chunk(1).then(function(data) {
-                    expect(data).toEqual(createChunk('b', constants.CHUNK_SIZE-2));
+                    expect(data).toEqual(createChunk('b', constants.CHUNK_SIZE - 2));
                     cb();
                 }, function(err) {
                     cb(err);
@@ -142,21 +149,21 @@ describe('file.File', function() {
 
                     events = {};
                     var fsMock = {
-                        createReadStream: function(path, options) {
+                        createReadStream: function() {
                             return {
                                 on: function(name, func) {
                                     events[name] = events[name] || [];
                                     events[name].push(func);
                                 }
-                            }
+                            };
                         },
                         statSync: function() {
                             return {
-                                size: constants.CHUNK_SIZE*10,
+                                size: constants.CHUNK_SIZE * 10,
                                 isFile: function() {
                                     return true;
                                 }
-                            }
+                            };
                         }
                     };
                     mockery.registerMock('fs', fsMock);
@@ -172,10 +179,10 @@ describe('file.File', function() {
                     f.chunk(0).then(function() {
                         expect('should not').toEqual('be called');
                     }, function(err) {
-                        expect(err.toString()).toEqual('Error: Internal error')
+                        expect(err.toString()).toEqual('Error: Internal error');
                     });
 
-                    events["error"].forEach(function(func) {
+                    events.error.forEach(function(func) {
                         func(new Error('Internal error'));
                     });
                 });
