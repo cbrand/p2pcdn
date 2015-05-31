@@ -10,6 +10,7 @@ var babel = require('gulp-babel');
 var concatCss = require('gulp-concat-css');
 var sourcemaps = require('gulp-sourcemaps');
 var server = require('gulp-express');
+var replace = require('gulp-replace');
 
 // Load all gulp plugins automatically
 // and attach them to the `plugins` object
@@ -203,6 +204,8 @@ gulp.task('compile:server', function() {
     return gulp.src(dirs.server + '/**/*.js')
             .pipe(sourcemaps.init())
             .pipe(babel())
+            .pipe(replace(/(var _createClass =[^\n]*)/, '/* istanbul ignore next */ $1'))
+            .pipe(replace(/(function _classCallCheck\(instance, Constructor\)[^\n]*)/, '/* istanbul ignore next */ $1'))
             .pipe(sourcemaps.write('.'))
             .pipe(gulp.dest(dirs.serverDist));
 });
