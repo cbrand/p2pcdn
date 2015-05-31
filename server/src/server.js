@@ -44,15 +44,17 @@ var main = function() {
 
     var run = false;
     if (argv['init-db']) {
-        commands.init_db(argv);
-        run = true;
+        commands.init_db(argv).then(function() {
+            console.log("Database initialized.");
+        });
+        return;
     }
     if (argv['run-server']) {
         commands.run_server(argv);
-        run = true;
+        return;
     }
 
-    if(!run) {
+    if(!argv.help) {
         console.log("No actions given. Doing nothing.");
     }
 };
