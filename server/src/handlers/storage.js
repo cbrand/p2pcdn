@@ -39,6 +39,7 @@ class StorageHandler {
      * Checks if the given uuid exists in the system.
      *
      * @param uuid
+     * @returns {Promise.<boolean>}
      */
     has(uuid) {
         var deferred = Q.defer();
@@ -46,11 +47,15 @@ class StorageHandler {
         fs.exists(uuidPath, deferred.resolve);
 
         return deferred.promise.then(function(exists) {
-            return Q.Promise(function(resolve) {
+            return Q.Promise(function(resolve, reject) {
                 if(!exists) {
                     resolve(exists);
                 } else {
-                    fs.stat(uuidPath, function(stat) {
+                    fs.stat(uuidPath, function(err, stat) {
+                        if(err) {
+                            reject(err);
+                            return;
+                        }
                         resolve(stat.isFile());
                     });
                 }

@@ -19,13 +19,19 @@ class FileHandler {
      * @returns {Promise.<Boolean>}
      */
     has(uuid) {
+        var self = this;
         return db.File.count({
             where: {
                 uuid: uuid
             }
         }).then(function(uuidExists) {
-            if(uuidExists) {
-                return this.storage.has(uuid);
+            try {
+                if (uuidExists) {
+                    return self.storage.has(uuid);
+                }
+            }
+            catch(err) {
+                require('console').log(err);
             }
             return false;
         });
