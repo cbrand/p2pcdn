@@ -78,7 +78,7 @@ class FileHandler {
         if(dbFile == null) {
             var error = new Error('file does not exist.');
             error.isNotExist = true;
-            return Q.reject(error)
+            return Q.reject(error);
         }
 
         return this.storage.get(dbFile.uuid).then(function(fsFile) {
