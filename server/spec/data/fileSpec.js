@@ -4,6 +4,7 @@ var File = require('../../dist/data/file.js');
 var constants = require('../../dist/constants.js');
 var temp = require('temp');
 var mockery = require('mockery');
+var crypto = require('crypto');
 
 describe('File', function() {
     var testDir;
@@ -185,6 +186,29 @@ describe('File', function() {
                     events.error.forEach(function(func) {
                         func(new Error('Internal error'));
                     });
+                });
+            });
+
+        });
+
+        describe('chunkID', function() {
+
+            var shaHash = function(char, size) {
+                char = char || '0';
+                size = size || constants.CHUNK_SIZE;
+
+                var sha256 = crypto.createHash('sha256');
+                for(var i = 0; i < size; i++) {
+                    sha256.update(char);
+                }
+                return sha256.digest('hex');
+            };
+
+            it('should return the correct hash when requesting the chunk ID', function(done) {
+                var expectedHash = shaHash();
+                f.chunkID(0).then(function(hash) {
+                    expect(hash).toEqual(expectedHash);
+                    done();
                 });
             });
 
