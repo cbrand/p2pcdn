@@ -83,12 +83,15 @@ gulp.task('copy', [
     'copy:material.js',
     'copy:main.css',
     'copy:misc',
-    'copy:normalize',
-    'copy:json'
+    'copy:normalize'
 ]);
 
 gulp.task('concat', [
     'concat:css'
+]);
+
+gulp.task('copy:server', [
+    'copy:server:json'
 ]);
 
 gulp.task('copy:.htaccess', function () {
@@ -176,7 +179,7 @@ gulp.task('copy:normalize', function () {
                .pipe(gulp.dest(dirs.dist + '/css'));
 });
 
-gulp.task('copy:json', function() {
+gulp.task('copy:server:json', function() {
     return gulp.src(dirs.server + '/**/*.json')
                 .pipe(gulp.dest(dirs.serverDist));
 });
@@ -320,6 +323,7 @@ gulp.task('build:client', function (done) {
 gulp.task('build:server', function(done) {
     runSequence(
         'compile:server',
+        'copy:server',
     done);
 });
 
