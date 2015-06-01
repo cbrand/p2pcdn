@@ -2,6 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var temp = require('temp');
 var stream = require('stream');
+var Q = require('q');
 
 var helpers = require('../helpers');
 
@@ -61,10 +62,10 @@ describe ('FileHandler', function() {
         });
     });
 
-    var addData = function(options) {
+    var addData = function(options, stream) {
         options = options || {};
         var fileHandler = new FileHandler(config);
-        var stream = sendReadableStream('Testfile', 'More stuff', 'And much more stuff');
+        stream = stream || sendReadableStream('Testfile', 'More stuff', 'And much more stuff');
         return fileHandler.add(options.fileName || 'test2.txt', stream, options);
     };
 
@@ -115,6 +116,17 @@ describe ('FileHandler', function() {
                 done();
             });
         });
+    });
+
+    it('should support to set multiple files at once', function(done) {
+        Q.all([
+            addData({fileName: 'test.txt'}, sendReadableStream("test", "123")),
+            addData({fileName: 'test.txt'}, sendReadableStream("test", "456"))
+        ]).then(function(data) {
+            expect(data[0].fileName).toEqual('test.txt');
+            expect(data[1].fileName).toEqual('test.txt');
+            expect(data[0].uuid).not.toEqual(data[1].uuid);
+        }).then(done);
     });
 
 });
