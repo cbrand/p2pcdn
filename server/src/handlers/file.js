@@ -25,13 +25,8 @@ class FileHandler {
                 uuid: uuid
             }
         }).then(function(uuidExists) {
-            try {
-                if (uuidExists) {
-                    return self.storage.has(uuid);
-                }
-            }
-            catch(err) {
-                require('console').log(err);
+            if (uuidExists) {
+                return self.storage.has(uuid);
             }
             return false;
         });
