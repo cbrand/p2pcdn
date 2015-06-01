@@ -1,6 +1,7 @@
 
 var constants = require('../constants');
 var q = require('q');
+var crypto = require('crypto');
 
 class File {
     constructor(path) {
@@ -69,6 +70,19 @@ class File {
         });
 
         return deferred.promise;
+    }
+
+    /**
+     * Returns the id (verification code) for the given chunk.
+     * @param {number} num
+     * @returns {Promise.<String>} will resolved as soon as the data is available.
+     */
+    chunkID(num) {
+        return this.chunk(num).then(function(chunkValue) {
+            var sha256 = crypto.createHash('sha256');
+            sha256.update(chunkValue);
+            return sha256.digest('hex');
+        });
     }
 
     /**

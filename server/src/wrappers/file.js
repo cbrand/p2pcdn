@@ -17,6 +17,7 @@ class File {
         var fsFile = this.fsFile;
         this.chunk = fsFile.chunk.bind(fsFile);
         this.chunkStream = fsFile.chunkStream.bind(fsFile);
+        this.chunkID = fsFile.chunkID.bind(fsFile);
         this.stream = fsFile.stream.bind(fsFile);
     }
 
