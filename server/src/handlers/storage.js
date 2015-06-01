@@ -52,6 +52,7 @@ class StorageHandler {
                     resolve(exists);
                 } else {
                     fs.stat(uuidPath, function(err, stat) {
+                        /* istanbul ignore if: no fs mock */
                         if(err) {
                             reject(err);
                             return;
