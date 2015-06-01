@@ -44,8 +44,8 @@ describe ('FileHandler', function() {
         s._read = function noop() {};
         var args = arguments;
         setImmediate(function() {
-            for(var argument in args) {
-                s.push(argument);
+            for(var i = 0; i < args.length; i++) {
+                s.push(args[i]);
             }
             s.push(null);
         });
@@ -110,10 +110,11 @@ describe ('FileHandler', function() {
     it('should have the correct file contents', function(done) {
         addData({fileName: 'test.pdf', mimeType: 'text/plain'}).then(function(obj) {
             var uuidPath = path.join(fileDirectory, obj.uuid);
-            fs.readFile(uuidPath, function(data) {
-                expect(data).toEqual('TestfileMore StuffAnd much more stuff');
+            fs.readFile(uuidPath, {encoding: 'utf-8'}, function(_, data) {
+                expect(data).toEqual('TestfileMore stuffAnd much more stuff');
+                done();
             });
-        }).then(done);
+        });
     });
 
 });
