@@ -64,7 +64,9 @@ describe ('FileHandler', function() {
         it('should be able to add a file', function(done) {
             var fileHandler = new FileHandler(config);
             var stream = sendReadableStream('Testfile', 'More stuff');
+            require('console').log('RETURNS UUID');
             fileHandler.add('test.txt', stream, null).then(function(obj) {
+                require('console').log('RETURNS UUID');
                 expect(obj).not.toBeFalsy();
                 done();
             });
@@ -131,15 +133,23 @@ describe ('FileHandler', function() {
         });
     });
 
+    var mangleUUID = function(uuid) {
+        var char = 'b';
+        if(uuid.charAt(uuid.length-1) == 'b') {
+            char = 'a';
+        }
+        return uuid.slice(0, uuid.length - 1) + char;
+    };
+
     describe('has', function() {
         var addedUUID;
         var fileHandler;
-        var dbFile;
+        var wrapperFile;
 
         beforeEach(function(done) {
             fileHandler = new FileHandler(config);
             addData({ fileName: 'test.pdf' }, sendReadableStream('Hello world')).then(function(model) {
-                dbFile = model;
+                wrapperFile = model;
                 addedUUID = model.uuid;
             }).then(done);
         });
@@ -151,13 +161,13 @@ describe ('FileHandler', function() {
         });
 
         it('should return false if the uuid does not exist', function(done) {
-            fileHandler.has(addedUUID.slice(0, addedUUID.length - 1) + 'b').then(function(hasUUID) {
+            fileHandler.has(mangleUUID(addedUUID)).then(function(hasUUID) {
                 expect(hasUUID).toBeFalsy();
             }).then(done);
         });
 
         it('should return false if the uuid has been removed', function(done) {
-            dbFile.destroy().then(function() {
+            wrapperFile.dbFile.destroy().then(function() {
                 return fileHandler.has(addedUUID);
             }).then(function(hasUUID) {
                 expect(hasUUID).toBeFalsy();
@@ -173,6 +183,32 @@ describe ('FileHandler', function() {
                 }).then(done);
         });
 
+    });
+
+    describe('get', function() {
+        var addedUUID;
+        var fileHandler;
+
+        beforeEach(function(done) {
+            fileHandler = new FileHandler(config);
+            addData({ fileName: 'test.pdf' }, sendReadableStream('Hello world')).then(function(model) {
+                addedUUID = model.uuid;
+            }).then(done);
+        });
+
+        it('should return the file', function(done) {
+            fileHandler.get(addedUUID).then(function(model) {
+                expect(model.uuid).toEqual(addedUUID);
+                done();
+            });
+        });
+
+        it('should return an error if the file could not be found', function(done) {
+            fileHandler.get(mangleUUID(addedUUID)).catch(function(err) {
+                expect(err).toBeDefined();
+                done();
+            });
+        });
     });
 
 });
