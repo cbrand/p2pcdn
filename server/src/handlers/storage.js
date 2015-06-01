@@ -6,6 +6,8 @@ var path = require('path');
 var crypto = require('crypto');
 var Q = require('q');
 
+var File = require('../data/file');
+
 class StorageHandler {
     constructor(config) {
         this.config = config;
@@ -100,6 +102,15 @@ class StorageHandler {
             });
         });
 
+    }
+
+    /**
+     * Returns the file preinitialized with the given uuid.
+     * @param {String} uuid
+     * @returns {Promise.<File>}
+     */
+    get(uuid) {
+        return Q.resolve(new File(this._pathForUUID(uuid)));
     }
 }
 

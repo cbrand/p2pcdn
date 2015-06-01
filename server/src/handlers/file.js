@@ -5,6 +5,7 @@ var mime = require('mime');
 
 var db = require('../db');
 var StorageHandler = require('./storage');
+var File = require('../wrappers/file');
 
 class FileHandler {
     constructor(config) {
@@ -38,7 +39,7 @@ class FileHandler {
      * @param {fs.ReadStream} fileReadStream the read stream
      * @param {object} options Additional options to add. At the moment the
      *  mime type can be set with mimeType.
-     * @returns {Promise.<Boolean>}
+     * @returns {Promise.<File>}
      */
     add(fileName, fileReadStream, options) {
         var self = this;
@@ -55,7 +56,7 @@ class FileHandler {
                 fileName: fileName,
                 mimeType: options.mimeType
             });
-        });
+        }).then(self._getFromDbFile.bind(self));
     }
 
     /**
@@ -66,9 +67,22 @@ class FileHandler {
      * @returns {Promise.<File>}
      */
     get(uuid) {
-        // To Be done
+        return db.File.findOne({
+            where: {
+                uuid: uuid
+            }
+        }).then(this._getFromDbFile.bind(this));
     }
 
+    _getFromDbFile(dbFile) {
+        if(dbFile == null) {
+            return Q.reject(new Sequelize.Error('file does not exist.'))
+        }
+
+        return this.storage.get(dbFile.uuid).then(function(fsFile) {
+            return new File(dbFile, fsFile);
+        });
+    }
 
 }
 
