@@ -12,6 +12,7 @@ var db = {};
  */
 var initDB = function(databaseConfig) {
     var sequelize;
+    /* istanbul ignore else: MySQL not tested. */
     if(databaseConfig.type == 'sqlite') {
         sequelize = new Sequelize('database', 'user', 'password',
             {
