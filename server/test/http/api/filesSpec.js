@@ -196,6 +196,38 @@ describe('http', function() {
                 });
 
             });
+
+            describe('/download', function() {
+                describe('GET', function() {
+                    var getDownload = function(chunk) {
+                        return request(app)
+                            .get(chunkURL(chunk) + '/download');
+                    };
+
+                    it('should set the correct headers', function(done) {
+                        getDownload(0)
+                            .expect(HttpStatus.OK)
+                            .end(function(err, res) {
+                                should(err).be.null;
+
+                                res.header['content-type'].should.equal('application/octet-stream');
+
+                                done();
+                            });
+
+                    });
+
+                    it('should return not found if the chunk id is too high', function(done) {
+                        getDownload(model.numChunks)
+                            .expect(HttpStatus.NOT_FOUND)
+                            .end(function(err) {
+                                should(err).be.null;
+                                done();
+                            });
+                    });
+                })
+            });
+
         });
 
     });
