@@ -23,8 +23,8 @@ filesApi.param('fileUUID', function(req, res, next, uuid) {
     });
 });
 
-filesApi.param('chunk', function(req, res, next, uuid) {
-    var chunkNumber = Number(req.param.chunk);
+filesApi.param('chunk', function(req, res, next, chunk) {
+    var chunkNumber = Number(chunk);
     if(isNaN(chunkNumber)) {
         res.status(HttpStatus.BAD_REQUEST).send({
             error: 'Chunk must be a number'
@@ -59,7 +59,7 @@ filesApi.get('/:fileUUID/chunks/:chunk', function(req, res) {
     file.chunkID(req.chunk).then(function(chunkID) {
         res.status(HttpStatus.OK).send({
             uuid: chunkID
-        })
+        });
     });
 });
 
