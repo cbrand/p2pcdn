@@ -17,7 +17,8 @@ var initDB = function(databaseConfig) {
         sequelize = new Sequelize('database', 'user', 'password',
             {
                 storage: databaseConfig.path,
-                dialect: 'sqlite'
+                dialect: 'sqlite',
+                logging: null
             }
         );
     /* istanbul ignore next: MySQL not tested. */
