@@ -89,6 +89,63 @@ describe('http', function() {
             });
         });
 
+        describe('/chunks/:chunk', function() {
+
+            var chunkURL = function(chunk) {
+                return '/api/files/' + addedUUID + '/chunks/' + chunk;
+            };
+
+            it('should return the correct chunk information', function(done) {
+                request(app)
+                    .get(chunkURL(0))
+                    .set('Accept', 'application/json')
+                    .expect(HttpStatus.OK)
+                    .end(function(err, res) {
+                        expect(err).toBeNull();
+
+                        var json = res.body;
+
+                        model.chunkID(0).then(function(expectedChunkID) {
+                            expect(json.uuid).toEqual(expectedChunkID);
+                            done();
+                        });
+                    });
+            });
+
+            it('should return a not found if a chunk with a index under 0 is given', function(done) {
+                request(app)
+                    .get(chunkURL(-1))
+                    .set('Accept', 'application/json')
+                    .expect(HttpStatus.NOT_FOUND)
+                    .end(function(err) {
+                        expect(err).toBeNull();
+                        done();
+                    });
+            });
+
+            it('should return a not found if a chunk with a index over the available one is given', function(done) {
+                request(app)
+                    .get(chunkURL(model.numChunks))
+                    .set('Accept', 'application/json')
+                    .expect(HttpStatus.NOT_FOUND)
+                    .end(function(err) {
+                        expect(err).toBeNull();
+                        done();
+                    });
+            });
+
+            it('should return a bad request if a chunk which can\'t be converted into a number is given', function(done) {
+                request(app)
+                    .get(chunkURL("NO_NUMBER"))
+                    .set('Accept', 'application/json')
+                    .expect(HttpStatus.BAD_REQUEST)
+                    .end(function(err) {
+                        expect(err).toBeNull();
+                        done();
+                    });
+            });
+        });
+
     });
 
 });
