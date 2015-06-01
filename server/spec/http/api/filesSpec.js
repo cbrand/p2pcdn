@@ -5,7 +5,7 @@ var temp = require('temp');
 var request = require('supertest');
 var bodyParser = require('body-parser');
 var HttpStatus = require('http-status-codes');
-var helpers = require('../helpers');
+var helpers = require('../../helpers');
 
 var server = helpers.require('http/server');
 var Config = helpers.require('config');
