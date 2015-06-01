@@ -55,7 +55,9 @@ filesApi.get('/:fileUUID', function(req, res) {
 filesApi.get('/:fileUUID/download', function(req, res) {
     var file = req.file;
     res.status(HttpStatus.OK)
-        .attachment(file.fileName);
+        .attachment(file.fileName)
+        .set('ETag', file.uuid)
+        .set('Cache-Control', 'public, max-age=31557600'); // cache per default for one year.
     file.stream().pipe(res);
 });
 
@@ -67,6 +69,16 @@ filesApi.get('/:fileUUID/chunks/:chunk', function(req, res) {
             uuid: chunkID
         });
     });
+});
+
+filesApi.get('/:fileUUID/chunks/:chunk/download', function(req, res) {
+    var file = req.file;
+
+    res.status(HttpStatus.OK)
+        .set('Content-Type', 'application/octet-stream')
+        .set('ETag', file.uuid + '/' + req.chunk)
+        .set('Cache-Control', 'public, max-age=31557600'); // cache per default for one year.
+    file.chunkStream(req.chunk).pipe(res);
 });
 
 export default filesApi;
