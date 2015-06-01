@@ -22,11 +22,9 @@ describe('database', function() {
         temp.cleanupSync();
     });
 
-    it('should be able to initialize the database', function(cb) {
+    it('should be able to initialize the database', function() {
         db.init(config);
-        db.sync().then(function() {
-            cb();
-        });
+        return db.sync();
     });
 
 });

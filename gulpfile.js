@@ -2,15 +2,14 @@ var fs = require('fs');
 var path = require('path');
 
 var gulp = require('gulp');
-var jasmineRunner = require('gulp-jasmine');
 var istanbul = require('gulp-istanbul');
-var reporters = require('jasmine-reporters');
 var babel = require('gulp-babel');
 // var less = require('gulp-less');
 var concatCss = require('gulp-concat-css');
 var sourcemaps = require('gulp-sourcemaps');
 var server = require('gulp-express');
 var replace = require('gulp-replace');
+var mocha = require('gulp-mocha');
 
 // Load all gulp plugins automatically
 // and attach them to the `plugins` object
@@ -189,7 +188,7 @@ gulp.task('lint:js', function () {
         'gulpfile.js',
         dirs.src + '/js/*.js',
         dirs.test + '/*.js',
-        dirs.serverSpec + '/**/*.js'
+        dirs.serverTest + '/**/*.js'
     ]).pipe(plugins.jscs())
       .pipe(plugins.jshint())
       .pipe(plugins.jshint.reporter('jshint-stylish'))
@@ -218,24 +217,22 @@ gulp.task('compile:server', function() {
             .pipe(gulp.dest(dirs.serverDist));
 });
 
-gulp.task('jasmine:run:console', function() {
-    return gulp.src(dirs.serverSpec + '/**/*Spec.js')
-                .pipe(jasmineRunner({
-                    reporter: new reporters.TapReporter()
-                }));
+gulp.task('mocha:run:console', function() {
+    return gulp.src(dirs.serverTest + '/**/*Spec.js')
+                .pipe(mocha());
 });
 
-gulp.task('jasmine:run:junit', function(done) {
+gulp.task('mocha:run:junit', function(done) {
     gulp.src([dirs.serverDist + '/**/*.js'])
         .pipe(istanbul())
         .pipe(istanbul.hookRequire())
         .on('finish', function() {
-            return gulp.src(dirs.serverSpec + '/**/*.js')
-                .pipe(jasmineRunner({
-                    reporter: new reporters.JUnitXmlReporter({
-                        savePath:'testresults',
-                        filePrefix: 'junit'
-                    })
+            return gulp.src(dirs.serverTest + '/**/*.js')
+                .pipe(mocha({
+                    reporter: 'mocha-junit-reporter',
+                    reporterOptions: {
+                        mochaFile: 'testresults/junit.xml'
+                    }
                 }))
                 .pipe(istanbul.writeReports({
                     reporters: ['lcov', 'json', 'text', 'text-summary', 'cobertura', 'html']
@@ -244,29 +241,27 @@ gulp.task('jasmine:run:junit', function(done) {
         });
 });
 
-gulp.task('jasmine:junit', function(done) {
+gulp.task('mocha:junit', function(done) {
     runSequence(
-        'compile:server',
-        'jasmine:run:junit',
+        'build:server',
+        'mocha:run:junit',
     done);
 });
 
-gulp.task('jasmine:console', function(done) {
+gulp.task('mocha:console', function(done) {
     runSequence(
-        'compile:server',
-        'jasmine:run:console',
+        'build:server',
+        'mocha:run:console',
     done);
 });
 
-gulp.task('jasmine:coverage', function(done) {
+gulp.task('mocha:coverage', function(done) {
     gulp.src([dirs.serverDist + '/**/*.js'])
         .pipe(istanbul())
         .pipe(istanbul.hookRequire())
         .on('finish', function() {
-            gulp.src(dirs.serverSpec + '**/*.js')
-                .pipe(jasmineRunner({
-                    reporter: new reporters.TapReporter()
-                }))
+            gulp.src(dirs.serverTest + '**/*.js')
+                .pipe(mocha())
                 .pipe(istanbul.writeReports())
                 .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 }}))
                 .on('end', done)

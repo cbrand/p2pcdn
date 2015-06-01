@@ -5,6 +5,7 @@ var constants = require('../../dist/constants.js');
 var temp = require('temp');
 var mockery = require('mockery');
 var crypto = require('crypto');
+var should = require('should');
 
 describe('File', function() {
     var testDir;
@@ -25,9 +26,9 @@ describe('File', function() {
     });
 
     it('should throw an error if the constructor is initialized without new', function() {
-        expect(function() {
+        (function() {
             File(testDir);
-        }).toThrow();
+        }).should.throw();
     });
 
     describe('when no file is present', function() {
@@ -41,9 +42,9 @@ describe('File', function() {
 
 
         it('should throw an error', function () {
-            expect(function () {
+            (function () {
                 return f.numChunks;
-            }).toThrow();
+            }).should.throw();
         });
     });
 
@@ -55,9 +56,9 @@ describe('File', function() {
         });
 
         it('should throw an error if a directory exists on the given file location', function() {
-            expect(function() {
+            (function() {
                 return f.numChunks;
-            }).toThrow();
+            }).should.throw();
         });
 
     });
@@ -90,7 +91,7 @@ describe('File', function() {
         describe('numChunks', function() {
 
             it('should return the correct number of chunks', function() {
-                expect(f.numChunks).toEqual(10);
+                f.numChunks.should.equal(10);
             });
 
             it('should return the correct number of chunks when uneven', function() {
@@ -99,7 +100,7 @@ describe('File', function() {
                 chunks.push(createChunk('b', constants.CHUNK_SIZE - 2));
 
                 fs.writeFileSync(fName, chunks.join(''));
-                expect(f.numChunks).toEqual(2);
+                f.numChunks.should.equal(2);
             });
 
         });
@@ -107,38 +108,32 @@ describe('File', function() {
         describe('chunks', function() {
 
             it('should throw an error if a too high chunk number is passed', function() {
-                expect(function() {
+                (function() {
                     f.chunk(11);
-                }).toThrow();
+                }).should.throw();
             });
 
             it('should throw an error if negative chunk number is passed', function() {
-                expect(function() {
+                (function() {
                     f.chunk(-1);
-                }).toThrow();
+                }).should.throw();
             });
 
-            it('should return the correct chunk', function(cb) {
-                f.chunk(1).then(function(data) {
-                    expect(data).toEqual(createChunk('1'));
-                    cb();
-                }, function(err) {
-                    cb(err);
+            it('should return the correct chunk', function() {
+                return f.chunk(1).then(function(data) {
+                    data.should.equal(createChunk('1'));
                 });
             });
 
-            it('should return data who does not align to chunk sizes', function(cb) {
+            it('should return data who does not align to chunk sizes', function() {
                 chunks = [];
                 chunks.push(createChunk('a'));
                 chunks.push(createChunk('b', constants.CHUNK_SIZE - 2));
 
                 fs.writeFileSync(fName, chunks.join(''));
 
-                f.chunk(1).then(function(data) {
-                    expect(data).toEqual(createChunk('b', constants.CHUNK_SIZE - 2));
-                    cb();
-                }, function(err) {
-                    cb(err);
+                return f.chunk(1).then(function(data) {
+                    data.should.equal(createChunk('b', constants.CHUNK_SIZE - 2));
                 });
             });
 
@@ -178,9 +173,9 @@ describe('File', function() {
 
                 it('should notify with an error', function() {
                     f.chunk(0).then(function() {
-                        expect('should not').toEqual('be called');
+                        throw new Error("Should not be called");
                     }, function(err) {
-                        expect(err.toString()).toEqual('Error: Internal error');
+                        err.toString().should.equal('Error: Internal error');
                     });
 
                     events.error.forEach(function(func) {
@@ -204,11 +199,10 @@ describe('File', function() {
                 return sha256.digest('hex');
             };
 
-            it('should return the correct hash when requesting the chunk ID', function(done) {
+            it('should return the correct hash when requesting the chunk ID', function() {
                 var expectedHash = shaHash();
-                f.chunkID(0).then(function(hash) {
-                    expect(hash).toEqual(expectedHash);
-                    done();
+                return f.chunkID(0).then(function(hash) {
+                    hash.should.equal(expectedHash);
                 });
             });
 
@@ -223,7 +217,7 @@ describe('File', function() {
                     data += d;
                 });
                 stream.on('end', function() {
-                    expect(data.length).toBeGreaterThan(0);
+                    data.length.should.be.above(0);
                     done();
                 });
             });

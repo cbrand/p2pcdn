@@ -5,6 +5,7 @@ var temp = require('temp');
 var request = require('supertest');
 var bodyParser = require('body-parser');
 var HttpStatus = require('http-status-codes');
+var should = require('should');
 var helpers = require('../../helpers');
 
 var server = helpers.require('http/server');
@@ -17,7 +18,7 @@ describe('http', function() {
     var config;
     var app;
 
-    beforeEach(function(cb) {
+    beforeEach(function() {
         temp.track();
 
         directory = temp.mkdirSync();
@@ -35,9 +36,9 @@ describe('http', function() {
 
         server.init(config);
         db.init(config.database);
-        db.sync().then(cb);
-
         app = server.app;
+
+        return db.sync();
     });
 
     afterEach(function() {
@@ -49,14 +50,14 @@ describe('http', function() {
         var addedUUID;
         var model;
 
-        beforeEach(function(done) {
+        beforeEach(function() {
             fileHandler = server.app.get('fileHandler');
 
             var stream = helpers.readableStream("Random blob data");
-            fileHandler.add('data.blob', stream).then(function(addedModel) {
+            return fileHandler.add('data.blob', stream).then(function(addedModel) {
                 model = addedModel;
                 addedUUID = addedModel.uuid;
-            }).then(done);
+            });
         });
 
         describe('GET', function() {
@@ -65,13 +66,13 @@ describe('http', function() {
                     .get('/api/files/' + addedUUID)
                     .set('Accept', 'application/json')
                     .end(function(err, res) {
-                        expect(err).toBeNull();
+                        should(err).be.null;
 
                         var json = res.body;
-                        expect(json.uuid).toEqual(addedUUID);
-                        expect(json.fileName).toEqual(model.fileName);
-                        expect(json.mediaType).toEqual(model.mediaType);
-                        expect(json.chunks).toEqual(model.numChunks);
+                        json.uuid.should.equal(addedUUID);
+                        json.fileName.should.equal(model.fileName);
+                        json.mediaType.should.equal(model.mediaType);
+                        json.chunks.should.equal(model.numChunks);
 
                         done();
                     });
@@ -83,7 +84,7 @@ describe('http', function() {
                     .set('Accept', 'application/json')
                     .expect(HttpStatus.NOT_FOUND)
                     .end(function(err) {
-                        expect(err).toBeNull();
+                        should(err).be.null;
                         done();
                     });
             });
@@ -101,12 +102,12 @@ describe('http', function() {
                     .set('Accept', 'application/json')
                     .expect(HttpStatus.OK)
                     .end(function(err, res) {
-                        expect(err).toBeNull();
+                        should(err).be.null;
 
                         var json = res.body;
 
                         model.chunkID(0).then(function(expectedChunkID) {
-                            expect(json.uuid).toEqual(expectedChunkID);
+                            json.uuid.should.equal(expectedChunkID);
                             done();
                         });
                     });
@@ -118,7 +119,7 @@ describe('http', function() {
                     .set('Accept', 'application/json')
                     .expect(HttpStatus.NOT_FOUND)
                     .end(function(err) {
-                        expect(err).toBeNull();
+                        should(err).be.null;
                         done();
                     });
             });
@@ -129,7 +130,7 @@ describe('http', function() {
                     .set('Accept', 'application/json')
                     .expect(HttpStatus.NOT_FOUND)
                     .end(function(err) {
-                        expect(err).toBeNull();
+                        should(err).be.null;
                         done();
                     });
             });
@@ -140,7 +141,7 @@ describe('http', function() {
                     .set('Accept', 'application/json')
                     .expect(HttpStatus.BAD_REQUEST)
                     .end(function(err) {
-                        expect(err).toBeNull();
+                        should(err).be.null;
                         done();
                     });
             });

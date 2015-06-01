@@ -2,6 +2,7 @@ var fs = require('fs');
 var Config = require('../dist/config');
 var ini = require('ini');
 var temp = require('temp');
+var should = require('should');
 
 describe('Config', function() {
 
@@ -36,8 +37,8 @@ describe('Config', function() {
         };
     });
 
-    afterEach(function(cb) {
-        temp.cleanup(cb);
+    afterEach(function(done) {
+        temp.cleanup(done);
     });
 
     it('should be able to parse a config file', function() {
@@ -46,7 +47,7 @@ describe('Config', function() {
 
     it('should return the configured directory for files', function() {
         var config = initConfig();
-        expect(config.fileDirectory).toEqual(tempDir);
+        config.fileDirectory.should.equal(tempDir);
     });
 
     describe('database', function() {
@@ -61,82 +62,82 @@ describe('Config', function() {
         describe('type', function() {
             it('should fallback to sqlite if the type is unknown', function() {
                 exampleConfig.database.type = 'special-sql';
-                expect(getDbConfig().type).toEqual('sqlite');
+                getDbConfig().type.should.equal('sqlite');
             });
         });
 
         describe('user', function() {
             it('should return if it is a network db', function() {
-                expect(getDbConfig().user).toEqual('root');
+                getDbConfig().user.should.equal('root');
             });
 
             it('should nil if it is not a string', function() {
                 exampleConfig.database.user = {};
-                expect(getDbConfig().user).toBeNull();
+                should.not.exist(getDbConfig().user);
             });
 
             it('should return nil if it is not a network database', function() {
                 setSqlite();
-                expect(getDbConfig().user).toBeNull();
+                should.not.exist(getDbConfig().user);
             });
         });
 
         describe('password', function() {
             it('should return if it is a network db', function() {
-                expect(getDbConfig().password).toEqual('secret');
+                getDbConfig().password.should.equal('secret');
             });
 
             it('should nil if it is not a string', function() {
                 exampleConfig.database.password = {};
-                expect(getDbConfig().password).toBeNull();
+                should.not.exist(getDbConfig().password);
             });
 
             it('should return nil if it is not a network database', function() {
                 setSqlite();
-                expect(getDbConfig().password).toBeNull();
+                should.not.exist(getDbConfig().password);
             });
         });
 
         describe('host', function() {
             it('should return if it is a network db', function() {
-                expect(getDbConfig().host).toEqual('localhost');
+                getDbConfig().host.should.equal('localhost');
             });
 
             it('should nil if it is not a string', function() {
                 exampleConfig.database.host = {};
-                expect(getDbConfig().host).toBeNull();
+                should.not.exist(getDbConfig().host);
             });
 
             it('should return nil if it is not a network database', function() {
                 setSqlite();
-                expect(getDbConfig().host).toBeNull();
+                should.not.exist(getDbConfig().host);
             });
         });
 
         describe('port', function() {
             it('should return if it is a network db', function() {
-                expect(getDbConfig().port).toEqual(3307);
+                getDbConfig().port.should.equal(3307);
             });
 
             it('should return the default value if nothing is passed', function() {
                 exampleConfig.database.port = '';
-                expect(getDbConfig().port).toEqual(3306);
+                getDbConfig().port.should.equal(3306);
             });
 
             it('should return nil if it is not a network database', function() {
                 setSqlite();
-                expect(getDbConfig().port).toBeNull();
+                should.not.exist(getDbConfig().port);
             });
         });
 
         describe('path', function() {
             it('should return null if it is a network database', function() {
-                expect(getDbConfig().path).toBeNull();
+                should.not.exist(getDbConfig().path);
             });
 
             it('should return the default path is none is provided but it is a non network database', function() {
                 setSqlite();
-                expect(getDbConfig().path).toEqual('p2p-cdn.db');
+                getDbConfig().path.should.equal('p2p-cdn.db');
             });
 
             it('should return the path if one is set and it is a sqlite database', function() {
@@ -144,7 +145,7 @@ describe('Config', function() {
                 var sqlitePath = temp.path();
                 exampleConfig.database.path = sqlitePath;
 
-                expect(getDbConfig().path).toEqual(sqlitePath);
+                getDbConfig().path.should.equal(sqlitePath);
             });
         });
 
@@ -156,7 +157,7 @@ describe('Config', function() {
             });
 
             it ('should return an empty file directory', function() {
-                expect(config.fileDirectory).toBeNull();
+                should.not.exist(config.fileDirectory);
             });
 
             describe('database', function() {
@@ -166,15 +167,15 @@ describe('Config', function() {
                 };
 
                 it('should fallback to sqlite as a default entry', function() {
-                    expect(getDatabase().type).toEqual('sqlite');
+                    getDatabase().type.should.equal('sqlite');
                 });
 
                 it('should return an empty user', function() {
-                    expect(getDatabase().user).toBeNull();
+                    should.not.exist(getDatabase().user);
                 });
 
                 it('should return an empty password', function() {
-                    expect(getDatabase().password).toBeNull();
+                    should.not.exist(getDatabase().password);
                 });
 
             });
