@@ -41,6 +41,9 @@ class File {
     get mimeType() {
         return this.dbFile.mimeType;
     }
+    get mediaType() {
+        return this.mimeType;
+    }
 
     /**
      * @returns {Number}
