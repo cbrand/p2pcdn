@@ -3,7 +3,7 @@ var HttpStatus = require('http-status-codes');
 
 var api = express.Router();
 
-api.get('/file/:uuid', function(req, res) {
+api.get('/files/:uuid', function(req, res) {
     var fileHandler = req.app.get('fileHandler');
 
     fileHandler.get(req.params.uuid).then(function(file) {
