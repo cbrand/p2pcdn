@@ -19,7 +19,7 @@ var initDB = function(databaseConfig) {
                 dialect: 'sqlite'
             }
         );
-    /* istanbul ignore else: MySQL not tested. */
+    /* istanbul ignore next: MySQL not tested. */
     } else if (databaseConfig.type == 'mysql') {
         sequelize = new Sequelize(
             databaseConfig.database,
