@@ -52,6 +52,13 @@ filesApi.get('/:fileUUID', function(req, res) {
     });
 });
 
+filesApi.get('/:fileUUID/download', function(req, res) {
+    var file = req.file;
+    res.status(HttpStatus.OK)
+        .attachment(file.fileName);
+    file.stream().pipe(res);
+});
+
 filesApi.get('/:fileUUID/chunks/:chunk', function(req, res) {
     var file = req.file;
 
