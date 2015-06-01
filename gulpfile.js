@@ -186,7 +186,6 @@ gulp.task('lint:js', function () {
         'gulpfile.js',
         dirs.src + '/js/*.js',
         dirs.test + '/*.js',
-        //dirs.server + '/**/*.js',
         dirs.serverSpec + '/**/*.js'
     ]).pipe(plugins.jscs())
       .pipe(plugins.jshint())

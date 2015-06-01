@@ -1,9 +1,7 @@
-
 var fs = require('fs');
 var Config = require('../dist/config');
 var ini = require('ini');
 var temp = require('temp');
-var mockery = require('mockery');
 
 describe('Config', function() {
 
@@ -11,7 +9,7 @@ describe('Config', function() {
     var tempDir;
     var writeConfigToFile = function() {
         exampleConfig = exampleConfig || {};
-        var fd = temp.openSync({'suffix': '.ini'});
+        var fd = temp.openSync({ 'suffix': '.ini' });
         var data = ini.encode(exampleConfig);
         fs.writeSync(fd.fd, data);
         return fd.path;
@@ -121,7 +119,7 @@ describe('Config', function() {
             });
 
             it('should return the default value if nothing is passed', function() {
-                exampleConfig.database.port = "";
+                exampleConfig.database.port = '';
                 expect(getDbConfig().port).toEqual(3306);
             });
 

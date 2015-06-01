@@ -45,7 +45,7 @@ describe ('FileHandler', function() {
         s._read = function noop() {};
         var args = arguments;
         setImmediate(function() {
-            for(var i = 0; i < args.length; i++) {
+            for (var i = 0; i < args.length; i++) {
                 s.push(args[i]);
             }
             s.push(null);
@@ -76,31 +76,31 @@ describe ('FileHandler', function() {
     });
 
     it('should return the correct filename', function(done) {
-        addData({fileName: 'test.txt'}).then(function(obj) {
+        addData({ fileName: 'test.txt' }).then(function(obj) {
             expect(obj.fileName).toEqual('test.txt');
         }).then(done);
     });
 
     it('should automatically set the correct mimetype (for text)', function(done) {
-        addData({fileName: 'test.txt'}).then(function(obj) {
+        addData({ fileName: 'test.txt' }).then(function(obj) {
             expect(obj.mimeType).toEqual('text/plain');
         }).then(done);
     });
 
     it('should automatically set the correct mimetype (for pdf)', function(done) {
-        addData({fileName: 'test.pdf'}).then(function(obj) {
+        addData({ fileName: 'test.pdf' }).then(function(obj) {
             expect(obj.mimeType).toEqual('application/pdf');
         }).then(done);
     });
 
     it('should be able to manually overwrite the mimetype', function(done) {
-        addData({fileName: 'test.pdf', mimeType: 'text/plain'}).then(function(obj) {
+        addData({ fileName: 'test.pdf', mimeType: 'text/plain' }).then(function(obj) {
             expect(obj.mimeType).toEqual('text/plain');
         }).then(done);
     });
 
     it('should create a file', function(done) {
-        addData({fileName: 'test.pdf', mimeType: 'text/plain'}).then(function(obj) {
+        addData({ fileName: 'test.pdf', mimeType: 'text/plain' }).then(function(obj) {
             var uuidPath = path.join(fileDirectory, obj.uuid);
             fs.exists(uuidPath, function(exists) {
                 expect(exists).toBeTruthy();
@@ -109,9 +109,9 @@ describe ('FileHandler', function() {
     });
 
     it('should have the correct file contents', function(done) {
-        addData({fileName: 'test.pdf', mimeType: 'text/plain'}).then(function(obj) {
+        addData({ fileName: 'test.pdf', mimeType: 'text/plain' }).then(function(obj) {
             var uuidPath = path.join(fileDirectory, obj.uuid);
-            fs.readFile(uuidPath, {encoding: 'utf-8'}, function(_, data) {
+            fs.readFile(uuidPath, { encoding: 'utf-8' }, function(_, data) {
                 expect(data).toEqual('TestfileMore stuffAnd much more stuff');
                 done();
             });
@@ -120,8 +120,8 @@ describe ('FileHandler', function() {
 
     it('should support to set multiple files at once', function(done) {
         Q.all([
-            addData({fileName: 'test.txt'}, sendReadableStream("test", "123")),
-            addData({fileName: 'test.txt'}, sendReadableStream("test", "456"))
+            addData({ fileName: 'test.txt' }, sendReadableStream('test', '123')),
+            addData({ fileName: 'test.txt' }, sendReadableStream('test', '456'))
         ]).then(function(data) {
             expect(data[0].fileName).toEqual('test.txt');
             expect(data[1].fileName).toEqual('test.txt');
