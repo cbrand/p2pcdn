@@ -76,7 +76,9 @@ class FileHandler {
 
     _getFromDbFile(dbFile) {
         if(dbFile == null) {
-            return Q.reject(new Sequelize.Error('file does not exist.'))
+            var error = new Error('file does not exist.');
+            error.isNotExist = true;
+            return Q.reject(error)
         }
 
         return this.storage.get(dbFile.uuid).then(function(fsFile) {
