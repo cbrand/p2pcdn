@@ -40,18 +40,7 @@ describe ('FileHandler', function() {
         temp.cleanupSync();
     });
 
-    var sendReadableStream = function() {
-        var s = new stream.Readable();
-        s._read = function noop() {};
-        var args = arguments;
-        setImmediate(function() {
-            for (var i = 0; i < args.length; i++) {
-                s.push(args[i]);
-            }
-            s.push(null);
-        });
-        return s;
-    };
+    var sendReadableStream = helpers.readableStream;
 
     var addData = function(options, stream) {
         options = options || {};

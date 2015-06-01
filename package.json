@@ -15,6 +15,7 @@
     "wrtc": "0.0.55"
   },
   "devDependencies": {
+    "body-parser": "^1.12.4",
     "gulp": "^3.8.11",
     "gulp-autoprefixer": "^2.1.0",
     "gulp-babel": "~5.1.0",
@@ -39,6 +40,7 @@
     "mockery": "~1.4.0",
     "normalize.css": "3.0.3",
     "run-sequence": "^1.0.2",
+    "supertest": "^1.0.1",
     "temp": "~0.8.1"
   },
   "engines": {
