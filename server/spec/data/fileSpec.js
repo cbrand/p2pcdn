@@ -213,6 +213,21 @@ describe('File', function() {
             });
 
         });
+
+        describe('stream', function() {
+
+            it('should accept to paas no arguments', function(done) {
+                var stream = f.stream();
+                var data = "";
+                stream.on('data', function(d) {
+                    data += d;
+                });
+                stream.on('end', function() {
+                    expect(data.length).toBeGreaterThan(0);
+                });
+            });
+
+        });
     });
 
 });
