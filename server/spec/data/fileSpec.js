@@ -224,6 +224,7 @@ describe('File', function() {
                 });
                 stream.on('end', function() {
                     expect(data.length).toBeGreaterThan(0);
+                    done();
                 });
             });
 
