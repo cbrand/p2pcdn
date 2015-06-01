@@ -19,7 +19,6 @@ filesApi.param('fileUUID', function(req, res, next, uuid) {
                 error: HttpStatus.getStatusText(HttpStatus.INTERNAL_SERVER_ERROR)
             });
         }
-        next(new Error('Not found'));
     });
 });
 
@@ -29,13 +28,13 @@ filesApi.param('chunk', function(req, res, next, chunk) {
         res.status(HttpStatus.BAD_REQUEST).send({
             error: 'Chunk must be a number'
         });
-        next(new Error('not number'));
+        return;
     }
     if(chunkNumber >= req.file.numChunks || chunkNumber < 0) {
         res.status(HttpStatus.NOT_FOUND).send({
             error: HttpStatus.getStatusText(HttpStatus.NOT_FOUND)
         });
-        next(new Error('not found'));
+        return;
     }
 
     req.chunk = chunkNumber;
