@@ -6,6 +6,7 @@ var request = require('supertest');
 var bodyParser = require('body-parser');
 var HttpStatus = require('http-status-codes');
 var should = require('should');
+var Q = require('q');
 var helpers = require('../../helpers');
 
 var server = helpers.require('http/server');
@@ -17,6 +18,22 @@ describe('http', function() {
     var fileDirectory;
     var config;
     var app;
+
+    var streamToString = function(stream) {
+        var deferred = Q.defer();
+        var data = '';
+        stream.setEncoding('binary');
+        stream.on('data', function(d) {
+            data += d;
+        });
+        stream.on('error', function(err) {
+            deferred.reject(err)
+        });
+        stream.on('end', function() {
+            deferred.resolve(data);
+        });
+        return deferred.promise;
+    };
 
     beforeEach(function() {
         temp.track();
@@ -90,60 +107,94 @@ describe('http', function() {
             });
         });
 
+        describe('/download', function() {
+            var getDownload = function(uuid) {
+                return request(app)
+                    .get('/api/files/' + (uuid || addedUUID) + '/download');
+            };
+
+            it('should set the correct headers', function(done) {
+                getDownload()
+                    .expect(HttpStatus.OK)
+                    .end(function(err, res) {
+                        should(err).be.null;
+
+                        res.header['content-type'].should.equal('application/octet-stream');
+                        res.header['content-disposition'].should.equal('attachment; filename="data.blob"');
+
+                        done();
+                    });
+
+            });
+
+            it('should return not found if the uuid is not stored', function(done) {
+                getDownload(addedUUID + 'doesnotexist')
+                    .expect(HttpStatus.NOT_FOUND)
+                    .end(function(err) {
+                        should(err).be.null;
+                        done();
+                    });
+            });
+        });
+
         describe('/chunks/:chunk', function() {
 
             var chunkURL = function(chunk) {
                 return '/api/files/' + addedUUID + '/chunks/' + chunk;
             };
 
-            it('should return the correct chunk information', function(done) {
-                request(app)
-                    .get(chunkURL(0))
-                    .set('Accept', 'application/json')
-                    .expect(HttpStatus.OK)
-                    .end(function(err, res) {
-                        should(err).be.null;
+            describe('GET', function() {
 
-                        var json = res.body;
+                it('should return the correct chunk information', function(done) {
+                    request(app)
+                        .get(chunkURL(0))
+                        .set('Accept', 'application/json')
+                        .expect(HttpStatus.OK)
+                        .end(function(err, res) {
+                            should(err).be.null;
 
-                        model.chunkID(0).then(function(expectedChunkID) {
-                            json.uuid.should.equal(expectedChunkID);
+                            var json = res.body;
+
+                            model.chunkID(0).then(function(expectedChunkID) {
+                                json.uuid.should.equal(expectedChunkID);
+                                done();
+                            });
+                        });
+                });
+
+                it('should return a not found if a chunk with a index under 0 is given', function(done) {
+                    request(app)
+                        .get(chunkURL(-1))
+                        .set('Accept', 'application/json')
+                        .expect(HttpStatus.NOT_FOUND)
+                        .end(function(err) {
+                            should(err).be.null;
                             done();
                         });
-                    });
-            });
+                });
 
-            it('should return a not found if a chunk with a index under 0 is given', function(done) {
-                request(app)
-                    .get(chunkURL(-1))
-                    .set('Accept', 'application/json')
-                    .expect(HttpStatus.NOT_FOUND)
-                    .end(function(err) {
-                        should(err).be.null;
-                        done();
-                    });
-            });
+                it('should return a not found if a chunk with a index over the available one is given', function(done) {
+                    request(app)
+                        .get(chunkURL(model.numChunks))
+                        .set('Accept', 'application/json')
+                        .expect(HttpStatus.NOT_FOUND)
+                        .end(function(err) {
+                            should(err).be.null;
+                            done();
+                        });
+                });
 
-            it('should return a not found if a chunk with a index over the available one is given', function(done) {
-                request(app)
-                    .get(chunkURL(model.numChunks))
-                    .set('Accept', 'application/json')
-                    .expect(HttpStatus.NOT_FOUND)
-                    .end(function(err) {
-                        should(err).be.null;
-                        done();
-                    });
-            });
+                it('should return a bad request if a chunk which can\'t be converted into a number is given', function(done) {
+                    request(app)
+                        .get(chunkURL("NO_NUMBER"))
+                        .set('Accept', 'application/json')
+                        .expect(HttpStatus.BAD_REQUEST)
+                        .end(function(err) {
+                            should(err).be.null;
+                            done();
+                        });
+                });
 
-            it('should return a bad request if a chunk which can\'t be converted into a number is given', function(done) {
-                request(app)
-                    .get(chunkURL("NO_NUMBER"))
-                    .set('Accept', 'application/json')
-                    .expect(HttpStatus.BAD_REQUEST)
-                    .end(function(err) {
-                        should(err).be.null;
-                        done();
-                    });
             });
         });
 
