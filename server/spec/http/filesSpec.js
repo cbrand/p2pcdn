@@ -79,7 +79,7 @@ describe('http', function() {
 
             it('should return not found if the uuid is not stored', function(done) {
                 request(app)
-                    .get('/api/files/' + addedUUID)
+                    .get('/api/files/' + addedUUID + 'doesnotexist')
                     .set('Accept', 'application/json')
                     .expect(HttpStatus.NOT_FOUND)
                     .end(function(err) {
