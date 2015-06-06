@@ -213,6 +213,8 @@ gulp.task('compile:server', function() {
             .pipe(babel())
             .pipe(replace(/(var _createClass =[^\n]*)/, '/* istanbul ignore next */ $1'))
             .pipe(replace(/(function _classCallCheck\(instance, Constructor\)[^\n]*)/, '/* istanbul ignore next */ $1'))
+            .pipe(replace(/(function _inherits\(subClass, superClass\)[^\n]*)/, '/* istanbul ignore next */ $1'))
+            .pipe(replace(/(var _get = function get\(_x, _x2, _x3\)[^\n]*)/, '/* istanbul ignore next */ $1'))
             .pipe(sourcemaps.write('.'))
             .pipe(gulp.dest(dirs.serverDist));
 });
