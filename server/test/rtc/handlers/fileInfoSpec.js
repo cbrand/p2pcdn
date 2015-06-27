@@ -16,7 +16,7 @@ describe('Connection', function () {
 
     beforeEach(function () {
         temp.track();
-        return connectionHelper.bootUpConnection().then(function(data) {
+        return connectionHelper.bootUpConnection().then(function (data) {
             clientConnection = data.clientConnection;
             serverConnection = data.serverConnection;
             clientChannel = data.clientChannel;
@@ -31,7 +31,8 @@ describe('Connection', function () {
         serverConnection.close();
     });
 
-    describe('when requesting data', function () {
+    describe('fileInfo', function() {
+
         var fileHandler;
         var addedUUID;
         var model;
@@ -46,61 +47,8 @@ describe('Connection', function () {
             });
         });
 
-        it('should be able to request a chunk from through the rtc channel', function () {
-            var request = new messages.request.GetChunk(addedUUID, 0);
-
-            return request.serialize().then(function (data) {
-                return new Q.Promise(function (resolve, reject) {
-                    clientChannel.onmessage = function (event) {
-                        var data = event.data;
-                        resolve(data);
-                    };
-                    clientChannel.onerror = function () {
-                        reject();
-                    };
-                    clientChannel.send(data);
-                })
-            }).then(function (data) {
-                return messages.response.Response.deserialize(data);
-            }).then(function (response) {
-                response.should.be.an.instanceOf(messages.response.Chunk);
-                return response;
-            }).then(function (chunk) {
-                chunk.should.have.property('uuid', addedUUID);
-                return Q.all([chunk, model.chunk(0)]);
-            }).spread(function (chunk, chunkData) {
-                chunk.should.have.property('data');
-                chunk.data.toString('utf8').should.equal(chunkData);
-            });
-        });
-
-
-        it('should return an error if the chunk is out of bounds', function () {
-            var request = new messages.request.GetChunk(addedUUID, 3000);
-
-            return request.serialize().then(function (data) {
-                return new Q.Promise(function (resolve, reject) {
-                    clientChannel.send(data);
-                    clientChannel.onmessage = function (event) {
-                        var data = event.data;
-                        resolve(data);
-                    };
-                    clientChannel.onerror = function () {
-                        reject();
-                    };
-                })
-            }).then(function (data) {
-                return messages.response.Response.deserialize(data);
-            }).then(function (response) {
-                response.should.be.an.instanceOf(messages.response.Error);
-                return response;
-            }).then(function (error) {
-                error.code.should.equal(messages.response.Error.Code.CHUNK_OUT_OF_BOUNDS);
-            });
-        });
-
-        it('should return an error if the chunk is requested from a not existing uuid', function () {
-            var request = new messages.request.GetChunk('doesnotexist', 0);
+        it('should return an error if a non existing uuid is requested', function() {
+            var request = new messages.request.GetFileInfo('does not exist');
 
             return request.serialize().then(function (data) {
                 return new Q.Promise(function (resolve, reject) {
@@ -122,6 +70,34 @@ describe('Connection', function () {
                 error.code.should.equal(messages.response.Error.Code.UUID_NOT_FOUND);
             });
         });
+
+        it('should return the correct file information', function() {
+            var request = new messages.request.GetFileInfo(addedUUID);
+
+            return request.serialize().then(function (data) {
+                return new Q.Promise(function (resolve, reject) {
+                    clientChannel.send(data);
+                    clientChannel.onmessage = function (event) {
+                        var data = event.data;
+                        resolve(data);
+                    };
+                    clientChannel.onerror = function () {
+                        reject();
+                    };
+                })
+            }).then(function (data) {
+                return messages.response.Response.deserialize(data);
+            }).then(function (response) {
+                response.should.be.an.instanceOf(messages.response.FileInfo);
+                return response;
+            }).then(function (fileInfo) {
+                fileInfo.should.have.property('uuid', addedUUID);
+                fileInfo.should.have.property('name', model.fileName);
+                fileInfo.should.have.property('mimeType', model.mimeType);
+                fileInfo.should.have.property('numChunks', model.numChunks);
+            });
+        });
+
     });
 
-})
+});
