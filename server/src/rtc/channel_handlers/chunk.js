@@ -1,16 +1,12 @@
 var TextEncoder = require('text-encoding').TextEncoder;
 
-var Handler = require('./handler');
+var FileHandler = require('./file_handler');
 var messages = require('../messages');
 var GetChunkRequest = messages.request.GetChunk;
 var ChunkResponse = messages.response.Chunk;
 var ErrorResponse = messages.response.Error;
 
-class ChunkHandler extends Handler {
-
-    get _fileHandler() {
-        return this.app.fileHandler;
-    }
+class ChunkHandler extends FileHandler {
 
     /**
      * returns if the channel handler does support
@@ -19,19 +15,6 @@ class ChunkHandler extends Handler {
      */
     supports() {
         return this.request instanceof GetChunkRequest;
-    }
-
-    get _file() {
-        var self = this;
-        return self._fileHandler.get(self.request.uuid).catch(function(err) {
-            var errorResponse;
-            if(err && err.isNotExist) {
-                errorResponse = new ErrorResponse(ErrorResponse.Code.UUID_NOT_FOUND);
-            } else {
-                errorResponse = new ErrorResponse(ErrorResponse.Code.UNKNOWN)
-            }
-            throw errorResponse;
-        });
     }
 
     get _chunk() {

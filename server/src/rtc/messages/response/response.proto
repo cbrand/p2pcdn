@@ -3,7 +3,8 @@ message Response {
     extensions 1000 to max;
     enum Type {
         ERROR = 0;
-        CHUNK = 1;
+        FILE_INFO = 1;
+        CHUNK = 2;
     }
     required Type type = 1;
 
@@ -23,9 +24,20 @@ message Error {
     required Code code = 1;
 }
 
+message FileInfo {
+    extend Response {
+        optional FileInfo response = 1001;
+    }
+
+    required string UUID = 1;
+    required string name = 2;
+    required string mimeType = 3;
+    required int32 numChunks = 4;
+}
+
 message Chunk {
     extend Response {
-        optional Chunk response = 1001;
+        optional Chunk response = 1002;
     }
 
     required string UUID = 1;

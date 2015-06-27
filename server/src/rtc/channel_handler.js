@@ -7,7 +7,8 @@ var response = messages.response;
  * @TODO: Some dependency injection mechanisms would be preferable to this.
  */
 var handlers = [
-    require('./channel_handlers/chunk')
+    require('./channel_handlers/chunk'),
+    require('./channel_handlers/file_info')
 ];
 
 class ChannelHandler extends events.EventEmitter {
