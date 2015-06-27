@@ -82,6 +82,17 @@ describe('Connection', function () {
         var directory;
         var fileDirectory;
 
+        var createEventPromise = function(name) {
+            return Q.Promise(function(resolve, reject) {
+                clientChannel.addEventListener(name, function() {
+                    resolve();
+                });
+                clientChannel.addEventListener('error', function() {
+                    reject();
+                });
+            });
+        };
+
         beforeEach(function () {
             temp.track();
             directory = temp.mkdirSync();
@@ -114,30 +125,13 @@ describe('Connection', function () {
 
             return db.sync().then(function() {
                 return initConnection();
+            }).then(function() {
+                return createEventPromise('open');
             });
         });
 
         afterEach(function() {
             temp.cleanupSync();
-        });
-
-        it('should reject data channels which aren\'t marked as p2pcdn', function () {
-            var otherChannel = clientConnection.createDataChannel('notp2pcnd');
-
-            var createEventPromise = function(name) {
-                return Q.Promise(function(resolve, reject) {
-                    otherChannel.addEventListener(name, function() {
-                        resolve();
-                    });
-                    otherChannel.addEventListener('error', function() {
-                        reject();
-                    });
-                });
-            };
-
-            return createEventPromise('open').then(function() {
-                return createEventPromise('close');
-            });
         });
 
         describe('when requesting data', function() {
@@ -160,7 +154,6 @@ describe('Connection', function () {
 
                 return request.serialize().then(function(data) {
                     return new Q.Promise(function(resolve, reject) {
-                        clientChannel.send(data);
                         clientChannel.onmessage = function(event) {
                             var data = event.data;
                             resolve(data);
@@ -168,6 +161,7 @@ describe('Connection', function () {
                         clientChannel.onerror = function() {
                             reject();
                         };
+                        clientChannel.send(data);
                     })
                 }).then(function(data) {
                     return messages.response.Response.deserialize(data);
@@ -177,16 +171,15 @@ describe('Connection', function () {
                 }).then(function(chunk) {
                     chunk.should.have.property('uuid', addedUUID);
                     return Q.all([chunk, model.chunk(0)]);
-                }).then(function(data) {
-                    var chunk = data[0];
-                    var chunkData = data[1];
-                    chunk.should.have.property('data', chunkData);
+                }).spread(function(chunk, chunkData) {
+                    chunk.should.have.property('data');
+                    chunk.data.toString('utf8').should.equal(chunkData);
                 });
             });
 
 
             it('should return an error if the chunk is out of bounds', function() {
-                var request = new messages.request.GetChunk(addedUUID, 0);
+                var request = new messages.request.GetChunk(addedUUID, 3000);
 
                 return request.serialize().then(function(data) {
                     return new Q.Promise(function(resolve, reject) {
@@ -205,7 +198,31 @@ describe('Connection', function () {
                     response.should.be.an.instanceOf(messages.response.Error);
                     return response;
                 }).then(function(error) {
-                    error.code.should.eq(messages.response.Error.Code.CHUNK_OUT_OF_BOUNDS);
+                    error.code.should.equal(messages.response.Error.Code.CHUNK_OUT_OF_BOUNDS);
+                });
+            });
+
+            it('should return an error if the chunk is requested from a not existing uuid', function() {
+                var request = new messages.request.GetChunk('doesnotexist', 0);
+
+                return request.serialize().then(function(data) {
+                    return new Q.Promise(function(resolve, reject) {
+                        clientChannel.send(data);
+                        clientChannel.onmessage = function(event) {
+                            var data = event.data;
+                            resolve(data);
+                        };
+                        clientChannel.onerror = function() {
+                            reject();
+                        };
+                    })
+                }).then(function(data) {
+                    return messages.response.Response.deserialize(data);
+                }).then(function(response) {
+                    response.should.be.an.instanceOf(messages.response.Error);
+                    return response;
+                }).then(function(error) {
+                    error.code.should.equal(messages.response.Error.Code.UUID_NOT_FOUND);
                 });
             });
 
