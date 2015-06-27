@@ -6,7 +6,7 @@ var GetChunkRequest = messages.request.GetChunk;
 var ChunkResponse = messages.response.Chunk;
 var ErrorResponse = messages.response.Error;
 
-class GetChunkHandler extends Handler {
+class ChunkHandler extends Handler {
 
     get _fileHandler() {
         return this.app.fileHandler;
@@ -61,4 +61,4 @@ class GetChunkHandler extends Handler {
 
 }
 
-export default GetChunkHandler;
+export default ChunkHandler;
