@@ -11,20 +11,24 @@ message Response {
 
 message Error {
     extend Response {
-        required Error response = 1000;
+        optional Error response = 1000;
     }
 
     enum Code {
-        CHUNK_OUT_OF_BOUNDS = 0;
+        UNKNOWN = 0;
+        UNKNOWN_COMMAND = 1;
+        UUID_NOT_FOUND = 2;
+        CHUNK_OUT_OF_BOUNDS = 3;
     }
     required Code code = 1;
 }
 
 message Chunk {
     extend Response {
-        required Chunk response = 1001;
+        optional Chunk response = 1001;
     }
 
     required string UUID = 1;
-    required bytes data = 2;
+    required int64 chunk = 2;
+    required bytes data = 3;
 }

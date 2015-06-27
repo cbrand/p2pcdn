@@ -2,12 +2,13 @@ var Q = require('q');
 var events = require('events');
 var wrtc = require('wrtc');
 
+var App = require('../app');
 var ChannelHandler = require('./channel_handler');
 
 class Connection extends events.EventEmitter {
     constructor(config) {
         super();
-        this.config = config;
+        this.app = new App(config);
         this._initConnection();
     }
 
@@ -36,13 +37,9 @@ class Connection extends events.EventEmitter {
     }
 
     onDataChannel(dataChannelEvent) {
+        var self = this;
         var channel = dataChannelEvent.channel;
-        if (dataChannelEvent.label != 'p2pcdn') {
-            // Only allow p2pcdn data channels.
-            channel && channel.close();
-            return;
-        }
-        new ChannelHandler(channel);
+        new ChannelHandler(self.app, channel);
     }
 
     setLocalDescription(description) {

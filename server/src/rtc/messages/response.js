@@ -29,7 +29,6 @@ class Response {
         }).then(function() {
             return protoResponse.toArrayBuffer();
         });
-
     }
 
     /**
@@ -50,8 +49,6 @@ class Response {
         var t = types[protoResponse.type];
         return deferred.promise.then(function() {
             return t._fromProto(protoResponse);
-        }).then(function() {
-            return t;
         });
     }
 
@@ -80,6 +77,7 @@ class Response {
 
 var errorMessages = {};
 errorMessages[ProtoError.Code.CHUNK_OUT_OF_BOUNDS] = 'The given chunk id is out of bounds.';
+errorMessages[ProtoError.Code.UUID_NOT_FOUND] = 'Could find nothing under the given uuid';
 
 class Error extends Response {
 
@@ -120,11 +118,8 @@ class Error extends Response {
      * @returns Chunk
      */
     static _fromProto(protoResponse) {
-        var protoChunk = protoResponse.get('.Chunk.response');
-        var response = new Chunk(protoChunk.get('UUID'));
-        response.data = protoChunk.get('data');
-
-        return response;
+        var protoError = protoResponse.get('.Error.response');
+        return new Error(protoError.get('code'));
     }
 
 }
@@ -133,9 +128,10 @@ registerType(ProtoResponse.Type.ERROR, Error);
 
 class Chunk extends Response {
 
-    constructor(uuid) {
+    constructor(uuid, chunk) {
         super();
         this.uuid = uuid;
+        this.chunk = chunk;
         this.data = null;
     }
 
@@ -150,6 +146,7 @@ class Chunk extends Response {
         super._updateProto(protoResponse);
         var protoChunk = new ProtoChunk();
         protoChunk.set('UUID', this.uuid);
+        protoChunk.set('chunk', this.chunk);
         protoChunk.set('data', this.data);
 
         protoResponse.set('.Chunk.response', protoChunk);
@@ -165,7 +162,7 @@ class Chunk extends Response {
      */
     static _fromProto(protoResponse) {
         var protoChunk = protoResponse.get('.Chunk.response');
-        var response = new Chunk(protoChunk.get('UUID'));
+        var response = new Chunk(protoChunk.get('UUID'), protoChunk.get('chunk'));
         response.data = protoChunk.get('data');
 
         return response;
@@ -176,5 +173,6 @@ registerType(ProtoResponse.Type.CHUNK, Chunk);
 
 export {
     Response,
-    Chunk
+    Chunk,
+    Error
 }

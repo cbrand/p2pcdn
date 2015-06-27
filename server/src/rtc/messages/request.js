@@ -48,8 +48,6 @@ class Request {
         var t = types[protoRequest.type];
         return deferred.promise.then(function() {
             return t._fromProto(protoRequest);
-        }).then(function() {
-            return t;
         });
     }
 
