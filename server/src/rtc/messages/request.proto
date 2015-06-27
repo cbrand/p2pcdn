@@ -1,0 +1,18 @@
+message Request {
+
+    extensions 1000 to max;
+    enum Type {
+        GET_CHUNK = 0;
+    }
+    required Type type = 1;
+
+}
+
+message GetChunk {
+    extend Request {
+        required GetChunk request = 1000;
+    }
+
+    required string UUID = 1;
+    required int64 chunk = 2;
+}

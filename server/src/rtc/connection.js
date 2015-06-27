@@ -5,8 +5,9 @@ var wrtc = require('wrtc');
 var ChannelHandler = require('./channel_handler');
 
 class Connection extends events.EventEmitter {
-    constructor() {
+    constructor(config) {
         super();
+        this.config = config;
         this._initConnection();
     }
 

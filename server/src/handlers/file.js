@@ -37,7 +37,7 @@ class FileHandler {
      *
      * @param {String} fileName The name wich should be added
      * @param {fs.ReadStream} fileReadStream the read stream
-     * @param {object} options Additional options to add. At the moment the
+     * @param {object} [options={}] Additional options to add. At the moment the
      *  mime type can be set with mimeType.
      * @returns {Promise.<File>}
      */

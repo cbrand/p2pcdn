@@ -1,0 +1,30 @@
+message Response {
+
+    extensions 1000 to max;
+    enum Type {
+        ERROR = 0;
+        CHUNK = 1;
+    }
+    required Type type = 1;
+
+}
+
+message Error {
+    extend Response {
+        required Error response = 1000;
+    }
+
+    enum Code {
+        CHUNK_OUT_OF_BOUNDS = 0;
+    }
+    required Code code = 1;
+}
+
+message Chunk {
+    extend Response {
+        required Chunk response = 1001;
+    }
+
+    required string UUID = 1;
+    required bytes data = 2;
+}

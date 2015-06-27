@@ -10,6 +10,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var server = require('gulp-express');
 var replace = require('gulp-replace');
 var mocha = require('gulp-mocha');
+var gulpprotobuf = require('gulp-protobufjs');
 
 // Load all gulp plugins automatically
 // and attach them to the `plugins` object
@@ -90,7 +91,8 @@ gulp.task('concat', [
 ]);
 
 gulp.task('copy:server', [
-    'copy:server:json'
+    'copy:server:json',
+    'copy:server:protobuf'
 ]);
 
 gulp.task('copy:.htaccess', function () {
@@ -183,6 +185,11 @@ gulp.task('copy:server:json', function() {
                 .pipe(gulp.dest(dirs.serverDist));
 });
 
+gulp.task('copy:server:protobuf', function() {
+    return gulp.src(dirs.server + '/**/*.proto')
+        .pipe(gulp.dest(dirs.serverDist));
+});
+
 gulp.task('lint:js', function () {
     return gulp.src([
         'gulpfile.js',
@@ -217,6 +224,17 @@ gulp.task('compile:server', function() {
             .pipe(replace(/(var _get = function get\(_x, _x2, _x3\)[^\n]*)/, '/* istanbul ignore next */ $1'))
             .pipe(sourcemaps.write('.'))
             .pipe(gulp.dest(dirs.serverDist));
+});
+
+gulp.task('compile:protobuf', function() {
+    return gulp.src(dirs.protoBuf + '/**/*.proto')
+        .pipe(gulpprotobuf({
+            target: 'js'
+        }))
+        .pipe(plugins.rename({
+            dirname: dirs.src + '/messages'
+        }))
+        .pipe(gulp.dest('./'));
 });
 
 gulp.task('mocha:run:console', function() {
@@ -312,6 +330,7 @@ gulp.task('archive', function (done) {
 gulp.task('build:client', function (done) {
     runSequence(
         ['clean', 'lint:js'],
+        'compile:protobuf',
         'copy',
         'concat',
     done);
