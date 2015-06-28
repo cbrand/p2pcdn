@@ -9,30 +9,6 @@ var db = helpers.require('db');
 var Config = helpers.require('config');
 var Connection = helpers.require('rtc/connection');
 
-var startConnection = function(config) {
-    var serverConnection = new Connection(config);
-    serverConnection.start();
-
-    var clientConnection = new wrtc.RTCPeerConnection();
-    clientConnection.onicecandidate = function (candidate) {
-        if (!candidate.candidate) {
-            return;
-        }
-        serverConnection.addIceCandidate(candidate.candidate);
-    };
-    serverConnection.on('icecandidate', function (candidate) {
-        clientConnection.addIceCandidate(candidate);
-    });
-    var clientChannel = clientConnection.createDataChannel('p2pcdn');
-    return initConnection(serverConnection, clientConnection).then(function(connections) {
-        return {
-            serverConnection: connections[0],
-            clientConnection: connections[1],
-            clientChannel: clientChannel
-        };
-    });
-};
-
 var initConnection = function(serverConnection, clientConnection) {
     return Q.Promise(function (resolve, reject) {
         clientConnection.createOffer(function (clientDescriptor) {
@@ -63,6 +39,30 @@ var initConnection = function(serverConnection, clientConnection) {
             serverConnection,
             clientConnection
         ];
+    });
+};
+
+var startConnection = function(config) {
+    var serverConnection = new Connection(config);
+    serverConnection.start();
+
+    var clientConnection = new wrtc.RTCPeerConnection();
+    clientConnection.onicecandidate = function (candidate) {
+        if (!candidate.candidate) {
+            return;
+        }
+        serverConnection.addIceCandidate(candidate.candidate);
+    };
+    serverConnection.on('icecandidate', function (candidate) {
+        clientConnection.addIceCandidate(candidate);
+    });
+    var clientChannel = clientConnection.createDataChannel('p2pcdn');
+    return initConnection(serverConnection, clientConnection).then(function(connections) {
+        return {
+            serverConnection: connections[0],
+            clientConnection: connections[1],
+            clientChannel: clientChannel
+        };
     });
 };
 
@@ -107,7 +107,7 @@ var bootUpConnection = function() {
             serverConnection: connections.serverConnection,
             clientConnection: connections.clientConnection,
             clientChannel: connections.clientChannel
-        }
+        };
     });
 };
 

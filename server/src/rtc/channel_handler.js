@@ -74,12 +74,12 @@ class ChannelHandler extends events.EventEmitter {
      * Sends the given response object to the client side of the
      * channel.
      *
-     * @param {response.Response} response
+     * @param {response.Response} responseObject
      * @returns Promise
      */
-    send(response) {
+    send(responseObject) {
         var self = this;
-        response.serialize().then(function(data) {
+        responseObject.serialize().then(function(data) {
             self.rtcChannel.send(data);
         });
     }
@@ -89,7 +89,9 @@ class ChannelHandler extends events.EventEmitter {
      */
     close() {
         var self = this;
-        self.rtcChannel.close && self.rtcChannel.close();
+        if (self.rtcChannel.close) {
+            self.rtcChannel.close();
+        }
     }
 
     onEvent(event) {

@@ -1,6 +1,5 @@
 var proto = require('./proto');
 var Response = require('./response');
-var ProtoChunk = proto.Chunk;
 
 class FileInfo extends Response {
 

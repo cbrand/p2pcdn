@@ -1,3 +1,5 @@
+'use strict';
+
 var fs = require('fs');
 var path = require('path');
 
@@ -194,12 +196,14 @@ gulp.task('lint:js', function () {
     return gulp.src([
         'gulpfile.js',
         dirs.src + '/js/*.js',
-        dirs.test + '/*.js',
+        dirs.test + '/**/*.js',
+        dirs.server + '/**/*.js',
         dirs.serverTest + '/**/*.js'
-    ]).pipe(plugins.jscs())
-      .pipe(plugins.jshint())
-      .pipe(plugins.jshint.reporter('jshint-stylish'))
-      .pipe(plugins.jshint.reporter('fail'));
+    ]).pipe(plugins.eslint({
+            useEslintrc: true
+        }))
+      .pipe(plugins.eslint.format())
+      .pipe(plugins.eslint.failOnError());
 });
 
 gulp.task('concat:css', function() {

@@ -33,7 +33,7 @@ var setUp = function() {
             config: config,
             directory: directory,
             fileDirectory: fileDirectory
-        }
+        };
     });
 };
 

@@ -1,16 +1,11 @@
 var wrtc = require('wrtc');
 var Q = require('q');
-var temp = require('temp');
-var fs = require('fs');
-var path = require('path');
-var should = require('should');
 var connectionHelper = require('./connectionHelpers');
 
 var helpers = require('../helpers');
-var db = helpers.require('db');
 var Connection = helpers.require('rtc/connection');
-var FileHandler = helpers.require('handlers/file');
-var messages = helpers.require('rtc/messages');
+
+require('should');
 
 describe('Connection', function () {
     var serverConnection;
@@ -40,7 +35,7 @@ describe('Connection', function () {
                     };
                     clientChannel.onerror = function (err) {
                         reject(err);
-                    }
+                    };
                 });
             }).then(function () {
                 serverConnection.close();

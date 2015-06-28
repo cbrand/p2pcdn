@@ -1,5 +1,3 @@
-var TextEncoder = require('text-encoding').TextEncoder;
-
 var FileHandler = require('./file_handler');
 var messages = require('../messages');
 var GetFileInfo = messages.request.GetFileInfo;

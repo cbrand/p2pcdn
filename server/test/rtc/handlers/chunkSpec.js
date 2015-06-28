@@ -1,12 +1,12 @@
 var Q = require('q');
 var temp = require('temp');
-var should = require('should');
 var connectionHelper = require('../connectionHelpers');
 
 var helpers = require('../../helpers');
-var Connection = helpers.require('rtc/connection');
 var FileHandler = helpers.require('handlers/file');
 var messages = helpers.require('rtc/messages');
+
+require('should');
 
 describe('Connection', function () {
     var clientConnection;
@@ -21,7 +21,7 @@ describe('Connection', function () {
             serverConnection = data.serverConnection;
             clientChannel = data.clientChannel;
             config = data.config;
-        })
+        });
     });
 
     afterEach(function () {
@@ -39,7 +39,7 @@ describe('Connection', function () {
         beforeEach(function () {
             fileHandler = new FileHandler(config);
 
-            var stream = helpers.readableStream("Random blob data");
+            var stream = helpers.readableStream('Random blob data');
             return fileHandler.add('data.blob', stream).then(function (addedModel) {
                 model = addedModel;
                 addedUUID = addedModel.uuid;
@@ -52,14 +52,13 @@ describe('Connection', function () {
             return request.serialize().then(function (data) {
                 return new Q.Promise(function (resolve, reject) {
                     clientChannel.onmessage = function (event) {
-                        var data = event.data;
-                        resolve(data);
+                        resolve(event.data);
                     };
                     clientChannel.onerror = function () {
                         reject();
                     };
                     clientChannel.send(data);
-                })
+                });
             }).then(function (data) {
                 return messages.response.Response.deserialize(data);
             }).then(function (response) {
@@ -82,13 +81,12 @@ describe('Connection', function () {
                 return new Q.Promise(function (resolve, reject) {
                     clientChannel.send(data);
                     clientChannel.onmessage = function (event) {
-                        var data = event.data;
-                        resolve(data);
+                        resolve(event.data);
                     };
                     clientChannel.onerror = function () {
                         reject();
                     };
-                })
+                });
             }).then(function (data) {
                 return messages.response.Response.deserialize(data);
             }).then(function (response) {
@@ -106,13 +104,12 @@ describe('Connection', function () {
                 return new Q.Promise(function (resolve, reject) {
                     clientChannel.send(data);
                     clientChannel.onmessage = function (event) {
-                        var data = event.data;
-                        resolve(data);
+                        resolve(event.data);
                     };
                     clientChannel.onerror = function () {
                         reject();
                     };
-                })
+                });
             }).then(function (data) {
                 return messages.response.Response.deserialize(data);
             }).then(function (response) {
@@ -124,4 +121,4 @@ describe('Connection', function () {
         });
     });
 
-})
+});

@@ -44,4 +44,4 @@ export {
     serialize,
     deserializeWithTypes,
     deserializeWith
-}
+};

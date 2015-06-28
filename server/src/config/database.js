@@ -3,8 +3,8 @@
  * the config values.
  */
 
-var stringOrNull = function(value) {
-    if (typeof value == 'string') {
+var stringOrNull = function (value) {
+    if (typeof value === 'string') {
         return value;
     }
     return null;
@@ -13,13 +13,13 @@ var stringOrNull = function(value) {
 
 class Database {
     constructor(databaseConfig) {
-        this.databaseConfig = databaseConfig  || {};
+        this.databaseConfig = databaseConfig || {};
     }
 
     _stringIfNetworkDb(value, defaultValue) {
         if (this._isNetworkDB) {
             var res = stringOrNull(value);
-            if(res === null) {
+            if (res === null) {
                 res = defaultValue || null;
             }
             return res;
@@ -35,7 +35,7 @@ class Database {
      * @private
      */
     get _isNetworkDB() {
-        return this.type == 'mysql';
+        return this.type === 'mysql';
     }
 
     /**
@@ -76,13 +76,13 @@ class Database {
      */
     get port() {
         if (!this._isNetworkDB) {
-           return null;
+            return null;
         }
 
         var port = Number(this.databaseConfig.port);
 
-        if(!port) {
-            if(this.type == 'mysql') {
+        if (!port) {
+            if (this.type === 'mysql') {
                 return 3306;
             }
             return 0;
@@ -98,7 +98,7 @@ class Database {
      */
     get type() {
         var databaseType = (this.databaseConfig.type || 'sqlite').toLowerCase();
-        if (databaseType != 'sqlite' && databaseType != 'mysql') {
+        if (databaseType !== 'sqlite' && databaseType !== 'mysql') {
             databaseType = 'sqlite';
         }
         return databaseType;
@@ -113,9 +113,9 @@ class Database {
     get path() {
         var database = this.databaseConfig;
         var databaseType = this.type;
-        if (databaseType == 'sqlite') {
+        if (databaseType === 'sqlite') {
             if (typeof database.path !== 'string') {
-                return 'p2p-cdn.db'
+                return 'p2p-cdn.db';
             }
             return database.path;
         }

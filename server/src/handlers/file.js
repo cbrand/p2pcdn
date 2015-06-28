@@ -1,6 +1,4 @@
 var Q = require('q');
-var fs = require('fs');
-var crypto = require('crypto');
 var mime = require('mime');
 
 var db = require('../db');
@@ -75,7 +73,7 @@ class FileHandler {
     }
 
     _getFromDbFile(dbFile) {
-        if(dbFile == null) {
+        if(dbFile === null) {
             var error = new Error('file does not exist.');
             error.isNotExist = true;
             return Q.reject(error);

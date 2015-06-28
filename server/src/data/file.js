@@ -41,7 +41,7 @@ class File {
         return this.stream({
             start: constants.CHUNK_SIZE * num,
             end: Math.min(
-                constants.CHUNK_SIZE * (num+1),
+                constants.CHUNK_SIZE * (num + 1),
                 stat.size
             ) - 1
         });
@@ -56,7 +56,7 @@ class File {
     chunk(num) {
         var deferred = q.defer(),
             readStream = this.chunkStream(num),
-            data = ""
+            data = ''
         ;
 
         readStream.on('data', function(chunk) {

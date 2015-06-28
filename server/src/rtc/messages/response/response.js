@@ -1,4 +1,3 @@
-var Q = require('q');
 var proto = require('./proto');
 var ProtoResponse = proto.Response;
 var protoHelpers = require('../../../proto/helpers');
@@ -49,7 +48,7 @@ class Response {
      * @returns Response
      */
     static _fromProto(protoResponse) {
-
+        protoResponse;
     }
 
     static registerType(name, cl) {

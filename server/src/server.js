@@ -6,23 +6,26 @@
 var fs = require('fs');
 var path = require('path');
 var console = require('console');
-var argumentParser = require("node-argument-parser");
+var argumentParser = require('node-argument-parser');
+var db = require('./db');
 
 var httpServer = require('./http/server');
 var Config = require('./config');
 
 var CONFIG;
 
-var parseCommandLine = function() {
+var parseCommandLine = function () {
     var argumentsPath = path.resolve(__dirname, 'arguments.json');
     return argumentParser.parse(argumentsPath, process);
 };
 
 var commands = {
-    init_db: function() {
-
+    initDb: function () {
+        db.sync().then(function() {
+            console.log('Database synced');
+        });
     },
-    run_server: function() {
+    runServer: function () {
         var server = httpServer.app.listen(3000, function () {
 
             var host = server.address().address;
@@ -34,7 +37,7 @@ var commands = {
     }
 };
 
-var main = function() {
+var main = function () {
     var argv = parseCommandLine();
     CONFIG = new Config(argv.config);
 
@@ -42,20 +45,19 @@ var main = function() {
         CONFIG.load();
     }
 
-    var run = false;
     if (argv['init-db']) {
-        commands.init_db(argv).then(function() {
-            console.log("Database initialized.");
+        commands.initDb(argv).then(function () {
+            console.log('Database initialized.');
         });
         return;
     }
     if (argv['run-server']) {
-        commands.run_server(argv);
+        commands.runServer(argv);
         return;
     }
 
-    if(!argv.help) {
-        console.log("No actions given. Doing nothing.");
+    if (!argv.help) {
+        console.log('No actions given. Doing nothing.');
     }
 };
 

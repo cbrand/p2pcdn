@@ -4,25 +4,25 @@ var ini = require('ini');
 var temp = require('temp');
 var should = require('should');
 
-describe('Config', function() {
+describe('Config', function () {
 
     var exampleConfig;
     var tempDir;
-    var writeConfigToFile = function() {
+    var writeConfigToFile = function () {
         exampleConfig = exampleConfig || {};
-        var fd = temp.openSync({ 'suffix': '.ini' });
+        var fd = temp.openSync({'suffix': '.ini'});
         var data = ini.encode(exampleConfig);
         fs.writeSync(fd.fd, data);
         return fd.path;
     };
-    var initConfig = function() {
+    var initConfig = function () {
         var configPath = writeConfigToFile();
         var config = new Config(configPath);
         config.load();
         return config;
     };
 
-    beforeEach(function() {
+    beforeEach(function () {
         temp.track();
         tempDir = temp.mkdirSync();
         exampleConfig = {
@@ -37,110 +37,110 @@ describe('Config', function() {
         };
     });
 
-    afterEach(function(done) {
+    afterEach(function (done) {
         temp.cleanup(done);
     });
 
-    it('should be able to parse a config file', function() {
+    it('should be able to parse a config file', function () {
         initConfig();
     });
 
-    it('should return the configured directory for files', function() {
+    it('should return the configured directory for files', function () {
         var config = initConfig();
         config.fileDirectory.should.equal(tempDir);
     });
 
-    describe('database', function() {
+    describe('database', function () {
 
-        var setSqlite = function() {
+        var setSqlite = function () {
             exampleConfig.database.type = 'sqlite';
         };
-        var getDbConfig = function() {
+        var getDbConfig = function () {
             return initConfig().database;
         };
 
-        describe('type', function() {
-            it('should fallback to sqlite if the type is unknown', function() {
+        describe('type', function () {
+            it('should fallback to sqlite if the type is unknown', function () {
                 exampleConfig.database.type = 'special-sql';
                 getDbConfig().type.should.equal('sqlite');
             });
         });
 
-        describe('user', function() {
-            it('should return if it is a network db', function() {
+        describe('user', function () {
+            it('should return if it is a network db', function () {
                 getDbConfig().user.should.equal('root');
             });
 
-            it('should nil if it is not a string', function() {
+            it('should nil if it is not a string', function () {
                 exampleConfig.database.user = {};
                 should.not.exist(getDbConfig().user);
             });
 
-            it('should return nil if it is not a network database', function() {
+            it('should return nil if it is not a network database', function () {
                 setSqlite();
                 should.not.exist(getDbConfig().user);
             });
         });
 
-        describe('password', function() {
-            it('should return if it is a network db', function() {
+        describe('password', function () {
+            it('should return if it is a network db', function () {
                 getDbConfig().password.should.equal('secret');
             });
 
-            it('should nil if it is not a string', function() {
+            it('should nil if it is not a string', function () {
                 exampleConfig.database.password = {};
                 should.not.exist(getDbConfig().password);
             });
 
-            it('should return nil if it is not a network database', function() {
+            it('should return nil if it is not a network database', function () {
                 setSqlite();
                 should.not.exist(getDbConfig().password);
             });
         });
 
-        describe('host', function() {
-            it('should return if it is a network db', function() {
+        describe('host', function () {
+            it('should return if it is a network db', function () {
                 getDbConfig().host.should.equal('localhost');
             });
 
-            it('should nil if it is not a string', function() {
+            it('should nil if it is not a string', function () {
                 exampleConfig.database.host = {};
                 should.not.exist(getDbConfig().host);
             });
 
-            it('should return nil if it is not a network database', function() {
+            it('should return nil if it is not a network database', function () {
                 setSqlite();
                 should.not.exist(getDbConfig().host);
             });
         });
 
-        describe('port', function() {
-            it('should return if it is a network db', function() {
+        describe('port', function () {
+            it('should return if it is a network db', function () {
                 getDbConfig().port.should.equal(3307);
             });
 
-            it('should return the default value if nothing is passed', function() {
+            it('should return the default value if nothing is passed', function () {
                 exampleConfig.database.port = '';
                 getDbConfig().port.should.equal(3306);
             });
 
-            it('should return nil if it is not a network database', function() {
+            it('should return nil if it is not a network database', function () {
                 setSqlite();
                 should.not.exist(getDbConfig().port);
             });
         });
 
-        describe('path', function() {
-            it('should return null if it is a network database', function() {
+        describe('path', function () {
+            it('should return null if it is a network database', function () {
                 should.not.exist(getDbConfig().path);
             });
 
-            it('should return the default path is none is provided but it is a non network database', function() {
+            it('should return the default path is none is provided but it is a non network database', function () {
                 setSqlite();
                 getDbConfig().path.should.equal('p2p-cdn.db');
             });
 
-            it('should return the path if one is set and it is a sqlite database', function() {
+            it('should return the path if one is set and it is a sqlite database', function () {
                 setSqlite();
                 var sqlitePath = temp.path();
                 exampleConfig.database.path = sqlitePath;
@@ -149,32 +149,32 @@ describe('Config', function() {
             });
         });
 
-        describe('with an empty configuration', function() {
+        describe('with an empty configuration', function () {
             var config;
 
-            beforeEach(function() {
+            beforeEach(function () {
                 config = new Config();
             });
 
-            it ('should return an empty file directory', function() {
+            it('should return an empty file directory', function () {
                 should.not.exist(config.fileDirectory);
             });
 
-            describe('database', function() {
+            describe('database', function () {
 
-                var getDatabase = function() {
+                var getDatabase = function () {
                     return config.database;
                 };
 
-                it('should fallback to sqlite as a default entry', function() {
+                it('should fallback to sqlite as a default entry', function () {
                     getDatabase().type.should.equal('sqlite');
                 });
 
-                it('should return an empty user', function() {
+                it('should return an empty user', function () {
                     should.not.exist(getDatabase().user);
                 });
 
-                it('should return an empty password', function() {
+                it('should return an empty password', function () {
                     should.not.exist(getDatabase().password);
                 });
 

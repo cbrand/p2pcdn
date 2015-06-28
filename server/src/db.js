@@ -10,10 +10,10 @@ var db = {};
  * Initializes the database connection and return the
  * sequelize object.
  */
-var initDB = function(databaseConfig) {
+var initDB = function (databaseConfig) {
     var sequelize;
     /* istanbul ignore else: MySQL not tested. */
-    if(databaseConfig.type == 'sqlite') {
+    if (databaseConfig.type === 'sqlite') {
         sequelize = new Sequelize('database', 'user', 'password',
             {
                 storage: databaseConfig.path,
@@ -21,8 +21,8 @@ var initDB = function(databaseConfig) {
                 logging: null
             }
         );
-    /* istanbul ignore next: MySQL not tested. */
-    } else if (databaseConfig.type == 'mysql') {
+        /* istanbul ignore next: MySQL not tested. */
+    } else if (databaseConfig.type === 'mysql') {
         sequelize = new Sequelize(
             databaseConfig.database,
             databaseConfig.user,
@@ -32,7 +32,7 @@ var initDB = function(databaseConfig) {
                 port: databaseConfig.port,
                 type: 'mysql'
             }
-        )
+        );
     }
     return sequelize;
 };
@@ -42,7 +42,7 @@ var initDB = function(databaseConfig) {
  *
  * @param sequelize
  */
-var defineTables = function(sequelize) {
+var defineTables = function (sequelize) {
     exports.File = db.File = sequelize.define('file', {
         uuid: {
             primaryKey: true,
@@ -66,7 +66,7 @@ var defineTables = function(sequelize) {
  *
  * @param {Database} databaseConfig
  */
-var init = exports.init = function(databaseConfig) {
+exports.init = function (databaseConfig) {
     var sequelize = initDB(databaseConfig);
     db.sequelize = sequelize;
 
@@ -76,7 +76,7 @@ var init = exports.init = function(databaseConfig) {
  * Creates all tables. Returns a promise which gets resolved
  * then the whole database is synced.
  */
-var sync = exports.sync = function() {
+exports.sync = function () {
     return db.File.sync();
 };
 exports.db = db;

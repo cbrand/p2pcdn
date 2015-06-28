@@ -1,18 +1,18 @@
-
 var fs = require('fs');
 var File = require('../../dist/data/file.js');
 var constants = require('../../dist/constants.js');
 var temp = require('temp');
 var mockery = require('mockery');
 var crypto = require('crypto');
-var should = require('should');
 
-describe('File', function() {
+require('should');
+
+describe('File', function () {
     var testDir;
 
-    beforeEach(function(cb) {
+    beforeEach(function (cb) {
         temp.track();
-        testDir = temp.mkdir('filetest', function(err, dirPath) {
+        testDir = temp.mkdir('filetest', function (err, dirPath) {
             testDir = dirPath;
             if (err) {
                 cb(err);
@@ -21,17 +21,17 @@ describe('File', function() {
         });
     });
 
-    afterEach(function(cb) {
+    afterEach(function (cb) {
         temp.cleanup(cb);
     });
 
-    it('should throw an error if the constructor is initialized without new', function() {
-        (function() {
+    it('should throw an error if the constructor is initialized without new', function () {
+        (function () {
             File(testDir);
         }).should.throw();
     });
 
-    describe('when no file is present', function() {
+    describe('when no file is present', function () {
         var f;
         var fName;
 
@@ -48,33 +48,33 @@ describe('File', function() {
         });
     });
 
-    describe('when a directory is set to the file path', function() {
+    describe('when a directory is set to the file path', function () {
         var f;
 
-        beforeEach(function() {
+        beforeEach(function () {
             f = new File(testDir);
         });
 
-        it('should throw an error if a directory exists on the given file location', function() {
-            (function() {
+        it('should throw an error if a directory exists on the given file location', function () {
+            (function () {
                 return f.numChunks;
             }).should.throw();
         });
 
     });
 
-    describe('when file is present', function() {
+    describe('when file is present', function () {
         var f;
         var fName;
         var chunks;
-        var createChunk = function(character, chunkSize) {
-                chunkSize = chunkSize || constants.CHUNK_SIZE;
-                var chunk = '';
-                for (var chunkIndex = 0; chunkIndex < chunkSize; chunkIndex++) {
-                    chunk += String(character);
-                }
-                return chunk;
-            };
+        var createChunk = function (character, chunkSize) {
+            chunkSize = chunkSize || constants.CHUNK_SIZE;
+            var chunk = '';
+            for (var chunkIndex = 0; chunkIndex < chunkSize; chunkIndex++) {
+                chunk += String(character);
+            }
+            return chunk;
+        };
 
         beforeEach(function () {
             fName = testDir + '/test.txt';
@@ -88,13 +88,13 @@ describe('File', function() {
             f = new File(fName);
         });
 
-        describe('numChunks', function() {
+        describe('numChunks', function () {
 
-            it('should return the correct number of chunks', function() {
+            it('should return the correct number of chunks', function () {
                 f.numChunks.should.equal(10);
             });
 
-            it('should return the correct number of chunks when uneven', function() {
+            it('should return the correct number of chunks when uneven', function () {
                 chunks = [];
                 chunks.push(createChunk('a'));
                 chunks.push(createChunk('b', constants.CHUNK_SIZE - 2));
@@ -105,58 +105,58 @@ describe('File', function() {
 
         });
 
-        describe('chunks', function() {
+        describe('chunks', function () {
 
-            it('should throw an error if a too high chunk number is passed', function() {
-                (function() {
+            it('should throw an error if a too high chunk number is passed', function () {
+                (function () {
                     f.chunk(11);
                 }).should.throw();
             });
 
-            it('should throw an error if negative chunk number is passed', function() {
-                (function() {
+            it('should throw an error if negative chunk number is passed', function () {
+                (function () {
                     f.chunk(-1);
                 }).should.throw();
             });
 
-            it('should return the correct chunk', function() {
-                return f.chunk(1).then(function(data) {
+            it('should return the correct chunk', function () {
+                return f.chunk(1).then(function (data) {
                     data.should.equal(createChunk('1'));
                 });
             });
 
-            it('should return data who does not align to chunk sizes', function() {
+            it('should return data who does not align to chunk sizes', function () {
                 chunks = [];
                 chunks.push(createChunk('a'));
                 chunks.push(createChunk('b', constants.CHUNK_SIZE - 2));
 
                 fs.writeFileSync(fName, chunks.join(''));
 
-                return f.chunk(1).then(function(data) {
+                return f.chunk(1).then(function (data) {
                     data.should.equal(createChunk('b', constants.CHUNK_SIZE - 2));
                 });
             });
 
 
-            describe('on read stream error', function() {
+            describe('on read stream error', function () {
                 var events;
-                beforeEach(function() {
+                beforeEach(function () {
                     mockery.enable();
 
                     events = {};
                     var fsMock = {
-                        createReadStream: function() {
+                        createReadStream: function () {
                             return {
-                                on: function(name, func) {
+                                on: function (name, func) {
                                     events[name] = events[name] || [];
                                     events[name].push(func);
                                 }
                             };
                         },
-                        statSync: function() {
+                        statSync: function () {
                             return {
                                 size: constants.CHUNK_SIZE * 10,
-                                isFile: function() {
+                                isFile: function () {
                                     return true;
                                 }
                             };
@@ -166,19 +166,19 @@ describe('File', function() {
                     f = new File('test.txt');
                 });
 
-                afterEach(function() {
+                afterEach(function () {
                     mockery.deregisterAll();
                     mockery.disable();
                 });
 
-                it('should notify with an error', function() {
-                    f.chunk(0).then(function() {
-                        throw new Error("Should not be called");
-                    }, function(err) {
+                it('should notify with an error', function () {
+                    f.chunk(0).then(function () {
+                        throw new Error('Should not be called');
+                    }, function (err) {
                         err.toString().should.equal('Error: Internal error');
                     });
 
-                    events.error.forEach(function(func) {
+                    events.error.forEach(function (func) {
                         func(new Error('Internal error'));
                     });
                 });
@@ -186,37 +186,37 @@ describe('File', function() {
 
         });
 
-        describe('chunkID', function() {
+        describe('chunkID', function () {
 
-            var shaHash = function(char, size) {
+            var shaHash = function (char, size) {
                 char = char || '0';
                 size = size || constants.CHUNK_SIZE;
 
                 var sha256 = crypto.createHash('sha256');
-                for(var i = 0; i < size; i++) {
+                for (var i = 0; i < size; i++) {
                     sha256.update(char);
                 }
                 return sha256.digest('hex');
             };
 
-            it('should return the correct hash when requesting the chunk ID', function() {
+            it('should return the correct hash when requesting the chunk ID', function () {
                 var expectedHash = shaHash();
-                return f.chunkID(0).then(function(hash) {
+                return f.chunkID(0).then(function (hash) {
                     hash.should.equal(expectedHash);
                 });
             });
 
         });
 
-        describe('stream', function() {
+        describe('stream', function () {
 
-            it('should accept to paas no arguments', function(done) {
+            it('should accept to paas no arguments', function (done) {
                 var stream = f.stream();
-                var data = "";
-                stream.on('data', function(d) {
+                var data = '';
+                stream.on('data', function (d) {
                     data += d;
                 });
-                stream.on('end', function() {
+                stream.on('end', function () {
                     data.length.should.be.above(0);
                     done();
                 });

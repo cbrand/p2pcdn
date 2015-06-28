@@ -1,7 +1,6 @@
 var Handler = require('./handler');
 var messages = require('../messages');
 var ErrorResponse = messages.response.Error;
-var GetChunkRequest = messages.request.GetChunk;
 
 class FileHandler extends Handler {
     get _fileHandler() {

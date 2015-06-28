@@ -1,4 +1,4 @@
-var TextEncoder = require('text-encoding').TextEncoder;
+var Encoder = require('text-encoding').TextEncoder;
 
 var FileHandler = require('./file_handler');
 var messages = require('../messages');
@@ -37,7 +37,7 @@ class ChunkHandler extends FileHandler {
         var self = this;
         return self._chunk.then(function(chunkData) {
             var response = new ChunkResponse(self.request.uuid, self.request.chunk);
-            response.data = new TextEncoder('utf8').encode(chunkData);
+            response.data = new Encoder('utf8').encode(chunkData);
             return response;
         });
     }

@@ -49,7 +49,7 @@ class StorageHandler {
         fs.exists(uuidPath, deferred.resolve);
 
         return deferred.promise.then(function(exists) {
-            return Q.Promise(function(resolve, reject) {
+            return new Q.Promise(function(resolve, reject) {
                 if(!exists) {
                     resolve(exists);
                 } else {

@@ -1,4 +1,3 @@
-var Q = require('q');
 var proto = require('./proto');
 var ProtoRequest = proto.Request;
 var protoHelpers = require('../../../proto/helpers');
@@ -31,6 +30,7 @@ class Request {
         return protoHelpers.deserializeWithTypes(arrayBuffer, ProtoRequest, types);
     }
 
+    /*eslint-disable no-unused-vars */
     /**
      * Updates a protocol buffer with the representation of the given
      * javascript object.
@@ -52,6 +52,7 @@ class Request {
     static _fromProto(protoRequest) {
 
     }
+    /*eslint-enable */
 
     /**
      * Registers the type to the internal registry.

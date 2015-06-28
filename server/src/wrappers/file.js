@@ -1,5 +1,3 @@
-var DBFile = require('../db').File;
-var FSFile = require('../data/file');
 
 class File {
 
