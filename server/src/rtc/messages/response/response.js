@@ -1,6 +1,7 @@
 var Q = require('q');
 var proto = require('./proto');
 var ProtoResponse = proto.Response;
+var protoHelpers = require('../../../proto/helpers');
 
 var types = {};
 var registerType = function(name, cl) {
@@ -16,16 +17,7 @@ class Response {
      * @returns {Promise.<ArrayBuffer>}
      */
     serialize() {
-        var self = this;
-        var protoResponse = new ProtoResponse();
-        var deferred = Q.defer();
-        setImmediate(deferred.resolve);
-
-        return deferred.promise.then(function() {
-            return self._updateProto(protoResponse);
-        }).then(function() {
-            return protoResponse.toArrayBuffer();
-        });
+        return protoHelpers.serialize(this, ProtoResponse);
     }
 
     /**
@@ -35,18 +27,7 @@ class Response {
      * @returns Promise.<Response>
      */
     static deserialize(arrayBuffer) {
-        var protoResponse = ProtoResponse.decode(arrayBuffer);
-
-        if(!types[protoResponse.type]) {
-            throw new Error('Unknown type for deserialization');
-        }
-
-        var deferred = Q.defer();
-        setImmediate(deferred.resolve);
-        var t = types[protoResponse.type];
-        return deferred.promise.then(function() {
-            return t._fromProto(protoResponse);
-        });
+        return protoHelpers.deserializeWithTypes(arrayBuffer, ProtoResponse, types);
     }
 
     /**
