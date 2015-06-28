@@ -40,7 +40,7 @@ describe('http', function () {
                     .get('/api/files/' + addedUUID)
                     .set('Accept', 'application/json')
                     .end(function (err, res) {
-                        should(err).be(null);
+                        should(err).be.null;
 
                         var json = res.body;
                         json.uuid.should.equal(addedUUID);
