@@ -1,65 +1,23 @@
-var fs = require('fs');
-var path = require('path');
-var http = require('http');
-var temp = require('temp');
 var request = require('supertest');
-var bodyParser = require('body-parser');
 var HttpStatus = require('http-status-codes');
 var should = require('should');
-var Q = require('q');
 var helpers = require('../../helpers');
+var apiHelpers = require('./helpers');
 
 var server = helpers.require('http/server');
 var Config = helpers.require('config');
-var db = helpers.require('db');
 
 describe('http', function() {
-    var directory;
-    var fileDirectory;
-    var config;
     var app;
 
-    var streamToString = function(stream) {
-        var deferred = Q.defer();
-        var data = '';
-        stream.setEncoding('binary');
-        stream.on('data', function(d) {
-            data += d;
-        });
-        stream.on('error', function(err) {
-            deferred.reject(err)
-        });
-        stream.on('end', function() {
-            deferred.resolve(data);
-        });
-        return deferred.promise;
-    };
-
     beforeEach(function() {
-        temp.track();
-
-        directory = temp.mkdirSync();
-        fileDirectory = path.join(directory, 'files');
-        fs.mkdirSync(fileDirectory);
-
-        config = new Config();
-        config.config = {
-            fileDirectory: fileDirectory,
-            database: {
-                type: 'sqlite',
-                path: path.join(directory, 'p2pcdn.db')
-            }
-        };
-
-        server.init(config);
-        db.init(config.database);
-        app = server.app;
-
-        return db.sync();
+        return apiHelpers.setUp().then(function(data) {
+            app = data.app;
+        });
     });
 
     afterEach(function() {
-        temp.cleanupSync();
+        return apiHelpers.tearDown();
     });
 
     describe('/api/files/:uuid', function() {
