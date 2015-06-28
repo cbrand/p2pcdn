@@ -1,0 +1,11 @@
+
+message Negotiation {
+    enum Type {
+        OFFER = 1;
+        OFFER_RESPONSE = 2;
+        ICE_CANDIDATE = 3;
+    }
+
+    required Type type = 1;
+    required bytes payload = 2;
+}
