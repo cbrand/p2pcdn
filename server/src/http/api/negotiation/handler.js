@@ -73,6 +73,10 @@ class NegotiationHandler extends events.EventEmitter {
         return self.ws.send(negotiation);
     }
 
+    close() {
+        var self = this;
+        self.connection && self.connection.close();
+    }
 }
 
 export default NegotiationHandler;

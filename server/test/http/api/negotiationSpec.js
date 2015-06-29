@@ -59,8 +59,9 @@ describe('http', function () {
 
         });
 
-        afterEach(function () {
-            startedServer.close();
+        afterEach(function (cb) {
+            app.emit('close');
+            startedServer.close(cb);
         });
 
         var connectWS = function () {

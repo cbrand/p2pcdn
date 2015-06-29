@@ -11,5 +11,9 @@ export default function(ws, req) {
     var negotiationWs = new NegotiationWs(ws);
     var handler = new NegotiationHandler(negotiationWs, req.app.get('config'));
     negotiationWs.start();
+
+    req.app.once('close', function() {
+        handler.close();
+    });
     return handler;
 }
