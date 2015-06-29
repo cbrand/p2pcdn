@@ -4,6 +4,7 @@ var NodeWebSocket = require('ws');
 var wrtc = require('wrtc');
 var helpers = require('../../helpers');
 var apiHelpers = require('./helpers');
+var expect = require('chai').expect;
 
 var Negotiation = helpers.require('http/api/negotiation/negotiation');
 
@@ -59,9 +60,12 @@ describe('http', function () {
 
         });
 
-        afterEach(function (cb) {
+        afterEach(function () {
             app.emit('close');
-            startedServer.close(cb);
+            return new Q.Promise(function(resolve) {
+                startedServer.on('close', resolve);
+                startedServer.close();
+            });
         });
 
         var connectWS = function () {
@@ -78,7 +82,20 @@ describe('http', function () {
 
         it('should be able to connect through a websocket to the server', function () {
             return connectWS().then(function (socket) {
+                var q = Q.defer();
                 socket.close();
+                var states = {
+                    CONNECTING: 0,
+                    OPEN: 1,
+                    CLOSING: 2,
+                    CLOSED: 3
+                };
+                expect(socket.readyState).to.equal(states.CLOSING);
+                socket.onclose = function() {
+                    expect(socket.readyState).to.equal(states.CLOSED);
+                    q.resolve();
+                };
+                return q.promise;
             });
         });
 
