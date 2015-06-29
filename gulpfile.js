@@ -284,7 +284,7 @@ gulp.task('mocha:coverage', function(done) {
         .pipe(istanbul())
         .pipe(istanbul.hookRequire())
         .on('finish', function() {
-            gulp.src(dirs.serverTest + '**/*.js')
+            gulp.src(dirs.serverTest + '/**/*.js')
                 .pipe(mocha())
                 .pipe(istanbul.writeReports())
                 .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 }}))
