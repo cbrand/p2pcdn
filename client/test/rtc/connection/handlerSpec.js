@@ -1,6 +1,4 @@
-var Q = require('q');
 var helpers = require('../../helpers');
-var expect = require('chai').expect;
 helpers.emulateBrowser();
 
 var ConnectionHandler = helpers.require('rtc/connection/handler');
@@ -31,8 +29,10 @@ describe('Connection', function () {
 
         it('should be able to connect to the server', function () {
             return connectionHandler.connect().then(function (channel) {
+                channel.onclose = function() {
+                    connectionHandler.connection.close();
+                };
                 channel.close();
-                connectionHandler.connection.close();
             });
         });
 

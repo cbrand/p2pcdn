@@ -1,4 +1,3 @@
-var expect = require('chai').expect;
 var Q = require('q');
 var path = require('path');
 var apiHelpers = require('../../server/test/http/api/helpers');
@@ -68,14 +67,4 @@ exports.emulateBrowser = function() {
     window.RTCPeerConnection = wrtc.RTCPeerConnection;
     window.RTCSessionDescription = wrtc.RTCSessionDescription;
     window.WebSocket = require('ws');
-};
-exports.shutdownWs = function(ws) {
-    ws.close();
-    var states = {
-        CONNECTING: 0,
-        OPEN: 1,
-        CLOSING: 2,
-        CLOSED: 3
-    };
-
 };
