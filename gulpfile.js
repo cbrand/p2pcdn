@@ -259,7 +259,7 @@ gulp.task('mocha:run:junit', function(done) {
                     }
                 }))
                 .pipe(istanbul.writeReports({
-                    reporters: ['lcov', 'json', 'text', 'text-summary', 'cobertura', 'html']
+                    reporters: ['text', 'text-summary', 'html']
                 }))
                 .on('end', done);
         });
