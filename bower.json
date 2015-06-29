@@ -18,7 +18,9 @@
     "tests"
   ],
   "dependencies": {
-    "bootstrap-material-design": "~0.3.0"
+    "bootstrap-material-design": "~0.3.0",
+    "bytebuffer": "~4.0.0",
+    "requirejs": "~2.1.18"
   },
   "devDependencies": {
     "bootstrap": "~3.3.4"

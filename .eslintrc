@@ -16,5 +16,8 @@
         "no-constant-condition": 0,
         "new-cap": 0,
         "no-unused-expressions": 0
+    },
+    "globals": {
+        "Modernizr": true
     }
 }

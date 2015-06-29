@@ -85,7 +85,8 @@ gulp.task('copy', [
     'copy:material.js',
     'copy:main.css',
     'copy:misc',
-    'copy:normalize'
+    'copy:normalize',
+    'copy:protobuf:json'
 ]);
 
 gulp.task('concat', [
@@ -166,6 +167,7 @@ gulp.task('copy:misc', function () {
         // Exclude the following files
         // (other tasks will handle the copying of these files)
         '!' + dirs.src + '/css/main.css',
+        '!' + dirs.src + '/js/**/*',
         '!' + dirs.src + '/less/**/*',
         '!' + dirs.src + '/index.html'
 
@@ -182,6 +184,11 @@ gulp.task('copy:normalize', function () {
                .pipe(gulp.dest(dirs.dist + '/css'));
 });
 
+gulp.task('copy:protobuf:json', function() {
+    return gulp.src(dirs.src + '/js/**/*.json')
+               .pipe(gulp.dest(dirs.dist + '/js'));
+});
+
 gulp.task('copy:server:json', function() {
     return gulp.src(dirs.server + '/**/*.json')
                 .pipe(gulp.dest(dirs.serverDist));
@@ -195,7 +202,8 @@ gulp.task('copy:server:protobuf', function() {
 gulp.task('lint:js', function () {
     return gulp.src([
         'gulpfile.js',
-        dirs.src + '/js/*.js',
+        dirs.src + '/js/**/*.js',
+        '!' + dirs.src + '/js/vendor/**/*.js',
         dirs.test + '/**/*.js',
         dirs.server + '/**/*.js',
         dirs.serverTest + '/**/*.js'
@@ -204,6 +212,17 @@ gulp.task('lint:js', function () {
         }))
       .pipe(plugins.eslint.format())
       .pipe(plugins.eslint.failOnError());
+});
+
+gulp.task('browserify:client', function() {
+    gulp.src(dirs.dist + '/js/main.js')
+        .pipe(plugins.browserify({
+            insertGlobals: true,
+            debug: !gulp.env.production,
+            transform: ['stringify'],
+            ignore: ['wrtc']
+        }))
+        .pipe(gulp.dest(dirs.dist + '/js/bundle'));
 });
 
 gulp.task('concat:css', function() {
@@ -215,6 +234,18 @@ gulp.task('concat:css', function() {
         dirs.dist + '/css/main.css'
     ])
         .pipe(concatCss('css/bundle.css'))
+        .pipe(gulp.dest(dirs.dist));
+});
+
+gulp.task('compile:client', function() {
+    return gulp.src(dirs.src + '/**/*.js')
+        .pipe(sourcemaps.init())
+        .pipe(babel())
+        .pipe(replace(/(var _createClass =[^\n]*)/, '/* istanbul ignore next */ $1'))
+        .pipe(replace(/(function _classCallCheck\(instance, Constructor\)[^\n]*)/, '/* istanbul ignore next */ $1'))
+        .pipe(replace(/(function _inherits\(subClass, superClass\)[^\n]*)/, '/* istanbul ignore next */ $1'))
+        .pipe(replace(/(var _get = function get\(_x, _x2, _x3\)[^\n]*)/, '/* istanbul ignore next */ $1'))
+        .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(dirs.dist));
 });
 
@@ -231,23 +262,29 @@ gulp.task('compile:server', function() {
 });
 
 gulp.task('compile:protobuf', function() {
-    return gulp.src(dirs.protoBuf + '/**/*.proto')
+    return gulp.src(dirs.server + '/**/*.proto')
         .pipe(gulpprotobuf({
-            target: 'js'
+            target: 'json'
         }))
         .pipe(plugins.rename({
-            dirname: dirs.src + '/messages'
+            dirname: dirs.src + '/js/messages/',
+            extname: '.json'
         }))
         .pipe(gulp.dest('./'));
 });
 
 gulp.task('mocha:run:console', function() {
-    return gulp.src(dirs.serverTest + '/**/*Spec.js')
-                .pipe(mocha());
+    return gulp.src([
+        dirs.test + '/**/*.js',
+        dirs.serverTest + '/**/*.js'
+    ]).pipe(mocha());
 });
 
 gulp.task('mocha:run:junit', function(done) {
-    gulp.src([dirs.serverDist + '/**/*.js'])
+    gulp.src([
+        dirs.test + '/**/*.js',
+        dirs.serverDist + '/**/*.js'
+    ])
         .pipe(istanbul())
         .pipe(istanbul.hookRequire())
         .on('finish', function() {
@@ -268,6 +305,7 @@ gulp.task('mocha:run:junit', function(done) {
 gulp.task('mocha:junit', function(done) {
     runSequence(
         'build:server',
+        'build:client',
         'mocha:run:junit',
     done);
 });
@@ -275,6 +313,7 @@ gulp.task('mocha:junit', function(done) {
 gulp.task('mocha:console', function(done) {
     runSequence(
         'build:server',
+        'build:client',
         'mocha:run:console',
     done);
 });
@@ -284,7 +323,10 @@ gulp.task('mocha:coverage', function(done) {
         .pipe(istanbul())
         .pipe(istanbul.hookRequire())
         .on('finish', function() {
-            gulp.src(dirs.serverTest + '/**/*.js')
+            gulp.src([
+                dirs.test + '/**/*.js',
+                dirs.serverTest + '/**/*.js'
+            ])
                 .pipe(mocha())
                 .pipe(istanbul.writeReports())
                 .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 }}))
@@ -306,7 +348,6 @@ gulp.task('run:server', function() {
 
     gulp.watch([
         'client/src/**/*.css',
-        'client/src/**/*.js',
         'client/src/**/*.js'
     ], ['build:client']);
 
@@ -333,9 +374,11 @@ gulp.task('archive', function (done) {
 
 gulp.task('build:client', function (done) {
     runSequence(
-        ['clean', 'lint:js'],
+        ['clean'],
         'compile:protobuf',
+        'compile:client',
         'copy',
+        'browserify:client',
         'concat',
     done);
 });
@@ -354,6 +397,7 @@ gulp.task('server', function(done) {
     done);
 });
 
-gulp.task('build', ['build:server', 'build:client']);
+gulp.task('build', ['lint:js', 'build:server', 'build:client']);
+gulp.task('lint', ['lint:js']);
 
 gulp.task('default', ['build']);
