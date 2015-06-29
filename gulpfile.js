@@ -100,43 +100,43 @@ gulp.task('copy:server', [
 
 gulp.task('copy:.htaccess', function () {
     return gulp.src('node_modules/apache-server-configs/dist/.htaccess')
-               .pipe(plugins.replace(/# ErrorDocument/g, 'ErrorDocument'))
-               .pipe(gulp.dest(dirs.dist));
+        .pipe(plugins.replace(/# ErrorDocument/g, 'ErrorDocument'))
+        .pipe(gulp.dest(dirs.dist));
 });
 
 gulp.task('copy:index.html', function () {
     return gulp.src(dirs.src + '/index.html')
-               .pipe(plugins.replace(/{{JQUERY_VERSION}}/g, pkg.devDependencies.jquery))
-               .pipe(gulp.dest(dirs.dist));
+        .pipe(plugins.replace(/{{JQUERY_VERSION}}/g, pkg.devDependencies.jquery))
+        .pipe(gulp.dest(dirs.dist));
 });
 
 gulp.task('copy:jquery', function () {
     return gulp.src(['node_modules/jquery/dist/jquery.min.js'])
-               .pipe(plugins.rename('jquery-' + pkg.devDependencies.jquery + '.min.js'))
-               .pipe(gulp.dest(dirs.dist + '/js/vendor'));
+        .pipe(plugins.rename('jquery-' + pkg.devDependencies.jquery + '.min.js'))
+        .pipe(gulp.dest(dirs.dist + '/js/vendor'));
 });
 
 gulp.task('copy:license', function () {
     return gulp.src('LICENSE.txt')
-               .pipe(gulp.dest(dirs.dist));
+        .pipe(gulp.dest(dirs.dist));
 });
 
 gulp.task('copy:main.css', function () {
 
     var banner = '/*! HTML5 Boilerplate v' + pkg.version +
-                    ' | ' + pkg.license.type + ' License' +
-                    ' | ' + pkg.homepage + ' */\n\n';
+        ' | ' + pkg.license.type + ' License' +
+        ' | ' + pkg.homepage + ' */\n\n';
 
     return gulp.src(dirs.src + '/css/main.css')
-               .pipe(plugins.header(banner))
-               .pipe(plugins.autoprefixer({
-                   browsers: ['last 2 versions', 'ie >= 8', '> 1%'],
-                   cascade: false
-               }))
-               .pipe(gulp.dest(dirs.dist + '/css'));
+        .pipe(plugins.header(banner))
+        .pipe(plugins.autoprefixer({
+            browsers: ['last 2 versions', 'ie >= 8', '> 1%'],
+            cascade: false
+        }))
+        .pipe(gulp.dest(dirs.dist + '/css'));
 });
 
-gulp.task('copy:material.css', function() {
+gulp.task('copy:material.css', function () {
     var MATERIAL_DIR = dirs.bower + '/bootstrap-material-design/dist/css/';
     return gulp.src([
         MATERIAL_DIR + 'material-fullpalette.min.css',
@@ -145,12 +145,12 @@ gulp.task('copy:material.css', function() {
     ]).pipe(gulp.dest(dirs.dist + '/css'));
 });
 
-gulp.task('copy:material.fonts', function() {
+gulp.task('copy:material.fonts', function () {
     var MATERIAL_DIR = dirs.bower + '/bootstrap-material-design/dist/fonts/';
     return gulp.src(MATERIAL_DIR + '*').pipe(gulp.dest(dirs.dist + '/fonts'));
 });
 
-gulp.task('copy:material.js', function() {
+gulp.task('copy:material.js', function () {
     var MATERIAL_DIR = dirs.bower + '/bootstrap-material-design/dist/js/';
     return gulp.src([
         MATERIAL_DIR + 'material.min.js',
@@ -181,20 +181,20 @@ gulp.task('copy:misc', function () {
 
 gulp.task('copy:normalize', function () {
     return gulp.src('node_modules/normalize.css/normalize.css')
-               .pipe(gulp.dest(dirs.dist + '/css'));
+        .pipe(gulp.dest(dirs.dist + '/css'));
 });
 
-gulp.task('copy:protobuf:json', function() {
+gulp.task('copy:protobuf:json', function () {
     return gulp.src(dirs.src + '/js/**/*.json')
-               .pipe(gulp.dest(dirs.dist + '/js'));
+        .pipe(gulp.dest(dirs.dist + '/js'));
 });
 
-gulp.task('copy:server:json', function() {
+gulp.task('copy:server:json', function () {
     return gulp.src(dirs.server + '/**/*.json')
-                .pipe(gulp.dest(dirs.serverDist));
+        .pipe(gulp.dest(dirs.serverDist));
 });
 
-gulp.task('copy:server:protobuf', function() {
+gulp.task('copy:server:protobuf', function () {
     return gulp.src(dirs.server + '/**/*.proto')
         .pipe(gulp.dest(dirs.serverDist));
 });
@@ -208,13 +208,13 @@ gulp.task('lint:js', function () {
         dirs.server + '/**/*.js',
         dirs.serverTest + '/**/*.js'
     ]).pipe(plugins.eslint({
-            useEslintrc: true
-        }))
-      .pipe(plugins.eslint.format())
-      .pipe(plugins.eslint.failOnError());
+        useEslintrc: true
+    }))
+        .pipe(plugins.eslint.format())
+        .pipe(plugins.eslint.failOnError());
 });
 
-gulp.task('browserify:client', function() {
+gulp.task('browserify:client', function () {
     gulp.src(dirs.dist + '/js/main.js')
         .pipe(plugins.browserify({
             insertGlobals: true,
@@ -225,7 +225,7 @@ gulp.task('browserify:client', function() {
         .pipe(gulp.dest(dirs.dist + '/js/bundle'));
 });
 
-gulp.task('concat:css', function() {
+gulp.task('concat:css', function () {
     return gulp.src([
         dirs.dist + '/css/normalize.css',
         dirs.dist + '/css/material-fullpalette.min.css',
@@ -237,7 +237,7 @@ gulp.task('concat:css', function() {
         .pipe(gulp.dest(dirs.dist));
 });
 
-gulp.task('compile:client', function() {
+gulp.task('compile:client', function () {
     return gulp.src(dirs.src + '/**/*.js')
         .pipe(sourcemaps.init())
         .pipe(babel())
@@ -249,19 +249,19 @@ gulp.task('compile:client', function() {
         .pipe(gulp.dest(dirs.dist));
 });
 
-gulp.task('compile:server', function() {
+gulp.task('compile:server', function () {
     return gulp.src(dirs.server + '/**/*.js')
-            .pipe(sourcemaps.init())
-            .pipe(babel())
-            .pipe(replace(/(var _createClass =[^\n]*)/, '/* istanbul ignore next */ $1'))
-            .pipe(replace(/(function _classCallCheck\(instance, Constructor\)[^\n]*)/, '/* istanbul ignore next */ $1'))
-            .pipe(replace(/(function _inherits\(subClass, superClass\)[^\n]*)/, '/* istanbul ignore next */ $1'))
-            .pipe(replace(/(var _get = function get\(_x, _x2, _x3\)[^\n]*)/, '/* istanbul ignore next */ $1'))
-            .pipe(sourcemaps.write('.'))
-            .pipe(gulp.dest(dirs.serverDist));
+        .pipe(sourcemaps.init())
+        .pipe(babel())
+        .pipe(replace(/(var _createClass =[^\n]*)/, '/* istanbul ignore next */ $1'))
+        .pipe(replace(/(function _classCallCheck\(instance, Constructor\)[^\n]*)/, '/* istanbul ignore next */ $1'))
+        .pipe(replace(/(function _inherits\(subClass, superClass\)[^\n]*)/, '/* istanbul ignore next */ $1'))
+        .pipe(replace(/(var _get = function get\(_x, _x2, _x3\)[^\n]*)/, '/* istanbul ignore next */ $1'))
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest(dirs.serverDist));
 });
 
-gulp.task('compile:protobuf', function() {
+gulp.task('compile:protobuf', function () {
     return gulp.src(dirs.server + '/**/*.proto')
         .pipe(gulpprotobuf({
             target: 'json'
@@ -273,22 +273,26 @@ gulp.task('compile:protobuf', function() {
         .pipe(gulp.dest('./'));
 });
 
-gulp.task('mocha:run:console', function() {
+gulp.task('mocha:run:console', function () {
     return gulp.src([
         dirs.test + '/**/*.js',
         dirs.serverTest + '/**/*.js'
     ]).pipe(mocha());
 });
 
-gulp.task('mocha:run:junit', function(done) {
+gulp.task('mocha:run:junit', function (done) {
     gulp.src([
-        dirs.test + '/**/*.js',
+        dirs.dist + '/js/**/*.js',
+        '!' + dirs.dist + '/js/vendor/**/*.js',
         dirs.serverDist + '/**/*.js'
     ])
         .pipe(istanbul())
         .pipe(istanbul.hookRequire())
-        .on('finish', function() {
-            return gulp.src(dirs.serverTest + '/**/*.js')
+        .on('finish', function () {
+            return gulp.src([
+                dirs.serverTest + '/**/*.js',
+                dirs.test + '/**/*.js'
+            ])
                 .pipe(mocha({
                     reporter: 'mocha-junit-reporter',
                     reporterOptions: {
@@ -302,40 +306,44 @@ gulp.task('mocha:run:junit', function(done) {
         });
 });
 
-gulp.task('mocha:junit', function(done) {
+gulp.task('mocha:junit', function (done) {
     runSequence(
         'build:server',
         'build:client',
         'mocha:run:junit',
-    done);
+        done);
 });
 
-gulp.task('mocha:console', function(done) {
+gulp.task('mocha:console', function (done) {
     runSequence(
         'build:server',
         'build:client',
         'mocha:run:console',
-    done);
+        done);
 });
 
-gulp.task('mocha:coverage', function(done) {
-    gulp.src([dirs.serverDist + '/**/*.js'])
+gulp.task('mocha:coverage', function (done) {
+    gulp.src([
+        dirs.dist + '/js/**/*.js',
+        '!' + dirs.dist + '/js/vendor/**/*.js',
+        dirs.serverDist + '/**/*.js'
+    ])
         .pipe(istanbul())
         .pipe(istanbul.hookRequire())
-        .on('finish', function() {
+        .on('finish', function () {
             gulp.src([
                 dirs.test + '/**/*.js',
                 dirs.serverTest + '/**/*.js'
             ])
                 .pipe(mocha())
                 .pipe(istanbul.writeReports())
-                .pipe(istanbul.enforceThresholds({ thresholds: { global: 90 }}))
+                .pipe(istanbul.enforceThresholds({thresholds: {global: 90}}))
                 .on('end', done)
             ;
         });
 });
 
-gulp.task('run:server', function() {
+gulp.task('run:server', function () {
     server.run(['server/src/server.js']);
 
     gulp.watch([
@@ -369,7 +377,7 @@ gulp.task('archive', function (done) {
         'build',
         'archive:create_archive_dir',
         'archive:zip',
-    done);
+        done);
 });
 
 gulp.task('build:client', function (done) {
@@ -380,21 +388,21 @@ gulp.task('build:client', function (done) {
         'copy',
         'browserify:client',
         'concat',
-    done);
+        done);
 });
 
-gulp.task('build:server', function(done) {
+gulp.task('build:server', function (done) {
     runSequence(
         'compile:server',
         'copy:server',
-    done);
+        done);
 });
 
-gulp.task('server', function(done) {
+gulp.task('server', function (done) {
     runSequence(
         'build',
         'run:server',
-    done);
+        done);
 });
 
 gulp.task('build', ['lint:js', 'build:server', 'build:client']);
