@@ -68,7 +68,6 @@ class NegotiationWs extends events.EventEmitter {
 
     close(code, reason) {
         var self = this;
-        console.log(code);
         self.ws.close(code, reason);
     }
 

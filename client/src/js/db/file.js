@@ -1,7 +1,7 @@
 var Q = require('q');
 var persistence = require('./persistence/file');
 var ChunkHandler = require('./handler/chunk');
-
+var ConcatHandler = require('./handler/concatHandler');
 
 class File extends persistence.Base {
 
@@ -11,6 +11,7 @@ class File extends persistence.Base {
         self.dbFile = {};
         self.id = id;
         self._chunkHandler = new ChunkHandler(this);
+        self._concatHandler = new ConcatHandler(this);
     }
 
     get id() {
@@ -117,6 +118,16 @@ class File extends persistence.Base {
 
     removeChunk(chunkNum, chunk) {
         return this._chunkHandler.remove(chunkNum, chunk);
+    }
+
+    locallyAvailable() {
+        return this._concatHandler.available();
+    }
+
+    // Triggers the download service. Utilizing the FileSaver.js
+    // implementation
+    blob() {
+        return this._concatHandler.blob();
     }
 
 }
