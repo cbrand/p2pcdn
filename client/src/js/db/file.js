@@ -79,8 +79,8 @@ class File extends persistence.Base {
     remove() {
         var self = this;
         var promise;
-        if (self.dbFile == null) {
-            promise = File.db.get(id).catch(function (err) {
+        if (self.dbFile._rev == null) {
+            promise = File.db.get(self.id).catch(function (err) {
                 if(err.status == 404) {
                     return null;
                 }

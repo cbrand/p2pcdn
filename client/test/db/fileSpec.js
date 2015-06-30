@@ -21,6 +21,10 @@ describe('DB', function () {
             return db.truncate();
         });
 
+        it('should correctly default numChunks to 0', function() {
+            expect(new File('second-file').numChunks).to.equal(0);
+        });
+
         describe('fetch', function () {
             it('should be able to create a new file if none has been stored yet', function () {
                 return File.loadOrCreate('does-not-exist-yet').then(function (file) {
@@ -40,7 +44,7 @@ describe('DB', function () {
                     return getTestFile().save().then(function (file) {
                         usedID = file.id;
                     }).then(function () {
-                        return File.load(usedID);
+                        return File.loadOrCreate(usedID);
                     }).then(function (file) {
                         loadedFile = file;
                     });
@@ -79,6 +83,18 @@ describe('DB', function () {
                 return savedFile.remove().then(function () {
                     return expect(File.load(savedFile.id)).to.be.rejected;
                 });
+            });
+
+            it('should be able to remove a file which has not been removed from the database as of now', function() {
+                var tempFileHandle = new File(savedFile.id);
+                return tempFileHandle.remove().then(function() {
+                    return expect(File.load(savedFile.id)).to.be.rejected;
+                });
+            });
+
+            it('should not have an issue to remove already removed files', function() {
+                var tempFileHandle = new File(savedFile.id+'a');
+                return expect(tempFileHandle.remove()).to.be.fulfilled;
             });
         });
 
@@ -165,6 +181,7 @@ describe('DB', function () {
                     });
                     return expect(promise).to.eventually.equal(false);
                 });
+
             });
         });
 
