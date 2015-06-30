@@ -16,13 +16,14 @@ describe('DB', function () {
             file.numChunks = 5;
             return file;
         };
-        var chunks = [
+        var chunkPlain = [
             'first chunk',
             'second chunk',
             'third chunk',
             'fourth chunk',
             'fifth chunk'
-        ].map(function (chunk) {
+        ];
+        var chunks = chunkPlain.map(function (chunk) {
                 return new Buffer(chunk).toString('base64');
             });
         var fillChunksExcept = function(file, notChunkNums) {
@@ -218,6 +219,29 @@ describe('DB', function () {
             it('should report to be available if all chunks are existing', function() {
                 return fillChunksExcept(savedFile, []).then(function() {
                     return expect(savedFile.locallyAvailable()).to.eventually.equal(true);
+                });
+            });
+        });
+
+        describe('blob', function() {
+            var savedFile;
+            beforeEach(function () {
+                return getTestFile().save().then(function (file) {
+                    savedFile = file;
+                });
+            });
+
+            it('should throw an error if the blobs are not available', function() {
+                return expect(savedFile.blob()).to.be.rejected;
+            });
+
+            it('should return a blob with all data if all chunks are locally available', function() {
+                return fillChunksExcept(savedFile, []).then(function() {
+                    var expectedData = new Buffer(chunkPlain.join('')).toString('base64');
+                    var promise = savedFile.blob().then(function(blob) {
+                        return helpers.blobToBase64(blob);
+                    });
+                    return expect(promise).to.eventually.equal(expectedData);
                 });
             });
         });
