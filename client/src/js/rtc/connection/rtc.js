@@ -1,7 +1,10 @@
+/* istanbul ignore next */
 var RTCPeerConnection = window.RTCPeerConnection ||
     window.mozRTCPeerConnection ||
     window.webkitRTCPeerConnection ||
     window.msRTCPeerConnection;
+
+/* istanbul ignore next */
 var RTCSessionDescription = window.RTCSessionDescription ||
     window.mozRTCSessionDescription ||
     window.webkitRTCSessionDescription ||
