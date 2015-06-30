@@ -1,7 +1,7 @@
 var stream = require('stream');
 var path = require('path');
-var chai = require("chai");
-var chaiAsPromised = require("chai-as-promised");
+var chai = require('chai');
+var chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 
 var distRequire = function(p) {
