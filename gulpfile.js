@@ -294,6 +294,18 @@ gulp.task('browserify:client:tests', function () {
         debug: true,
         paths: [dirs.dist + '/js', './node_modules', dirs.phantomTest]
     })
+        .bundle()
+        .pipe(source('tests.js'))
+        .pipe(buffer())
+        .pipe(gulp.dest(dirs.phantomTest + '/compiled'));
+});
+
+gulp.task('browserify:client:tests:istanbul', function () {
+    return browserify({
+        entries: [dirs.phantomTest + '/tests.js'],
+        debug: true,
+        paths: [dirs.dist + '/js', './node_modules', dirs.phantomTest]
+    })
         .transform(browserifyIstanbul())
         .bundle()
         .pipe(source('tests.js'))
@@ -389,7 +401,7 @@ gulp.task('mocha:run:junit', function (done) {
 gulp.task('mocha:junit', function (done) {
     runSequence(
         'build:server',
-        'build:tests',
+        'build:tests:coverage',
         'mocha:run:junit',
         done);
 });
@@ -444,6 +456,7 @@ gulp.task('mocha:coverage:print', function () {
 
 gulp.task('mocha:coverage', function (done) {
     runSequence(
+        'build:tests:coverage',
         'mocha:coverage:node',
         'mocha:coverage:phantomjs',
         'mocha:coverage:print',
@@ -480,12 +493,22 @@ gulp.task('run:server', function () {
     ], ['build:server']);
 
     gulp.watch([
-        'client/tests/**/*.js'
+        'client/tests/phantomjs/**/*.js'
     ], ['build:tests']);
 
     gulp.watch([
         'server/dist/**/*.js'
     ], [server.run]);
+});
+
+gulp.task('watch:tests', function() {
+    gulp.run('build:tests');
+
+    gulp.watch([
+        'client/tests/phantomjs/*.js',
+        'client/tests/phantomjs/**/*.js',
+        'client/src/**/*.js'
+    ], ['build:tests']);
 });
 
 gulp.task('tests:phantomjs', function(done) {
@@ -523,6 +546,13 @@ gulp.task('build:server', function (done) {
     runSequence(
         'compile:server',
         'copy:server',
+        done);
+});
+
+gulp.task('build:tests:coverage', function(done) {
+    runSequence(
+        'build:client',
+        'browserify:client:tests:istanbul',
         done);
 });
 
