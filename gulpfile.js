@@ -388,7 +388,7 @@ gulp.task('mocha:run:junit', function (done) {
 
 gulp.task('mocha:junit', function (done) {
     runSequence(
-        ['build:server', 'build:client'],
+        'build:server',
         'build:tests',
         'mocha:run:junit',
         done);
@@ -396,7 +396,7 @@ gulp.task('mocha:junit', function (done) {
 
 gulp.task('mocha:console', function (done) {
     runSequence(
-        ['build:server', 'build:client'],
+        'build:server',
         'build:tests',
         'mocha:run:console',
         done);
@@ -488,6 +488,14 @@ gulp.task('run:server', function () {
     ], [server.run]);
 });
 
+gulp.task('tests:phantomjs', function(done) {
+    runSequence(
+        'build:client',
+        'build:tests',
+        'mocha:run:console:phantomjs',
+        done);
+});
+
 // ---------------------------------------------------------------------
 // | Main tasks                                                        |
 // ---------------------------------------------------------------------
@@ -520,6 +528,7 @@ gulp.task('build:server', function (done) {
 
 gulp.task('build:tests', function (done) {
     runSequence(
+        'build:client',
         'browserify:client:tests',
         done);
 });
