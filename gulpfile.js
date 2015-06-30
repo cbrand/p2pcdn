@@ -220,6 +220,24 @@ gulp.task('lint:js', function () {
         .pipe(plugins.eslint.failOnError());
 });
 
+gulp.task('lint:js:report', function() {
+    var reportFile = fs.createWriteStream('testresults/lint-checkstyle.xml');
+    return gulp.src([
+        'gulpfile.js',
+        dirs.src + '/js/**/*.js',
+        '!' + dirs.src + '/js/vendor/**/*.js',
+        dirs.test + '/**/*.js',
+        dirs.server + '/**/*.js',
+        dirs.serverTest + '/**/*.js'
+    ]).pipe(plugins.eslint({
+        useEslintrc: true
+    }))
+        .pipe(plugins.eslint.format('checkstyle', reportFile))
+        .on('finish', function() {
+            reportFile.close();
+        });
+});
+
 gulp.task('browserify:client', function () {
     gulp.src(dirs.dist + '/js/main.js')
         .pipe(plugins.browserify({
@@ -340,7 +358,7 @@ gulp.task('mocha:run:junit:node', function (done) {
         });
 });
 
-gulp.task('mocha:run:junit:phantomjs', function (done) {
+gulp.task('mocha:run:junit:phantomjs', function () {
     return gulp.src(dirs.phantomTest + '/runner.html')
         .pipe(mochaPhantomJS({
             phantomjs: {
