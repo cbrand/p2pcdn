@@ -1,9 +1,4 @@
 
-Modernizr.load({
-    test: Modernizr.indexeddb,
-    nope: 'vendor/indexeddbshim.min.js'
-});
-
 var DetectRTC = require('detectrtc');
 
 DetectRTC.load(function() {
