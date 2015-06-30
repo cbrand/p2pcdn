@@ -3,6 +3,10 @@
 var fs = require('fs');
 var path = require('path');
 
+var source = require('vinyl-source-stream');
+var buffer = require('vinyl-buffer');
+var browserify = require('browserify');
+var browserifyIstanbul = require('browserify-istanbul');
 var gulp = require('gulp');
 var istanbul = require('gulp-istanbul');
 var babel = require('gulp-babel');
@@ -13,6 +17,8 @@ var server = require('gulp-express');
 var replace = require('gulp-replace');
 var mocha = require('gulp-mocha');
 var gulpprotobuf = require('gulp-protobufjs');
+var mochaPhantomJS = require('gulp-mocha-phantomjs');
+var istanbulReport = require('gulp-istanbul-report');
 
 // Load all gulp plugins automatically
 // and attach them to the `plugins` object
@@ -218,7 +224,8 @@ gulp.task('browserify:client', function () {
     gulp.src(dirs.dist + '/js/main.js')
         .pipe(plugins.browserify({
             insertGlobals: true,
-            debug: !gulp.env.production,
+            debug: true,
+            paths: ['./node_modules', './client/dist/js'],
             transform: ['stringify'],
             ignore: ['wrtc']
         }))
@@ -239,7 +246,7 @@ gulp.task('concat:css', function () {
 
 gulp.task('compile:client', function () {
     return gulp.src(dirs.src + '/**/*.js')
-        .pipe(sourcemaps.init())
+        .pipe(sourcemaps.init({loadMaps: true}))
         .pipe(babel())
         .pipe(replace(/(var _createClass =[^\n]*)/, '/* istanbul ignore next */ $1'))
         .pipe(replace(/(function _classCallCheck\(instance, Constructor\)[^\n]*)/, '/* istanbul ignore next */ $1'))
@@ -251,7 +258,7 @@ gulp.task('compile:client', function () {
 
 gulp.task('compile:server', function () {
     return gulp.src(dirs.server + '/**/*.js')
-        .pipe(sourcemaps.init())
+        .pipe(sourcemaps.init({loadMaps: true}))
         .pipe(babel())
         .pipe(replace(/(var _createClass =[^\n]*)/, '/* istanbul ignore next */ $1'))
         .pipe(replace(/(function _classCallCheck\(instance, Constructor\)[^\n]*)/, '/* istanbul ignore next */ $1'))
@@ -259,6 +266,19 @@ gulp.task('compile:server', function () {
         .pipe(replace(/(var _get = function get\(_x, _x2, _x3\)[^\n]*)/, '/* istanbul ignore next */ $1'))
         .pipe(sourcemaps.write('.'))
         .pipe(gulp.dest(dirs.serverDist));
+});
+
+gulp.task('browserify:client:tests', function () {
+    return browserify({
+        entries: [dirs.phantomTest + '/tests.js'],
+        debug: true,
+        paths: [dirs.dist + '/js', './node_modules', dirs.phantomTest]
+    })
+        .transform(browserifyIstanbul())
+        .bundle()
+        .pipe(source('tests.js'))
+        .pipe(buffer())
+        .pipe(gulp.dest(dirs.phantomTest + '/compiled'));
 });
 
 gulp.task('compile:protobuf', function () {
@@ -273,14 +293,26 @@ gulp.task('compile:protobuf', function () {
         .pipe(gulp.dest('./'));
 });
 
-gulp.task('mocha:run:console', function () {
+gulp.task('mocha:run:console:node', function () {
     return gulp.src([
         dirs.test + '/**/*.js',
         dirs.serverTest + '/**/*.js'
     ]).pipe(mocha());
 });
 
-gulp.task('mocha:run:junit', function (done) {
+gulp.task('mocha:run:console:phantomjs', function () {
+    return gulp.src(dirs.phantomTest + '/runner.html')
+        .pipe(mochaPhantomJS());
+});
+
+gulp.task('mocha:run:console', function (done) {
+    runSequence(
+        'mocha:run:console:node',
+        'mocha:run:console:phantomjs',
+        done);
+});
+
+gulp.task('mocha:run:junit:node', function (done) {
     gulp.src([
         dirs.dist + '/js/**/*.js',
         '!' + dirs.dist + '/js/vendor/**/*.js',
@@ -294,35 +326,57 @@ gulp.task('mocha:run:junit', function (done) {
                 dirs.test + '/**/*.js'
             ])
                 .pipe(mocha({
-                    reporter: 'mocha-junit-reporter',
+                    reporter: 'xunit',
                     reporterOptions: {
-                        mochaFile: 'testresults/junit.xml'
+                        mochaFile: 'testresults/xunit-server.xml'
                     }
                 }))
                 .pipe(istanbul.writeReports({
-                    reporters: ['text', 'text-summary', 'html']
+                    dir: './coverage/temp',
+                    reporters: ['json']
                 }))
-                .on('end', done);
+                .on('end', done)
+                ;
         });
+});
+
+gulp.task('mocha:run:junit:phantomjs', function (done) {
+    return gulp.src(dirs.phantomTest + '/runner.html')
+        .pipe(mochaPhantomJS({
+            phantomjs: {
+                hooks: 'mocha-phantomjs-istanbul',
+                coverageFile: './coverage/temp/coverage-client.json'
+            },
+            reporter: 'xunit',
+            dump: 'testresults/xunit-client.xml'
+        }));
+});
+
+gulp.task('mocha:run:junit', function (done) {
+    runSequence(
+        'mocha:run:junit:node',
+        'mocha:run:junit:phantomjs',
+        'mocha:coverage:create',
+        done);
 });
 
 gulp.task('mocha:junit', function (done) {
     runSequence(
-        'build:server',
-        'build:client',
+        ['build:server', 'build:client'],
+        'build:tests',
         'mocha:run:junit',
         done);
 });
 
 gulp.task('mocha:console', function (done) {
     runSequence(
-        'build:server',
-        'build:client',
+        ['build:server', 'build:client'],
+        'build:tests',
         'mocha:run:console',
         done);
 });
 
-gulp.task('mocha:coverage', function (done) {
+gulp.task('mocha:coverage:node', function (done) {
     gulp.src([
         dirs.dist + '/js/**/*.js',
         '!' + dirs.dist + '/js/vendor/**/*.js',
@@ -336,11 +390,47 @@ gulp.task('mocha:coverage', function (done) {
                 dirs.serverTest + '/**/*.js'
             ])
                 .pipe(mocha())
-                .pipe(istanbul.writeReports())
-                .pipe(istanbul.enforceThresholds({thresholds: {global: 90}}))
+                .pipe(istanbul.writeReports({
+                    dir: './coverage/temp',
+                    reporters: ['json']
+                }))
                 .on('end', done)
             ;
         });
+});
+
+gulp.task('mocha:coverage:phantomjs', function (done) {
+    return gulp.src(dirs.phantomTest + '/runner.html')
+        .pipe(mochaPhantomJS({
+            phantomjs: {
+                hooks: 'mocha-phantomjs-istanbul',
+                coverageFile: './coverage/temp/coverage-client.json'
+            },
+            reporter: 'spec'
+        }));
+});
+
+gulp.task('mocha:coverage:print', function (done) {
+    gulp.src([
+        'coverage/temp/coverage-*.json'
+    ]).pipe(istanbulReport());
+});
+
+gulp.task('mocha:coverage', function (done) {
+    runSequence(
+        'mocha:coverage:node',
+        'mocha:coverage:phantomjs',
+        'mocha:coverage:print',
+        done);
+});
+
+gulp.task('mocha:coverage:create', function (done) {
+    gulp.src([
+        'coverage/temp/coverage-*.json'
+    ]).pipe(istanbulReport({
+        dir: './coverage',
+        reporters: ['html', 'cobertura']
+    }));
 });
 
 gulp.task('run:server', function () {
@@ -362,6 +452,10 @@ gulp.task('run:server', function () {
     gulp.watch([
         'server/src/**/*.js'
     ], ['build:server']);
+
+    gulp.watch([
+        'client/tests/**/*.js'
+    ], ['build:tests']);
 
     gulp.watch([
         'server/dist/**/*.js'
@@ -395,6 +489,12 @@ gulp.task('build:server', function (done) {
     runSequence(
         'compile:server',
         'copy:server',
+        done);
+});
+
+gulp.task('build:tests', function (done) {
+    runSequence(
+        'browserify:client:tests',
         done);
 });
 
