@@ -66,7 +66,7 @@ describe('DB', function () {
 
         describe('save', function () {
             it('should be able to save a file', function () {
-                var file = new File("will-exist");
+                var file = new File('will-exist');
                 return file.save();
             });
         });
@@ -93,7 +93,7 @@ describe('DB', function () {
             });
 
             it('should not have an issue to remove already removed files', function() {
-                var tempFileHandle = new File(savedFile.id+'a');
+                var tempFileHandle = new File(savedFile.id + 'a');
                 return expect(tempFileHandle.remove()).to.be.fulfilled;
             });
         });
@@ -106,13 +106,13 @@ describe('DB', function () {
                 });
             });
             var chunks = [
-                "first chunk",
-                "second chunk",
-                "third chunk",
-                "fourth chunk",
-                "fifth chunk"
+                'first chunk',
+                'second chunk',
+                'third chunk',
+                'fourth chunk',
+                'fifth chunk'
             ].map(function (chunk) {
-                    return new Buffer(chunk).toString('base64')
+                    return new Buffer(chunk).toString('base64');
                 });
 
             describe('hasChunk', function () {
@@ -124,13 +124,15 @@ describe('DB', function () {
                 context('when chunks exist', function () {
                     beforeEach(function () {
                         var promise = Q();
+                        var addChunk = function (numChunk) {
+                            promise = promise.then(function () {
+                                return savedFile.setChunk(numChunk, chunks[numChunk]);
+                            });
+                        };
+
                         for (var i = 0; i < 5; i++) {
                             if (i !== 2) {
-                                (function (numChunk) {
-                                    promise = promise.then(function () {
-                                        return savedFile.setChunk(numChunk, chunks[numChunk]);
-                                    });
-                                })(i)
+                                addChunk(i);
                             }
                         }
                         return promise;

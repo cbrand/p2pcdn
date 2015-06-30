@@ -2,6 +2,8 @@
  * Loader for the WebRTC objects necessary to initiate the connection.
  */
 
+'dummy';
+
 /* istanbul ignore next */
 var RTCPeerConnection = window.RTCPeerConnection ||
     window.mozRTCPeerConnection ||

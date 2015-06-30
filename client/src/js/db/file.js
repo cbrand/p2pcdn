@@ -69,7 +69,7 @@ class File extends persistence.Base {
 
     static loadOrCreate(id) {
         return File.load(id).catch(function (err) {
-            if(err.status == 404) {
+            if(err.status === 404) {
                 return new File(id);
             }
             throw err;
@@ -81,7 +81,7 @@ class File extends persistence.Base {
         var promise;
         if (self.dbFile._rev == null) {
             promise = File.db.get(self.id).catch(function (err) {
-                if(err.status == 404) {
+                if(err.status === 404) {
                     return null;
                 }
                 throw err;

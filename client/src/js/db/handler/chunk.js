@@ -2,7 +2,7 @@ var Q = require('q');
 var persistence = require('../persistence/file');
 
 var chunkNumToAttachmentName = function (chunkNum) {
-    return "chunk-" + chunkNum + ".blob";
+    return 'chunk-' + chunkNum + '.blob';
 };
 
 class ChunkHandler extends persistence.Base {
