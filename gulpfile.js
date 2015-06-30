@@ -3,6 +3,7 @@
 var fs = require('fs');
 var path = require('path');
 
+var mkdirp = require('mkdirp');
 var source = require('vinyl-source-stream');
 var buffer = require('vinyl-buffer');
 var browserify = require('browserify');
@@ -221,6 +222,7 @@ gulp.task('lint:js', function () {
 });
 
 gulp.task('lint:js:report', function() {
+    mkdirp('testresults');
     var reportFile = fs.createWriteStream('testresults/lint-checkstyle.xml');
     return gulp.src([
         'gulpfile.js',
@@ -331,6 +333,7 @@ gulp.task('mocha:run:console', function (done) {
 });
 
 gulp.task('mocha:run:junit:node', function (done) {
+    mkdirp('testresults');
     gulp.src([
         dirs.dist + '/js/**/*.js',
         '!' + dirs.dist + '/js/vendor/**/*.js',
@@ -346,7 +349,7 @@ gulp.task('mocha:run:junit:node', function (done) {
                 .pipe(mocha({
                     reporter: 'xunit',
                     reporterOptions: {
-                        mochaFile: 'testresults/xunit-server.xml'
+                        output: 'testresults/xunit-server.xml'
                     }
                 }))
                 .pipe(istanbul.writeReports({
@@ -359,6 +362,7 @@ gulp.task('mocha:run:junit:node', function (done) {
 });
 
 gulp.task('mocha:run:junit:phantomjs', function () {
+    mkdirp('testresults');
     return gulp.src(dirs.phantomTest + '/runner.html')
         .pipe(mochaPhantomJS({
             phantomjs: {
