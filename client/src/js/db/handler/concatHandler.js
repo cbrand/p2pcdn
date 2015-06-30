@@ -51,7 +51,6 @@ class ConcatHandler {
             }
             return Q.all(promises).then(function() {
                 var items = [];
-                console.log(dataItems);
                 for(var toRetrieveChunk = 0; toRetrieveChunk < self.file.numChunks; toRetrieveChunk++) {
                     items.push(dataItems[toRetrieveChunk]);
                 }
