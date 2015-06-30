@@ -1,5 +1,4 @@
 var Q = require('q');
-var fileSaver = require('filesaver.js');
 var blob = require('../../blob');
 
 class ConcatHandler {
@@ -34,8 +33,8 @@ class ConcatHandler {
         self.available().then(function(isDownloadable) {
             if(!isDownloadable) {
                 throw new Error(
-                    "Can not download file with id " + self.file.id + " " +
-                    "it has not been completely fetched yet."
+                    'Can not download file with id ' + self.file.id + ' ' +
+                    'it has not been completely fetched yet.'
                 );
             }
 

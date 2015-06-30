@@ -39,7 +39,6 @@ class ChunkHandler extends persistence.Base {
             self._dbFile._id, attachmentName, self._dbFile._rev, chunk, 'application/octet-stream'
         ).then(function (result) {
                 // Necessity to reload the file with the given rev.
-                debugger;
                 return self._file.refresh(result.rev);
             });
     }
