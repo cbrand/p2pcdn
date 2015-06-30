@@ -52,10 +52,10 @@ class ConcatHandler {
             return Q.all(promises).then(function() {
                 var items = [];
                 console.log(dataItems);
-                for(var currentChunk = 0; currentChunk < self.file.numChunks; currentChunk++) {
-                    items.push(dataItems[currentChunk]);
+                for(var toRetrieveChunk = 0; toRetrieveChunk < self.file.numChunks; toRetrieveChunk++) {
+                    items.push(dataItems[toRetrieveChunk]);
                 }
-                return new Blob(items, {type: self.file.mimeType});
+                return new blob.Blob(items, {type: self.file.mimeType});
             });
         });
     }
