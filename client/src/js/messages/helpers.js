@@ -14,7 +14,7 @@ var serialize = function(instance, protoClass) {
 
 var deserialize = function(Class, protoInstance) {
     var deferred = Q.defer();
-    setImmediate(deferred.resolve);
+    setTimeout(deferred.resolve, 0);
     return deferred.promise.then(function() {
         return Class._fromProto(protoInstance);
     });
