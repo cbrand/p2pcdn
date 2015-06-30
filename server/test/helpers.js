@@ -1,5 +1,8 @@
 var stream = require('stream');
 var path = require('path');
+var chai = require("chai");
+var chaiAsPromised = require("chai-as-promised");
+chai.use(chaiAsPromised);
 
 var distRequire = function(p) {
     return require(path.join('../dist/' + p));
@@ -18,3 +21,4 @@ exports.readableStream = function() {
     });
     return s;
 };
+exports.chai = chai;

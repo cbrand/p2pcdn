@@ -68,3 +68,4 @@ exports.emulateBrowser = function() {
     window.RTCSessionDescription = wrtc.RTCSessionDescription;
     window.WebSocket = require('ws');
 };
+exports.chai = serverHelpers.chai;
