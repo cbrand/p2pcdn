@@ -361,17 +361,21 @@ gulp.task('mocha:run:junit:node', function (done) {
         });
 });
 
-gulp.task('mocha:run:junit:phantomjs', function () {
+gulp.task('mocha:run:junit:phantomjs', function (done) {
     mkdirp('testresults');
-    return gulp.src(dirs.phantomTest + '/runner.html')
-        .pipe(mochaPhantomJS({
-            phantomjs: {
-                hooks: 'mocha-phantomjs-istanbul',
-                coverageFile: './coverage/temp/coverage-client.json'
-            },
-            reporter: 'xunit',
-            dump: 'testresults/xunit-client.xml'
-        }));
+    require('del')([
+        'testresults/xunit-client.xml'
+    ], function() {
+        return gulp.src(dirs.phantomTest + '/runner.html')
+            .pipe(mochaPhantomJS({
+                phantomjs: {
+                    hooks: 'mocha-phantomjs-istanbul',
+                    coverageFile: './coverage/temp/coverage-client.json'
+                },
+                reporter: 'xunit',
+                dump: 'testresults/xunit-client.xml'
+            })).on('finish', done);
+    });
 });
 
 gulp.task('mocha:run:junit', function (done) {
