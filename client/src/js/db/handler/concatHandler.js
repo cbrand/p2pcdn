@@ -30,7 +30,7 @@ class ConcatHandler {
      */
     blob() {
         var self = this;
-        self.available().then(function(isDownloadable) {
+        return self.available().then(function(isDownloadable) {
             if(!isDownloadable) {
                 throw new Error(
                     'Can not download file with id ' + self.file.id + ' ' +
@@ -38,19 +38,24 @@ class ConcatHandler {
                 );
             }
 
-            var blobBuilder = new blob.BlobBuilder();
-            var appendChunk = function(chunkNum) {
+            var dataItems = {};
+            var loadChunk = function(chunkNum) {
                 return self.file.getChunk(chunkNum).then(function(data) {
-                    blobBuilder.append(data);
+                    dataItems[chunkNum] = data;
                 });
             };
 
-            var promise = Q();
+            var promises = [];
             for(var currentChunk = 0; currentChunk < self.file.numChunks; currentChunk++) {
-                promise = promise.then(appendChunk(currentChunk));
+                promises.push(loadChunk(currentChunk));
             }
-            return promise.then(function() {
-                return blobBuilder.getBlob(self.file.mimeType);
+            return Q.all(promises).then(function() {
+                var items = [];
+                console.log(dataItems);
+                for(var currentChunk = 0; currentChunk < self.file.numChunks; currentChunk++) {
+                    items.push(dataItems[currentChunk]);
+                }
+                return new Blob(items, {type: self.file.mimeType});
             });
         });
     }
