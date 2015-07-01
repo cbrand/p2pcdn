@@ -4,6 +4,7 @@ var ProtoError = proto.Error;
 
 var errorMessages = {};
 errorMessages[ProtoError.Code.CHUNK_OUT_OF_BOUNDS] = 'The given chunk id is out of bounds.';
+errorMessages[ProtoError.Code.CHUNK_NOT_FOUND] = 'The chunk does not exist on the requested system';
 errorMessages[ProtoError.Code.UUID_NOT_FOUND] = 'Could find nothing under the given uuid';
 
 class Error extends Message {

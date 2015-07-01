@@ -23,7 +23,8 @@ message Error {
         UNKNOWN = 0;
         UNKNOWN_COMMAND = 1;
         UUID_NOT_FOUND = 2;
-        CHUNK_OUT_OF_BOUNDS = 3;
+        CHUNK_NOT_FOUND = 3;
+        CHUNK_OUT_OF_BOUNDS = 4;
     }
     required Code code = 1;
 }
