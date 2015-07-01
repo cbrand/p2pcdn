@@ -2,9 +2,9 @@ var Encoder = require('text-encoding').TextEncoder;
 
 var FileHandler = require('./file_handler');
 var messages = require('../messages');
-var GetChunkRequest = messages.request.GetChunk;
-var ChunkResponse = messages.response.Chunk;
-var ErrorResponse = messages.response.Error;
+var GetChunkRequest = messages.GetChunk;
+var ChunkResponse = messages.Chunk;
+var ErrorResponse = messages.Error;
 
 class ChunkHandler extends FileHandler {
 
@@ -14,13 +14,13 @@ class ChunkHandler extends FileHandler {
      * @returns {boolean}
      */
     supports() {
-        return this.request instanceof GetChunkRequest;
+        return this.message instanceof GetChunkRequest;
     }
 
     get _chunk() {
         var self = this;
         return self._file.then(function(file) {
-            return file.chunk(self.request.chunk);
+            return file.chunk(self.message.chunk);
         }).catch(function(err) {
             if(!(err instanceof ErrorResponse)) {
                 err = new ErrorResponse(ErrorResponse.Code.CHUNK_OUT_OF_BOUNDS);
@@ -36,7 +36,7 @@ class ChunkHandler extends FileHandler {
     handle() {
         var self = this;
         return self._chunk.then(function(chunkData) {
-            var response = new ChunkResponse(self.request.uuid, self.request.chunk);
+            var response = new ChunkResponse(self.message.uuid, self.message.chunk);
             response.data = new Encoder('utf8').encode(chunkData);
             return response;
         });

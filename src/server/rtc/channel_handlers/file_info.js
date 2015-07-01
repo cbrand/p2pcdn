@@ -1,18 +1,18 @@
 var FileHandler = require('./file_handler');
 var messages = require('../messages');
-var GetFileInfo = messages.request.GetFileInfo;
-var FileResponse = messages.response.FileInfo;
+var GetFileInfo = messages.GetFileInfo;
+var FileResponse = messages.FileInfo;
 
 
 class FileInfo extends FileHandler {
 
     supports() {
-        return this.request instanceof GetFileInfo;
+        return this.message instanceof GetFileInfo;
     }
 
     /**
      * Handles the given request.
-     * @returns {Promise.<Response>}
+     * @returns {Promise.<Message>}
      */
     handle() {
         var self = this;

@@ -1,6 +1,6 @@
 var Handler = require('./handler');
 var messages = require('../messages');
-var ErrorResponse = messages.response.Error;
+var ErrorResponse = messages.Error;
 
 class FileHandler extends Handler {
     get _fileHandler() {
@@ -9,7 +9,7 @@ class FileHandler extends Handler {
 
     get _file() {
         var self = this;
-        return self._fileHandler.get(self.request.uuid).catch(function(err) {
+        return self._fileHandler.get(self.message.uuid).catch(function(err) {
             var errorResponse;
             if(err && err.isNotExist) {
                 errorResponse = new ErrorResponse(ErrorResponse.Code.UUID_NOT_FOUND);

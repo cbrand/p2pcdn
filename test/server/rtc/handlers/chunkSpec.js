@@ -31,7 +31,7 @@ describe('Connection', function () {
         serverConnection.close();
     });
 
-    describe('when requesting data', function () {
+    describe('chunks', function () {
         var fileHandler;
         var addedUUID;
         var model;
@@ -47,7 +47,7 @@ describe('Connection', function () {
         });
 
         it('should be able to request a chunk from through the rtc channel', function () {
-            var request = new messages.request.GetChunk(addedUUID, 0);
+            var request = new messages.GetChunk(addedUUID, 0);
 
             return request.serialize().then(function (data) {
                 return new Q.Promise(function (resolve, reject) {
@@ -60,9 +60,9 @@ describe('Connection', function () {
                     clientChannel.send(data);
                 });
             }).then(function (data) {
-                return messages.response.Response.deserialize(data);
+                return messages.Message.deserialize(data);
             }).then(function (response) {
-                response.should.be.an.instanceOf(messages.response.Chunk);
+                response.should.be.an.instanceOf(messages.Chunk);
                 return response;
             }).then(function (chunk) {
                 chunk.should.have.property('uuid', addedUUID);
@@ -75,7 +75,7 @@ describe('Connection', function () {
 
 
         it('should return an error if the chunk is out of bounds', function () {
-            var request = new messages.request.GetChunk(addedUUID, 3000);
+            var request = new messages.GetChunk(addedUUID, 3000);
 
             return request.serialize().then(function (data) {
                 return new Q.Promise(function (resolve, reject) {
@@ -88,17 +88,17 @@ describe('Connection', function () {
                     };
                 });
             }).then(function (data) {
-                return messages.response.Response.deserialize(data);
+                return messages.Message.deserialize(data);
             }).then(function (response) {
-                response.should.be.an.instanceOf(messages.response.Error);
+                response.should.be.an.instanceOf(messages.Error);
                 return response;
             }).then(function (error) {
-                error.code.should.equal(messages.response.Error.Code.CHUNK_OUT_OF_BOUNDS);
+                error.code.should.equal(messages.Error.Code.CHUNK_OUT_OF_BOUNDS);
             });
         });
 
         it('should return an error if the chunk is requested from a not existing uuid', function () {
-            var request = new messages.request.GetChunk('doesnotexist', 0);
+            var request = new messages.GetChunk('doesnotexist', 0);
 
             return request.serialize().then(function (data) {
                 return new Q.Promise(function (resolve, reject) {
@@ -111,12 +111,12 @@ describe('Connection', function () {
                     };
                 });
             }).then(function (data) {
-                return messages.response.Response.deserialize(data);
+                return messages.Message.deserialize(data);
             }).then(function (response) {
-                response.should.be.an.instanceOf(messages.response.Error);
+                response.should.be.an.instanceOf(messages.Error);
                 return response;
             }).then(function (error) {
-                error.code.should.equal(messages.response.Error.Code.UUID_NOT_FOUND);
+                error.code.should.equal(messages.Error.Code.UUID_NOT_FOUND);
             });
         });
     });

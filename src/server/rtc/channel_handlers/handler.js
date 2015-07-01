@@ -2,11 +2,11 @@
 class Handler {
     /**
      * @param {App} app
-     * @param {Request} request
+     * @param {Message} message
      */
-    constructor(app, request) {
+    constructor(app, message) {
         this.app = app;
-        this.request = request;
+        this.message = message;
     }
 
     /**
@@ -20,7 +20,7 @@ class Handler {
 
     /**
      * Handles the given request.
-     * @returns {Promise.<Response>}
+     * @returns {Promise.<Message>}
      */
     handle() {
         return null;

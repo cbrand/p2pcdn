@@ -48,7 +48,7 @@ describe('Connection', function () {
         });
 
         it('should return an error if a non existing uuid is requested', function() {
-            var request = new messages.request.GetFileInfo('does not exist');
+            var request = new messages.GetFileInfo('does not exist');
 
             return request.serialize().then(function (data) {
                 return new Q.Promise(function (resolve, reject) {
@@ -61,17 +61,17 @@ describe('Connection', function () {
                     };
                 });
             }).then(function (data) {
-                return messages.response.Response.deserialize(data);
+                return messages.Message.deserialize(data);
             }).then(function (response) {
-                response.should.be.an.instanceOf(messages.response.Error);
+                response.should.be.an.instanceOf(messages.Error);
                 return response;
             }).then(function (error) {
-                error.code.should.equal(messages.response.Error.Code.UUID_NOT_FOUND);
+                error.code.should.equal(messages.Error.Code.UUID_NOT_FOUND);
             });
         });
 
         it('should return the correct file information', function() {
-            var request = new messages.request.GetFileInfo(addedUUID);
+            var request = new messages.GetFileInfo(addedUUID);
 
             return request.serialize().then(function (data) {
                 return new Q.Promise(function (resolve, reject) {
@@ -84,9 +84,9 @@ describe('Connection', function () {
                     };
                 });
             }).then(function (data) {
-                return messages.response.Response.deserialize(data);
+                return messages.Message.deserialize(data);
             }).then(function (response) {
-                response.should.be.an.instanceOf(messages.response.FileInfo);
+                response.should.be.an.instanceOf(messages.FileInfo);
                 return response;
             }).then(function (fileInfo) {
                 fileInfo.should.have.property('uuid', addedUUID);
