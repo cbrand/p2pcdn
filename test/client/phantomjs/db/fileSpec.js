@@ -24,12 +24,12 @@ describe('DB', function () {
             'fifth chunk'
         ];
         var chunks = chunkPlain.map(function (chunk) {
-                return new Buffer(chunk).toString('base64');
-            });
-        var fillChunksExcept = function(file, notChunkNums) {
+            return new Buffer(chunk).toString('base64');
+        });
+        var fillChunksExcept = function (file, notChunkNums) {
             var promise = Q();
-            if(!_.isArray(notChunkNums)) {
-                if(_.isNumber(notChunkNums)) {
+            if (!_.isArray(notChunkNums)) {
+                if (_.isNumber(notChunkNums)) {
                     notChunkNums = [notChunkNums];
                 } else {
                     notChunkNums = [];
@@ -53,7 +53,7 @@ describe('DB', function () {
             return db.truncate();
         });
 
-        it('should correctly default numChunks to 0', function() {
+        it('should correctly default numChunks to 0', function () {
             expect(new File('second-file').numChunks).to.equal(0);
         });
 
@@ -117,14 +117,14 @@ describe('DB', function () {
                 });
             });
 
-            it('should be able to remove a file which has not been removed from the database as of now', function() {
+            it('should be able to remove a file which has not been removed from the database as of now', function () {
                 var tempFileHandle = new File(savedFile.id);
-                return tempFileHandle.remove().then(function() {
+                return tempFileHandle.remove().then(function () {
                     return expect(File.load(savedFile.id)).to.be.rejected;
                 });
             });
 
-            it('should not have an issue to remove already removed files', function() {
+            it('should not have an issue to remove already removed files', function () {
                 var tempFileHandle = new File(savedFile.id + 'a');
                 return expect(tempFileHandle.remove()).to.be.fulfilled;
             });
@@ -161,35 +161,57 @@ describe('DB', function () {
 
             });
 
-            describe('set', function() {
+            describe('missingChunks', function () {
+
+                it('should report all chunks as missing', function () {
+                    var promise = savedFile.missingChunks().then(function (result) {
+                        return result.sort();
+                    });
+                    return expect(promise).to.eventually.deep.equal([0, 1, 2, 3, 4].sort());
+                });
+
+                context('when chunks exist', function () {
+                    beforeEach(function () {
+                        return fillChunksExcept(savedFile, [2]);
+                    });
+
+                    it('should only report the missing ones', function() {
+                        expect(savedFile.missingChunks()).to.eventually.deep.equal([2]);
+                    });
+
+                });
+
+            });
+
+            describe('set', function () {
                 var chunk = chunks[0];
 
-                it('should be able to store a chunk', function() {
+                it('should be able to store a chunk', function () {
                     return expect(savedFile.setChunk(0, chunk)).to.be.fulfilled;
                 });
 
-                it('should store the correct data', function() {
-                    var promise = savedFile.setChunk(0, chunk).then(function() {
+                it('should store the correct data', function () {
+                    var promise = savedFile.setChunk(0, chunk).then(function () {
                         return savedFile.getChunk(0);
                     });
-                    return expect(promise.then(function(data) {
+                    return expect(promise.then(function (data) {
                         return helpers.blobToBase64(data);
                     })).to.eventually.equal(chunk);
                 });
 
             });
 
-            describe('remove', function() {
+            describe('remove', function () {
                 var chunk = chunks[0];
 
-                it('should return an error, if no chunk is existing', function() {
+                it('should return an error, if no chunk is existing', function () {
                     return expect(savedFile.removeChunk(0)).to.be.rejected;
                 });
 
-                it('should remove a stored chunk', function() {
-                    var promise = savedFile.setChunk(0, chunk).then(function() {
+                it('should remove a stored chunk', function () {
+                    var promise = savedFile.setChunk(0, chunk).then(function () {
                         return savedFile.removeChunk(0);
-                    }).then(function() {
+                    }).then(function () {
                         return savedFile.hasChunk(0);
                     });
                     return expect(promise).to.eventually.equal(false);
@@ -198,7 +220,7 @@ describe('DB', function () {
             });
         });
 
-        describe('locallyAvailable', function() {
+        describe('locallyAvailable', function () {
             var savedFile;
             beforeEach(function () {
                 return getTestFile().save().then(function (file) {
@@ -206,24 +228,24 @@ describe('DB', function () {
                 });
             });
 
-            it('should not report to be locally available if no local chunks exist', function() {
+            it('should not report to be locally available if no local chunks exist', function () {
                 return expect(savedFile.locallyAvailable()).to.eventually.equal(false);
             });
 
-            it('should not report to be locally available if one chunk is missing', function() {
-                return fillChunksExcept(savedFile, [2]).then(function() {
+            it('should not report to be locally available if one chunk is missing', function () {
+                return fillChunksExcept(savedFile, [2]).then(function () {
                     return expect(savedFile.locallyAvailable()).to.eventually.equal(false);
                 });
             });
 
-            it('should report to be available if all chunks are existing', function() {
-                return fillChunksExcept(savedFile, []).then(function() {
+            it('should report to be available if all chunks are existing', function () {
+                return fillChunksExcept(savedFile, []).then(function () {
                     return expect(savedFile.locallyAvailable()).to.eventually.equal(true);
                 });
             });
         });
 
-        describe('blob', function() {
+        describe('blob', function () {
             var savedFile;
             beforeEach(function () {
                 return getTestFile().save().then(function (file) {
@@ -231,14 +253,14 @@ describe('DB', function () {
                 });
             });
 
-            it('should throw an error if the blobs are not available', function() {
+            it('should throw an error if the blobs are not available', function () {
                 return expect(savedFile.blob()).to.be.rejected;
             });
 
-            it('should return a blob with all data if all chunks are locally available', function() {
-                return fillChunksExcept(savedFile, []).then(function() {
+            it('should return a blob with all data if all chunks are locally available', function () {
+                return fillChunksExcept(savedFile, []).then(function () {
                     var expectedData = new Buffer(chunkPlain.join('')).toString('base64');
-                    var promise = savedFile.blob().then(function(blob) {
+                    var promise = savedFile.blob().then(function (blob) {
                         return helpers.blobToBase64(blob);
                     });
                     return expect(promise).to.eventually.equal(expectedData);
