@@ -1,4 +1,3 @@
-var _ = require('underscore');
 var Q = require('q');
 var persistence = require('./persistence/file');
 var ChunkHandler = require('./handler/chunk');

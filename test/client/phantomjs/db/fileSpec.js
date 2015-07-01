@@ -1,7 +1,6 @@
 var helpers = require('../helpers');
 var expect = helpers.chai.expect;
 var dbHelpers = require('./helpers');
-var _ = require('underscore');
 
 var File = require('db/file');
 var db = require('db/persistence/common');
