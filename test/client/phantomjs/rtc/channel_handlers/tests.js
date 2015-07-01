@@ -1,1 +1,2 @@
+require('./chunkSpec');
 require('./fileInfoSpec');

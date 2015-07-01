@@ -13,6 +13,10 @@ describe('rtc', function() {
 
         describe('FileInfo', function() {
 
+            beforeEach(function() {
+                return dbHelpers.truncate();
+            });
+
             var infoFor = function(id) {
                 return new messages.GetFileInfo(id);
             };

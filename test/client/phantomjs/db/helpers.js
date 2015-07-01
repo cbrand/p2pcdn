@@ -1,5 +1,6 @@
 var Q = require('q');
 var _ = require('underscore');
+var db = require('db/persistence/common');
 
 var fillChunksExcept = function (file, chunks, notChunkNums) {
     var promise = Q();
@@ -32,3 +33,4 @@ var createBase64Chunks = function(chunks) {
 
 module.exports.fillChunksExcept = fillChunksExcept;
 module.exports.createBase64Chunks = createBase64Chunks;
+module.exports.truncate = db.truncate;
