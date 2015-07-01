@@ -496,12 +496,28 @@ gulp.task('mocha:coverage', function (done) {
         done);
 });
 
-gulp.task('mocha:coverage:create', function () {
-    gulp.src([
+gulp.task('mocha:coverage:create', function(done) {
+    runSequence(
+        'mocha:coverage:create:html',
+        'mocha:coverage:create:cobertura',
+        done);
+});
+
+gulp.task('mocha:coverage:create:html', function () {
+    return gulp.src([
         'coverage/temp/coverage-*.json'
     ]).pipe(istanbulReport({
         dir: './coverage',
-        reporters: ['html', 'cobertura']
+        reporters: ['html']
+    }));
+});
+
+gulp.task('mocha:coverage:create:cobertura', function() {
+    return gulp.src([
+        'coverage/temp/coverage-*.json'
+    ]).pipe(istanbulReport({
+        dir: './coverage',
+        reporters: ['cobertura']
     }));
 });
 
