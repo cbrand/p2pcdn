@@ -1,5 +1,3 @@
-var Encoder = require('text-encoding').TextEncoder;
-
 var FileHandler = require('./file_handler');
 var messages = require('../../messages/message');
 var GetChunkRequest = messages.GetChunk;
