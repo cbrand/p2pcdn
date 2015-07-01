@@ -1,5 +1,4 @@
 var messages = require('./messages/message');
-var Message = messages.Message;
 var AbstractChannelHandler = require('../common/rtc/channel_handler');
 
 /**
