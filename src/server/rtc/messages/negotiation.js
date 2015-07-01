@@ -1,1 +1,1 @@
-export default require('./helpers').requireCommon('messages/negotiation');
+export default require('../../common/messages/negotiation');

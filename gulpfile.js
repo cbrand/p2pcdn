@@ -77,10 +77,17 @@ gulp.task('archive:zip', function (done) {
 
 });
 
-gulp.task('clean', function (done) {
+gulp.task('clean:client', function (done) {
     require('del')([
-        dirs.archive,
-        dirs.dist
+        dirs.dist,
+        dirs.commonLinkClient
+    ], done);
+});
+
+gulp.task('clean:server', function (done) {
+    require('del')([
+        dirs.serverDist,
+        dirs.commonLinkServer
     ], done);
 });
 
@@ -191,8 +198,17 @@ gulp.task('copy:normalize', function () {
         .pipe(gulp.dest(dirs.dist + '/css'));
 });
 
+gulp.task('copy:client:json', function () {
+    return gulp.src(dirs.src + '/**/*.json', {
+        follow: true
+    })
+        .pipe(gulp.dest(dirs.dist));
+});
+
 gulp.task('copy:server:json', function () {
-    return gulp.src(dirs.server + '/**/*.json')
+    return gulp.src(dirs.server + '/**/*.json', {
+        follow: true
+    })
         .pipe(gulp.dest(dirs.serverDist));
 });
 
@@ -211,7 +227,7 @@ gulp.task('lint:js', function () {
         .pipe(plugins.eslint.failOnError());
 });
 
-gulp.task('lint:js:report', function() {
+gulp.task('lint:js:report', function () {
     mkdirp('testresults');
     var reportFile = fs.createWriteStream('testresults/lint-checkstyle.xml');
     return gulp.src([
@@ -225,7 +241,7 @@ gulp.task('lint:js:report', function() {
         useEslintrc: true
     }))
         .pipe(plugins.eslint.format('checkstyle', reportFile))
-        .on('finish', function() {
+        .on('finish', function () {
             reportFile.close();
         });
 });
@@ -254,8 +270,20 @@ gulp.task('concat:css', function () {
         .pipe(gulp.dest(dirs.dist));
 });
 
+gulp.task('symlink:client:common', function () {
+    return gulp.src('src/common')
+        .pipe(plugins.symlink(dirs.commonLinkClient, {force: true}));
+});
+
+gulp.task('symlink:server:common', function () {
+    return gulp.src('src/common')
+        .pipe(plugins.symlink(dirs.commonLinkServer, {force: true}));
+});
+
 gulp.task('compile:client', function () {
-    return gulp.src(dirs.src + '/**/*.js')
+    return gulp.src(dirs.src + '/**/*.js', {
+        follow: true
+    })
         .pipe(sourcemaps.init({loadMaps: true}))
         .pipe(babel())
         .pipe(replace(/(var _createClass =[^\n]*)/, '/* istanbul ignore next */ $1'))
@@ -267,7 +295,9 @@ gulp.task('compile:client', function () {
 });
 
 gulp.task('compile:server', function () {
-    return gulp.src(dirs.server + '/**/*.js')
+    return gulp.src(dirs.server + '/**/*.js', {
+        follow: true
+    })
         .pipe(sourcemaps.init({loadMaps: true}))
         .pipe(babel())
         .pipe(replace(/(var _createClass =[^\n]*)/, '/* istanbul ignore next */ $1'))
@@ -310,22 +340,10 @@ gulp.task('compile:protobuf', function () {
             target: 'json'
         }))
         .pipe(plugins.rename({
-            dirname: dirs.commonDist + '/messages/definitions',
+            dirname: dirs.common + '/messages/definitions',
             extname: '.json'
         }))
         .pipe(gulp.dest('./'));
-});
-
-gulp.task('compile:common', function() {
-    return gulp.src(dirs.common + '/**/*.js')
-        .pipe(sourcemaps.init({loadMaps: true}))
-        .pipe(babel())
-        .pipe(replace(/(var _createClass =[^\n]*)/, '/* istanbul ignore next */ $1'))
-        .pipe(replace(/(function _classCallCheck\(instance, Constructor\)[^\n]*)/, '/* istanbul ignore next */ $1'))
-        .pipe(replace(/(function _inherits\(subClass, superClass\)[^\n]*)/, '/* istanbul ignore next */ $1'))
-        .pipe(replace(/(var _get = function get\(_x, _x2, _x3\)[^\n]*)/, '/* istanbul ignore next */ $1'))
-        .pipe(sourcemaps.write('.'))
-        .pipe(gulp.dest(dirs.commonDist));
 });
 
 gulp.task('mocha:run:console:node', function () {
@@ -380,7 +398,7 @@ gulp.task('mocha:run:junit:phantomjs', function (done) {
     mkdirp('testresults');
     require('del')([
         'testresults/xunit-client.xml'
-    ], function() {
+    ], function () {
         return gulp.src(dirs.phantomTest + '/runner.html')
             .pipe(mochaPhantomJS({
                 phantomjs: {
@@ -504,7 +522,7 @@ gulp.task('run:server', function () {
     ], [server.run]);
 });
 
-gulp.task('watch:tests', function() {
+gulp.task('watch:tests', function () {
     gulp.run('build:tests');
 
     gulp.watch([
@@ -514,7 +532,7 @@ gulp.task('watch:tests', function() {
     ], ['build:tests']);
 });
 
-gulp.task('tests:phantomjs', function(done) {
+gulp.task('tests:phantomjs', function (done) {
     runSequence(
         'build:client',
         'build:tests',
@@ -534,19 +552,12 @@ gulp.task('archive', function (done) {
         done);
 });
 
-gulp.task('build:common', function(done) {
-    runSequence(
-        [
-            'compile:common',
-            'compile:protobuf'
-        ],
-        done
-    );
-});
-
 gulp.task('build:client', function (done) {
     runSequence(
-        ['clean'],
+        ['clean:client'],
+        'compile:protobuf',
+        'symlink:client:common',
+        'copy:client:json',
         'compile:client',
         'copy',
         'browserify:client',
@@ -556,14 +567,15 @@ gulp.task('build:client', function (done) {
 
 gulp.task('build:server', function (done) {
     runSequence(
+        ['clean:server'],
+        'symlink:server:common',
         'compile:server',
         'copy:server',
         done);
 });
 
-gulp.task('build:tests:coverage', function(done) {
+gulp.task('build:tests:coverage', function (done) {
     runSequence(
-        'build:common',
         'build:client',
         'browserify:client:tests:istanbul',
         done);
@@ -571,7 +583,6 @@ gulp.task('build:tests:coverage', function(done) {
 
 gulp.task('build:tests', function (done) {
     runSequence(
-        'build:common',
         'build:client',
         'browserify:client:tests',
         done);
@@ -584,9 +595,9 @@ gulp.task('server', function (done) {
         done);
 });
 
-gulp.task('build', function(done) {
+gulp.task('build', function (done) {
     runSequence(
-        ['lint:js', 'build:common'],
+        ['lint:js'],
         ['build:server', 'build:client'],
         done);
 });

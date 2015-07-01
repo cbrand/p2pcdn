@@ -47,6 +47,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-replace": "^0.5.3",
     "gulp-sourcemaps": "~1.5.2",
+    "gulp-symlink": "^2.1.1",
     "jquery": "1.11.3",
     "jshint-stylish": "^1.0.1",
     "less": "~2.5.1",
@@ -81,7 +82,8 @@
       "serverDist": "dist/server",
       "serverTest": "test/server",
       "common": "src/common",
-      "commonDist": "dist/common"
+      "commonLinkClient": "src/client/js/common",
+      "commonLinkServer": "src/server/common"
     }
   },
   "homepage": "https://html5boilerplate.com/",
