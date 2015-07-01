@@ -1,0 +1,70 @@
+message Message {
+
+    extensions 1000 to max;
+    enum Type {
+        ERROR = 0;
+
+        GET_CHUNK = 1;
+        GET_FILE_INFO = 2;
+
+        FILE_INFO = 3;
+        CHUNK = 4;
+    }
+    required Type type = 1;
+
+}
+
+message Error {
+    extend Message {
+        optional Error message = 1000;
+    }
+
+    enum Code {
+        UNKNOWN = 0;
+        UNKNOWN_COMMAND = 1;
+        UUID_NOT_FOUND = 2;
+        CHUNK_OUT_OF_BOUNDS = 3;
+    }
+    required Code code = 1;
+}
+
+message GetChunk {
+    extend Message {
+        optional GetChunk message = 2001;
+    }
+
+    required string UUID = 1;
+    required int64 chunk = 2;
+}
+
+message GetFileInfo {
+    extend Message {
+        optional GetFileInfo message = 2002;
+    }
+
+    required string UUID = 1;
+}
+
+
+
+message FileInfo {
+    extend Message {
+        optional FileInfo message = 3001;
+    }
+
+    required string UUID = 1;
+    required string name = 2;
+    required string mimeType = 3;
+    required int32 numChunks = 4;
+}
+
+message Chunk {
+    extend Message {
+        optional Chunk message = 3002;
+    }
+
+    required string UUID = 1;
+    required int64 chunk = 2;
+    required bytes data = 3;
+}
+

@@ -1,8 +1,8 @@
-var Request = require('./request');
+var Message = require('./message');
 var proto = require('./proto');
-var type = proto.Request.Type.GET_FILE_INFO;
+var type = proto.Message.Type.GET_FILE_INFO;
 
-class GetFileInfo extends Request {
+class GetFileInfo extends Message {
     /**
      * @param {String} uuid the uuid of the file
      */
@@ -15,31 +15,31 @@ class GetFileInfo extends Request {
      * Updates a protocol buffer with the representation of the given
      * javascript object.
      *
-     * @param {proto.Request} protoRequest
+     * @param {proto.Message} protoMessage
      * @protected
      */
-    _updateProto(protoRequest) {
-        super._updateProto(protoRequest);
-        protoRequest.set('type', type);
+    _updateProto(protoMessage) {
+        super._updateProto(protoMessage);
+        protoMessage.set('type', type);
         var requestGetChunk = new proto.GetFileInfo();
         requestGetChunk.set('UUID', this.uuid);
 
-        protoRequest.set('.GetFileInfo.request', requestGetChunk);
-        return protoRequest;
+        protoMessage.set('.GetFileInfo.message', requestGetChunk);
+        return protoMessage;
     }
 
     /**
      * Updates this object with the data being provided
      * by the proto request.
      *
-     * @param {proto.Request} protoRequest
+     * @param {proto.Message} protoMessage
      * @returns GetChunk
      */
-    static _fromProto(protoRequest) {
-        var protoGetChunk = protoRequest.get('.GetFileInfo.request');
+    static _fromProto(protoMessage) {
+        var protoGetChunk = protoMessage.get('.GetFileInfo.message');
         return new GetFileInfo(protoGetChunk.get('UUID'));
     }
 }
-Request.registerType(type, GetFileInfo);
+Message.registerType(type, GetFileInfo);
 
 export default GetFileInfo;

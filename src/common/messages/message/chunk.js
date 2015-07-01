@@ -1,8 +1,8 @@
 var proto = require('./proto');
-var Response = require('./response');
+var Message = require('./message');
 var ProtoChunk = proto.Chunk;
 
-class Chunk extends Response {
+class Chunk extends Message {
 
     constructor(uuid, chunk) {
         super();
@@ -15,29 +15,29 @@ class Chunk extends Response {
      * Updates a protocol buffer with the representation of the given
      * javascript object.
      *
-     * @param {proto.Response} protoResponse
+     * @param {proto.Message} protoMessage
      * @protected
      */
-    _updateProto(protoResponse) {
-        super._updateProto(protoResponse);
+    _updateProto(protoMessage) {
+        super._updateProto(protoMessage);
         var protoChunk = new ProtoChunk();
         protoChunk.set('UUID', this.uuid);
         protoChunk.set('chunk', this.chunk);
         protoChunk.set('data', this.data);
 
-        protoResponse.set('.Chunk.response', protoChunk);
-        return protoResponse;
+        protoMessage.set('.Chunk.message', protoChunk);
+        return protoMessage;
     }
 
     /**
      * Updates this object with the data being provided
      * by the proto request.
      *
-     * @param {ProtoResponse} protoResponse
+     * @param {ProtoResponse} protoMessage
      * @returns Chunk
      */
-    static _fromProto(protoResponse) {
-        var protoChunk = protoResponse.get('.Chunk.response');
+    static _fromProto(protoMessage) {
+        var protoChunk = protoMessage.get('.Chunk.message');
         var response = new Chunk(protoChunk.get('UUID'), protoChunk.get('chunk'));
         response.data = protoChunk.get('data');
 
@@ -45,6 +45,6 @@ class Chunk extends Response {
     }
 
 }
-Response.registerType(proto.Response.Type.CHUNK, Chunk);
+Message.registerType(proto.Message.Type.CHUNK, Chunk);
 
 export default Chunk;

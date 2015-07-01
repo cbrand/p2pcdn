@@ -1,5 +1,5 @@
 var proto = require('./proto');
-var ProtoRequest = proto.Request;
+var ProtoMessage = proto.Message;
 var protoHelpers = require('../helpers');
 
 var types = {};
@@ -9,7 +9,7 @@ var registerType = function(name, cl) {
     cl.type = name;
 };
 
-class Request {
+class Message {
 
     /**
      * Serializes the request and returns the byte representation of it.
@@ -17,7 +17,7 @@ class Request {
      */
     serialize() {
         var self = this;
-        return protoHelpers.serialize(self, ProtoRequest);
+        return protoHelpers.serialize(self, ProtoMessage);
     }
 
     /**
@@ -27,7 +27,7 @@ class Request {
      * @returns Promise.<Request>
      */
     static deserialize(arrayBuffer) {
-        return protoHelpers.deserializeWithTypes(arrayBuffer, ProtoRequest, types);
+        return protoHelpers.deserializeWithTypes(arrayBuffer, ProtoMessage, types);
     }
 
     /*eslint-disable no-unused-vars */
@@ -35,18 +35,18 @@ class Request {
      * Updates a protocol buffer with the representation of the given
      * javascript object.
      *
-     * @param {ProtoRequest} protoRequest
+     * @param {ProtoMessage} protoMessage
      * @protected
      */
-    _updateProto(protoRequest) {
-
+    _updateProto(protoMessage) {
+        protoMessage.set('type', this.type);
     }
 
     /**
      * Updates this object with the data being provided
      * by the proto request.
      *
-     * @param {ProtoRequest} protoRequest
+     * @param {ProtoMessage} protoRequest
      * @returns Request
      */
     static _fromProto(protoRequest) {
@@ -64,4 +64,4 @@ class Request {
     }
 }
 
-export default Request;
+export default Message;

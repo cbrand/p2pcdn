@@ -1,7 +1,7 @@
 var proto = require('./proto');
-var Response = require('./response');
+var Message = require('./message');
 
-class FileInfo extends Response {
+class FileInfo extends Message {
 
     constructor(uuid) {
         super();
@@ -15,30 +15,30 @@ class FileInfo extends Response {
      * Updates a protocol buffer with the representation of the given
      * javascript object.
      *
-     * @param {proto.Response} protoResponse
+     * @param {proto.Message} protoMessage
      * @protected
      */
-    _updateProto(protoResponse) {
-        super._updateProto(protoResponse);
+    _updateProto(protoMessage) {
+        super._updateProto(protoMessage);
         var protoFileInfo = new proto.FileInfo();
         protoFileInfo.set('UUID', this.uuid);
         protoFileInfo.set('name', this.name);
         protoFileInfo.set('mimeType', this.mimeType);
         protoFileInfo.set('numChunks', this.numChunks);
 
-        protoResponse.set('.FileInfo.response', protoFileInfo);
-        return protoResponse;
+        protoMessage.set('.FileInfo.message', protoFileInfo);
+        return protoMessage;
     }
 
     /**
      * Updates this object with the data being provided
      * by the proto request.
      *
-     * @param {proto.Response} protoResponse
+     * @param {proto.Message} protoMessage
      * @returns Chunk
      */
-    static _fromProto(protoResponse) {
-        var protoFileInfo = protoResponse.get('.FileInfo.response');
+    static _fromProto(protoMessage) {
+        var protoFileInfo = protoMessage.get('.FileInfo.message');
         var response = new FileInfo(protoFileInfo.get('UUID'));
         response.name = protoFileInfo.get('name');
         response.mimeType = protoFileInfo.get('mimeType');
@@ -48,6 +48,6 @@ class FileInfo extends Response {
     }
 
 }
-Response.registerType(proto.Response.Type.FILE_INFO, FileInfo);
+Message.registerType(proto.Message.Type.FILE_INFO, FileInfo);
 
 export default FileInfo;
