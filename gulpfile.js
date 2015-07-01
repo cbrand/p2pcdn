@@ -352,7 +352,7 @@ gulp.task('compile:protobuf:server', function () {
             target: 'json'
         }))
         .pipe(plugins.rename({
-            dirname: dirs.dist + '/common/messages/definitions',
+            dirname: dirs.serverDist + '/common/messages/definitions',
             extname: '.json'
         }))
         .pipe(gulp.dest('./'));
