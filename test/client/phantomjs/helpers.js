@@ -22,3 +22,4 @@ var blobToBase64 = function(blob) {
 module.exports.chai = chai;
 module.exports.blobToBase64URL = blobToBase64URL;
 module.exports.blobToBase64 = blobToBase64;
+

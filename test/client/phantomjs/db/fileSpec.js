@@ -1,6 +1,6 @@
-var Q = require('q');
 var helpers = require('../helpers');
 var expect = helpers.chai.expect;
+var dbHelpers = require('./helpers');
 var _ = require('underscore');
 
 var File = require('db/file');
@@ -23,30 +23,9 @@ describe('DB', function () {
             'fourth chunk',
             'fifth chunk'
         ];
-        var chunks = chunkPlain.map(function (chunk) {
-            return new Buffer(chunk).toString('base64');
-        });
+        var chunks = dbHelpers.createBase64Chunks(chunkPlain);
         var fillChunksExcept = function (file, notChunkNums) {
-            var promise = Q();
-            if (!_.isArray(notChunkNums)) {
-                if (_.isNumber(notChunkNums)) {
-                    notChunkNums = [notChunkNums];
-                } else {
-                    notChunkNums = [];
-                }
-            }
-            var addChunk = function (numChunk) {
-                promise = promise.then(function () {
-                    return file.setChunk(numChunk, chunks[numChunk]);
-                });
-            };
-
-            for (var i = 0; i < 5; i++) {
-                if (_.indexOf(notChunkNums, i) === -1) {
-                    addChunk(i);
-                }
-            }
-            return promise;
+            return dbHelpers.fillChunksExcept(file, chunks, notChunkNums);
         };
 
         beforeEach(function () {
