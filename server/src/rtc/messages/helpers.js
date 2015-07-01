@@ -6,4 +6,4 @@ var requireCommon = function(p) {
 
 export {
     requireCommon
-}
+};
