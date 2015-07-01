@@ -93,6 +93,8 @@ describe('Connection', function () {
                 fileInfo.should.have.property('name', model.fileName);
                 fileInfo.should.have.property('mimeType', model.mimeType);
                 fileInfo.should.have.property('numChunks', model.numChunks);
+                // The server always has all the chunks!
+                fileInfo.should.have.property('missingChunks', []);
             });
         });
 

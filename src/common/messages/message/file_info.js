@@ -9,6 +9,7 @@ class FileInfo extends Message {
         this.name = null;
         this.mimeType = null;
         this.numChunks = 0;
+        this.missingChunks = [];
     }
 
     /**
@@ -25,6 +26,7 @@ class FileInfo extends Message {
         protoFileInfo.set('name', this.name);
         protoFileInfo.set('mimeType', this.mimeType);
         protoFileInfo.set('numChunks', this.numChunks);
+        protoFileInfo.set('missingChunks', this.missingChunks);
 
         protoMessage.set('.FileInfo.message', protoFileInfo);
         return protoMessage;
@@ -43,6 +45,7 @@ class FileInfo extends Message {
         response.name = protoFileInfo.get('name');
         response.mimeType = protoFileInfo.get('mimeType');
         response.numChunks = protoFileInfo.get('numChunks');
+        response.missingChunks = protoFileInfo.get('missingChunks') || [];
 
         return response;
     }
