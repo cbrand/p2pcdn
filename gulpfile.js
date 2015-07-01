@@ -509,28 +509,28 @@ gulp.task('run:server', function () {
     server.run(['server/src/server.js']);
 
     gulp.watch([
-        'client/dist/**/*.html',
-        'client/dist/**/*.js',
-        'client/dist/**/*.css',
-        'client/dist/**/*.png',
-        'client/dist/**/*.jpeg'
+        dirs.dist + '/**/*.html',
+        dirs.dist + '/**/*.js',
+        dirs.dist + '/**/*.css',
+        dirs.dist + '/**/*.png',
+        dirs.dist + '/**/*.jpeg'
     ], server.notify);
 
     gulp.watch([
-        'client/src/**/*.css',
-        'client/src/**/*.js'
+        dirs.src + '/**/*.css',
+        dirs.src + '/**/*.js'
     ], ['build:client']);
 
     gulp.watch([
-        'server/src/**/*.js'
+        dirs.server + '/**/*.js'
     ], ['build:server']);
 
     gulp.watch([
-        'client/tests/phantomjs/**/*.js'
+        dirs.phantomTest + '/phantomjs/**/*.js'
     ], ['build:tests']);
 
     gulp.watch([
-        'server/dist/**/*.js'
+        dirs.serverDist + '/**/*.js'
     ], [server.run]);
 });
 
@@ -538,9 +538,9 @@ gulp.task('watch:tests', function () {
     gulp.run('build:tests');
 
     gulp.watch([
-        'client/tests/phantomjs/*.js',
-        'client/tests/phantomjs/**/*.js',
-        'client/src/**/*.js'
+        dirs.phantomTest + '/**/*.js',
+        '!' + dirs.phantomTest + '/compiled/**/*.js',
+        dirs.src + '/**/*.js'
     ], ['build:tests']);
 });
 
