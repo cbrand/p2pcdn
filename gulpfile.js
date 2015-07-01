@@ -32,6 +32,8 @@ var runSequence = require('run-sequence');
 var pkg = require('./package.json');
 var dirs = pkg['h5bp-configs'].directories;
 
+var browserifyPaths = [dirs.dist + '/js', './node_modules'];
+
 // ---------------------------------------------------------------------
 // | Helper tasks                                                      |
 // ---------------------------------------------------------------------
@@ -92,8 +94,7 @@ gulp.task('copy', [
     'copy:material.js',
     'copy:main.css',
     'copy:misc',
-    'copy:normalize',
-    'copy:protobuf:json'
+    'copy:normalize'
 ]);
 
 gulp.task('concat', [
@@ -101,8 +102,7 @@ gulp.task('concat', [
 ]);
 
 gulp.task('copy:server', [
-    'copy:server:json',
-    'copy:server:protobuf'
+    'copy:server:json'
 ]);
 
 gulp.task('copy:.htaccess', function () {
@@ -191,18 +191,8 @@ gulp.task('copy:normalize', function () {
         .pipe(gulp.dest(dirs.dist + '/css'));
 });
 
-gulp.task('copy:protobuf:json', function () {
-    return gulp.src(dirs.src + '/js/**/*.json')
-        .pipe(gulp.dest(dirs.dist + '/js'));
-});
-
 gulp.task('copy:server:json', function () {
     return gulp.src(dirs.server + '/**/*.json')
-        .pipe(gulp.dest(dirs.serverDist));
-});
-
-gulp.task('copy:server:protobuf', function () {
-    return gulp.src(dirs.server + '/**/*.proto')
         .pipe(gulp.dest(dirs.serverDist));
 });
 
@@ -245,7 +235,7 @@ gulp.task('browserify:client', function () {
         .pipe(plugins.browserify({
             insertGlobals: true,
             debug: true,
-            paths: ['./node_modules', './client/dist/js'],
+            paths: browserifyPaths,
             transform: ['stringify'],
             ignore: ['wrtc']
         }))
@@ -288,11 +278,12 @@ gulp.task('compile:server', function () {
         .pipe(gulp.dest(dirs.serverDist));
 });
 
+var browserifyTestPaths = browserifyPaths.concat([dirs.phantomTest]);
 gulp.task('browserify:client:tests', function () {
     return browserify({
         entries: [dirs.phantomTest + '/tests.js'],
         debug: true,
-        paths: [dirs.dist + '/js', './node_modules', dirs.phantomTest]
+        paths: browserifyTestPaths
     })
         .bundle()
         .pipe(source('tests.js'))
@@ -304,7 +295,7 @@ gulp.task('browserify:client:tests:istanbul', function () {
     return browserify({
         entries: [dirs.phantomTest + '/tests.js'],
         debug: true,
-        paths: [dirs.dist + '/js', './node_modules', dirs.phantomTest]
+        paths: browserifyTestPaths
     })
         .transform(browserifyIstanbul())
         .bundle()
@@ -314,15 +305,27 @@ gulp.task('browserify:client:tests:istanbul', function () {
 });
 
 gulp.task('compile:protobuf', function () {
-    return gulp.src(dirs.server + '/**/*.proto')
+    return gulp.src(dirs.common + '/**/*.proto')
         .pipe(gulpprotobuf({
             target: 'json'
         }))
         .pipe(plugins.rename({
-            dirname: dirs.src + '/js/messages/',
+            dirname: dirs.commonDist + '/messages/definitions',
             extname: '.json'
         }))
         .pipe(gulp.dest('./'));
+});
+
+gulp.task('compile:common', function() {
+    return gulp.src(dirs.common + '/**/*.js')
+        .pipe(sourcemaps.init({loadMaps: true}))
+        .pipe(babel())
+        .pipe(replace(/(var _createClass =[^\n]*)/, '/* istanbul ignore next */ $1'))
+        .pipe(replace(/(function _classCallCheck\(instance, Constructor\)[^\n]*)/, '/* istanbul ignore next */ $1'))
+        .pipe(replace(/(function _inherits\(subClass, superClass\)[^\n]*)/, '/* istanbul ignore next */ $1'))
+        .pipe(replace(/(var _get = function get\(_x, _x2, _x3\)[^\n]*)/, '/* istanbul ignore next */ $1'))
+        .pipe(sourcemaps.write('.'))
+        .pipe(gulp.dest(dirs.commonDist));
 });
 
 gulp.task('mocha:run:console:node', function () {
@@ -531,10 +534,20 @@ gulp.task('archive', function (done) {
         done);
 });
 
+gulp.task('build:common', function(done) {
+    runSequence(
+        [
+            'compile:common',
+            'compile:protobuf'
+        ],
+        done
+    );
+});
+
 gulp.task('build:client', function (done) {
     runSequence(
         ['clean'],
-        'compile:protobuf',
+        'build:common',
         'compile:client',
         'copy',
         'browserify:client',
@@ -544,6 +557,7 @@ gulp.task('build:client', function (done) {
 
 gulp.task('build:server', function (done) {
     runSequence(
+        'build:common',
         'compile:server',
         'copy:server',
         done);

@@ -1,6 +1,7 @@
-var Request = require('./request/request');
-var GetChunk = require('./request/get_chunk');
-var GetFileInfo = require('./request/get_file_info');
+var commonRequestModule = require('./helpers').requireCommon('messages/request');
+var Request = commonRequestModule.Request;
+var GetChunk = commonRequestModule.GetChunk;
+var GetFileInfo = commonRequestModule.GetFileInfo;
 
 export {
     Request,

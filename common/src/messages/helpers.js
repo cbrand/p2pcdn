@@ -1,4 +1,5 @@
 var Q = require('q');
+var ProtoBuf = require('protobufjs/dist/ProtoBuf-light.js');
 
 var serialize = function(instance, protoClass) {
     var protoObj = new protoClass();
@@ -41,7 +42,8 @@ var deserializeWith = function(arrayBuffer, protoClass, Class) {
 
 
 export {
-    serialize,
     deserializeWithTypes,
-    deserializeWith
+    deserializeWith,
+    ProtoBuf,
+    serialize
 };

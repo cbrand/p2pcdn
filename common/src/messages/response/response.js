@@ -1,6 +1,6 @@
 var proto = require('./proto');
 var ProtoResponse = proto.Response;
-var protoHelpers = require('../../../proto/helpers');
+var protoHelpers = require('../helpers');
 
 var types = {};
 var registerType = function(name, cl) {

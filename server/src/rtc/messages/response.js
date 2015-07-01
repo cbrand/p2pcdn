@@ -1,7 +1,8 @@
-var Response = require('./response/response');
-var Chunk = require('./response/chunk');
-var ErrorResponse = require('./response/error');
-var FileInfo = require('./response/file_info');
+var commonResponseModule = require('./helpers').requireCommon('messages/response');
+var Response = commonResponseModule.Response;
+var Chunk = commonResponseModule.Chunk;
+var ErrorResponse = commonResponseModule.Error;
+var FileInfo = commonResponseModule.FileInfo;
 
 export {
     Response,

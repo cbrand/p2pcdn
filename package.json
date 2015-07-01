@@ -80,7 +80,9 @@
       "server": "server/src",
       "serverDist": "server/dist",
       "serverTest": "server/test",
-      "protoBuf": "server/src/rtc/messages"
+      "protoBuf": "server/src/rtc/messages",
+      "common": "common/src",
+      "commonDist": "common/dist"
     }
   },
   "homepage": "https://html5boilerplate.com/",
