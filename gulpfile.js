@@ -334,13 +334,25 @@ gulp.task('browserify:client:tests:istanbul', function () {
         .pipe(gulp.dest(dirs.phantomTest + '/compiled'));
 });
 
-gulp.task('compile:protobuf', function () {
-    return gulp.src(dirs.common + '/**/*.proto')
+gulp.task('compile:protobuf:client', function () {
+    return gulp.src(dirs.commonLinkClient + '/**/*.proto')
         .pipe(gulpprotobuf({
             target: 'json'
         }))
         .pipe(plugins.rename({
-            dirname: dirs.common + '/messages/definitions',
+            dirname: dirs.dist + '/js/common/messages/definitions',
+            extname: '.json'
+        }))
+        .pipe(gulp.dest('./'));
+});
+
+gulp.task('compile:protobuf:server', function () {
+    return gulp.src(dirs.commonLinkServer + '/**/*.proto')
+        .pipe(gulpprotobuf({
+            target: 'json'
+        }))
+        .pipe(plugins.rename({
+            dirname: dirs.dist + '/common/messages/definitions',
             extname: '.json'
         }))
         .pipe(gulp.dest('./'));
@@ -555,8 +567,8 @@ gulp.task('archive', function (done) {
 gulp.task('build:client', function (done) {
     runSequence(
         ['clean:client'],
-        'compile:protobuf',
         'symlink:client:common',
+        'compile:protobuf:client',
         'copy:client:json',
         'compile:client',
         'copy',
@@ -569,6 +581,7 @@ gulp.task('build:server', function (done) {
     runSequence(
         ['clean:server'],
         'symlink:server:common',
+        'compile:protobuf:server',
         'compile:server',
         'copy:server',
         done);
