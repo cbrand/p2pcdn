@@ -1,8 +1,9 @@
 var path = require('path');
 var temp = require('temp');
+var helpers = require('./helpers');
 
-var DatabaseConfig = require('../dist/config/database');
-var db = require('../dist/db');
+var DatabaseConfig = helpers.require('config/database');
+var db = helpers.require('db');
 
 describe('database', function() {
 

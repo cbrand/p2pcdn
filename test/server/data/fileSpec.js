@@ -1,6 +1,7 @@
 var fs = require('fs');
-var File = require('../../dist/data/file.js');
-var constants = require('../../dist/constants.js');
+var helpers = require('../helpers');
+var File = helpers.require('data/file.js');
+var constants = helpers.require('constants.js');
 var temp = require('temp');
 var mockery = require('mockery');
 var crypto = require('crypto');
@@ -36,7 +37,7 @@ describe('File', function () {
         var fName;
 
         beforeEach(function () {
-            fName = testDir + '/test.txt';
+            fName = testDir + '/client.txt';
             f = new File(fName);
         });
 
@@ -77,7 +78,7 @@ describe('File', function () {
         };
 
         beforeEach(function () {
-            fName = testDir + '/test.txt';
+            fName = testDir + '/client.txt';
             chunks = [];
 
             for (var i = 0; i < 10; i++) {

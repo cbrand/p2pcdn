@@ -5,7 +5,7 @@ var chaiAsPromised = require('chai-as-promised');
 chai.use(chaiAsPromised);
 
 var distRequire = function(p) {
-    return require(path.join('../dist/' + p));
+    return require(path.join('../../dist/server/' + p));
 };
 
 exports.require = distRequire;

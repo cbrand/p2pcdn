@@ -72,17 +72,16 @@
   "h5bp-configs": {
     "directories": {
       "archive": "archive",
-      "dist": "client/dist",
-      "src": "client/src",
-      "test": "client/test/mocha",
-      "phantomTest": "client/test/phantomjs",
+      "dist": "dist/client",
+      "src": "src/client",
+      "test": "test/client/mocha",
+      "phantomTest": "test/client/phantomjs",
       "bower": "bower_components",
-      "server": "server/src",
-      "serverDist": "server/dist",
-      "serverTest": "server/test",
-      "protoBuf": "server/src/rtc/messages",
-      "common": "common/src",
-      "commonDist": "common/dist"
+      "server": "src/server",
+      "serverDist": "dist/server",
+      "serverTest": "test/server",
+      "common": "src/common",
+      "commonDist": "dist/common"
     }
   },
   "homepage": "https://html5boilerplate.com/",

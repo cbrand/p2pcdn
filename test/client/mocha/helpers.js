@@ -1,11 +1,11 @@
 var Q = require('q');
 var path = require('path');
-var apiHelpers = require('../../../server/test/http/api/helpers');
-var serverHelpers = require('../../../server/test/helpers');
+var apiHelpers = require('../../server/http/api/helpers');
+var serverHelpers = require('../../server/helpers');
 var portfinder = require('portfinder');
 
 var distRequire = function(p) {
-    return require(path.join(__dirname, '../../dist/js/' + p));
+    return require(path.join(__dirname, '../../../dist/client/js/' + p));
 };
 var app;
 var startedServer;

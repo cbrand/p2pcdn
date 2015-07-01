@@ -547,7 +547,6 @@ gulp.task('build:common', function(done) {
 gulp.task('build:client', function (done) {
     runSequence(
         ['clean'],
-        'build:common',
         'compile:client',
         'copy',
         'browserify:client',
@@ -557,7 +556,6 @@ gulp.task('build:client', function (done) {
 
 gulp.task('build:server', function (done) {
     runSequence(
-        'build:common',
         'compile:server',
         'copy:server',
         done);
@@ -565,6 +563,7 @@ gulp.task('build:server', function (done) {
 
 gulp.task('build:tests:coverage', function(done) {
     runSequence(
+        'build:common',
         'build:client',
         'browserify:client:tests:istanbul',
         done);
@@ -572,6 +571,7 @@ gulp.task('build:tests:coverage', function(done) {
 
 gulp.task('build:tests', function (done) {
     runSequence(
+        'build:common',
         'build:client',
         'browserify:client:tests',
         done);
@@ -584,7 +584,12 @@ gulp.task('server', function (done) {
         done);
 });
 
-gulp.task('build', ['lint:js', 'build:server', 'build:client']);
+gulp.task('build', function(done) {
+    runSequence(
+        ['lint:js', 'build:common'],
+        ['build:server', 'build:client'],
+        done);
+});
 gulp.task('lint', ['lint:js']);
 
 gulp.task('default', ['build']);

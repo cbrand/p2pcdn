@@ -1,5 +1,6 @@
 var fs = require('fs');
-var Config = require('../dist/config');
+var helpers = require('./helpers');
+var Config = helpers.require('config');
 var ini = require('ini');
 var temp = require('temp');
 var should = require('should');
