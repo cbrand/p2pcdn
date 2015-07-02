@@ -32,7 +32,8 @@ class ClientNegotiation extends Message {
 
         protoClientNegotiation.set('id', self.id);
         protoClientNegotiation.set('type', self.negotiationType);
-        protoClientNegotiation.set('payload', self.payload);
+        var jsonPayload = JSON.stringify(self.payload);
+        protoClientNegotiation.set('payload', new Buffer(jsonPayload, 'utf8'));
 
         protoMessage.set('.ClientNegotiation.message', protoClientNegotiation);
         return protoMessage;
@@ -49,7 +50,8 @@ class ClientNegotiation extends Message {
         var protoNegotiation = protoMessage.get('.ClientNegotiation.message');
         var negotiation = new ClientNegotiation(protoNegotiation.id);
         negotiation.negotiationType = protoNegotiation.get('type');
-        negotiation.payload = protoNegotiation.get('payload');
+        var payload = protoNegotiation.get('payload');
+        negotiation.payload = JSON.parse(payload.toString('utf8'));
 
         return negotiation;
     }
