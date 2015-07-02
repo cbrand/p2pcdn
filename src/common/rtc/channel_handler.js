@@ -47,6 +47,15 @@ class ChannelHandler extends events.EventEmitter {
     _initEvents() {
         var self = this;
         self.channel.onmessage = self.onEvent.bind(self);
+        self.channel.onclose = function() {
+            self.emit('close');
+        };
+        self.channel.onerror = function(err) {
+            self.emit('error', err);
+        };
+        self.channel.onopen = function() {
+            self.emit('open');
+        };
 
         self.on('data', self.onData.bind(self));
         self.on('handler', self.onHandler.bind(self));
