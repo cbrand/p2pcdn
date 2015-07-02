@@ -3,12 +3,13 @@ message Message {
     extensions 1000 to max;
     enum Type {
         ERROR = 0;
+        CLIENT_NEGOTIATION = 1;
 
-        GET_CHUNK = 1;
-        GET_FILE_INFO = 2;
+        GET_CHUNK = 1001;
+        GET_FILE_INFO = 1002;
 
-        FILE_INFO = 3;
-        CHUNK = 4;
+        FILE_INFO = 2001;
+        CHUNK = 2002;
     }
     required Type type = 1;
 
@@ -28,6 +29,26 @@ message Error {
     }
     required Code code = 1;
 }
+
+message ClientNegotiation {
+    extend Message {
+        optional ClientNegotiation message = 1001;
+    }
+
+    enum Type {
+        OFFER = 1;
+        OFFER_RESPONSE = 2;
+        ICE_CANDIDATE = 3;
+    }
+
+    // Negotiation id which is used to identify this negotiation
+    // process on the server side.
+    required string id = 1;
+
+    required Type type = 2;
+    required bytes payload = 3;
+}
+
 
 message GetChunk {
     extend Message {
@@ -69,4 +90,3 @@ message Chunk {
     required int64 chunk = 2;
     required bytes data = 3;
 }
-
