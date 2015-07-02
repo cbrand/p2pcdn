@@ -1,11 +1,11 @@
-var helpers = require('../../helpers');
+var helpers = require('../../../helpers');
 helpers.emulateBrowser();
 
-var ConnectionHandler = helpers.require('rtc/connection/handler');
+var ConnectionHandler = helpers.require('rtc/connection/handler/serverWs');
 
 describe('Connection', function () {
 
-    describe('ConnectionHandler', function () {
+    describe('ServerWsHandler', function () {
         var usedHost;
         var usedPort;
 
