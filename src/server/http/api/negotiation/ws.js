@@ -30,7 +30,7 @@ class NegotiationWs extends events.EventEmitter {
 
     handleMessage(data, flags) {
         var self = this;
-        if(!flags.binary) {
+        if(flags && !flags.binary) {
             // Wrong message type. Only accepting binary data -> close
             self.ws.close(errorCodes.NON_BINARY);
             return;
@@ -52,7 +52,6 @@ class NegotiationWs extends events.EventEmitter {
 
     close(code, reason) {
         var self = this;
-        console.log(code);
         self.ws.close(code, reason);
     }
 
