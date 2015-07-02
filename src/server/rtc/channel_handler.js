@@ -6,7 +6,8 @@ var AbstractChannelHandler = require('../common/rtc/channel_handler');
  */
 var handlers = [
     require('./channel_handlers/chunk'),
-    require('./channel_handlers/file_info')
+    require('./channel_handlers/file_info'),
+    require('./channel_handlers/init')
 ];
 
 class ChannelHandler extends AbstractChannelHandler {
