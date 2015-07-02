@@ -104,7 +104,7 @@ describe('http', function () {
             var clientChannel;
             var clientConnection;
             var offerResponse = Q.defer();
-            var dataChannelOpened = Q.defer();
+            var clientChannelOpened = Q.defer();
 
             return connectWS().then(function (socket) {
                 usedSocket = socket;
@@ -144,7 +144,7 @@ describe('http', function () {
                 };
 
                 clientChannel = clientConnection.createDataChannel('p2pcdn');
-                clientChannel.onopen = dataChannelOpened.resolve;
+                clientChannel.onopen = clientChannelOpened.resolve;
 
                 return new Q.Promise(function (resolve) {
                     clientConnection.createOffer(function (clientOffer) {
@@ -176,9 +176,7 @@ describe('http', function () {
                     defer.reject
                 );
                 return defer.promise;
-            }).then(
-                dataChannelOpened
-            ).then(function () {
+            }).thenResolve(clientChannelOpened.promise).then(function () {
                     clientConnection.close();
                     usedSocket.close();
                 });
