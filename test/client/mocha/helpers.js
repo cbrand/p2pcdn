@@ -68,5 +68,13 @@ exports.emulateBrowser = function() {
     window.RTCSessionDescription = wrtc.RTCSessionDescription;
     window.WebSocket = require('ws');
     require('blob-polyfill');
+
+    ['warning', 'error', 'critical', 'info'].forEach(function(name) {
+        if(!console[name]) {
+            console[name] = function() {
+                console.log.apply(this, arguments);
+            };
+        }
+    });
 };
 exports.chai = serverHelpers.chai;
