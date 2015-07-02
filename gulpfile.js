@@ -29,6 +29,8 @@ var plugins = require('gulp-load-plugins')();
 // https://github.com/gulpjs/gulp/issues/355
 var runSequence = require('run-sequence');
 
+var gutil = require('gulp-util');
+
 var pkg = require('./package.json');
 var dirs = pkg['h5bp-configs'].directories;
 
@@ -338,6 +340,11 @@ gulp.task('compile:protobuf:client', function () {
     return gulp.src(dirs.commonLinkClient + '/**/*.proto')
         .pipe(gulpprotobuf({
             target: 'json'
+        })).pipe(plugins.plumber(function(error) {
+            // Output an error message
+            gutil.log(gutil.colors.red('Error (' + error.plugin + '): ' + error.message));
+            // emit the end event, to properly end the task
+            this.emit('end');
         }))
         .pipe(plugins.rename({
             dirname: dirs.dist + '/js/common/messages/definitions',
