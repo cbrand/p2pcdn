@@ -4,6 +4,7 @@ message Message {
     enum Type {
         ERROR = 0;
         CLIENT_NEGOTIATION = 1;
+        INIT = 2;
 
         GET_CHUNK = 1001;
         GET_FILE_INFO = 1002;
@@ -49,6 +50,11 @@ message ClientNegotiation {
     required bytes payload = 3;
 }
 
+message Init {
+    extend Message {
+        optional Init message = 1002;
+    }
+}
 
 message GetChunk {
     extend Message {
