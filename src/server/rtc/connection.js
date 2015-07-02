@@ -31,15 +31,17 @@ class Connection extends events.EventEmitter {
     start() {
         var self = this;
 
-        self.connection.ondatachannel = function(dataChannelEvent) {
-            self.onDataChannel(dataChannelEvent);
-        };
+        self.connection.ondatachannel = self.onDataChannel.bind(self);
     }
 
     onDataChannel(dataChannelEvent) {
         var self = this;
         var channel = dataChannelEvent.channel;
-        return new ChannelHandler(self.app, channel);
+
+        self.emit('datachannel', channel);
+        var dataChannel = new ChannelHandler(self.app, channel);
+        self.emit('datachannelhandler', dataChannel);
+        return dataChannel;
     }
 
     setLocalDescription(description) {

@@ -48,6 +48,7 @@ class NegotiationHandler extends events.EventEmitter {
             self.connection.close();
         }
         self.connection = new Connection(self.config);
+        self.connection.on('icecandidate', self.sendICECandidate.bind(self));
     }
 
     handleOffer(negotiation) {
@@ -63,6 +64,14 @@ class NegotiationHandler extends events.EventEmitter {
     handleICECandidate(negotiation) {
         var self = this;
         self.connection.addIceCandidate(negotiation.payload);
+    }
+
+    sendICECandidate(candidate) {
+        var self = this;
+        var negotiation = new Negotiation();
+        negotiation.type = Negotiation.Type.ICE_CANDIDATE;
+        negotiation.payload = candidate;
+        return self.ws.send(negotiation);
     }
 
     sendResponse(serverDescriptor) {
