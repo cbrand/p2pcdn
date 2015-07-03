@@ -3,6 +3,7 @@ var path = require('path');
 var temp = require('temp');
 var helpers = require('../../helpers');
 
+var App = helpers.require('app');
 var server = helpers.require('http/server');
 var Config = helpers.require('config');
 var db = helpers.require('db');
@@ -23,8 +24,9 @@ var setUp = function() {
             path: path.join(directory, 'p2pcdn.db')
         }
     };
+    var app = new App(config);
 
-    server.init(config);
+    server.init(app);
     db.init(config.database);
 
     return db.sync().then(function() {

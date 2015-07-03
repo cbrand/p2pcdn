@@ -9,7 +9,7 @@ var NegotiationHandler = require('./negotiation/handler');
 
 export default function(ws, req) {
     var negotiationWs = new NegotiationWs(ws);
-    var handler = new NegotiationHandler(negotiationWs, req.app.get('config'));
+    var handler = new NegotiationHandler(negotiationWs, req.app.get('app'));
     negotiationWs.start();
 
     req.app.once('close', function() {

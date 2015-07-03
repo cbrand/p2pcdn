@@ -4,12 +4,12 @@ var Negotiation = require('./negotiation');
 
 class NegotiationHandler extends events.EventEmitter {
 
-    constructor(ws, config) {
+    constructor(ws, app) {
         super();
         var self = this;
         self.ws = ws;
         self.initEvents();
-        self.config = config;
+        self.app = app;
         self.connection = null;
     }
 
@@ -47,8 +47,9 @@ class NegotiationHandler extends events.EventEmitter {
             // Cleanup dangling ones.
             self.connection.close();
         }
-        self.connection = new Connection(self.config);
+        self.connection = new Connection(self.app);
         self.connection.on('icecandidate', self.sendICECandidate.bind(self));
+        self.connection.on('datachannelhandler', self.sendDataChannelHandler.bind(self));
     }
 
     handleOffer(negotiation) {
@@ -85,6 +86,11 @@ class NegotiationHandler extends events.EventEmitter {
     close() {
         var self = this;
         self.connection && self.connection.close();
+    }
+
+    sendDataChannelHandler(dataChannelHandler) {
+        var self = this;
+        self.app.trigger('datachannel', dataChannelHandler);
     }
 }
 

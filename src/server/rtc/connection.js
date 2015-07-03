@@ -6,9 +6,9 @@ var App = require('../app');
 var ChannelHandler = require('./channel_handler');
 
 class Connection extends events.EventEmitter {
-    constructor(config) {
+    constructor(app) {
         super();
-        this.app = new App(config);
+        this.app = app;
         this._initConnection();
     }
 

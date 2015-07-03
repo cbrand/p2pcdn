@@ -52,13 +52,13 @@ describe('Connection', function () {
 
             return request.serialize().then(function (data) {
                 return new Q.Promise(function (resolve, reject) {
-                    clientChannel.send(data);
                     clientChannel.onmessage = function (event) {
                         resolve(event.data);
                     };
                     clientChannel.onerror = function () {
                         reject();
                     };
+                    clientChannel.send(data);
                 });
             }).then(function (data) {
                 return messages.Message.deserialize(data);
@@ -75,13 +75,13 @@ describe('Connection', function () {
 
             return request.serialize().then(function (data) {
                 return new Q.Promise(function (resolve, reject) {
-                    clientChannel.send(data);
                     clientChannel.onmessage = function (event) {
                         resolve(event.data);
                     };
                     clientChannel.onerror = function () {
                         reject();
                     };
+                    clientChannel.send(data);
                 });
             }).then(function (data) {
                 return messages.Message.deserialize(data);

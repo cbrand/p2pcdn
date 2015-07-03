@@ -4,12 +4,14 @@
  * side.
  */
 
+var events = require('events');
 var db = require('./db');
 var FileHandler = require('./handlers/file');
 
-class App {
+class App extends events.EventEmitter {
 
     constructor(config) {
+        super();
         this.config = config;
         this.db = db.db;
         this.fileHandler = new FileHandler(config);

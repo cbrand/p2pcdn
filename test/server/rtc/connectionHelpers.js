@@ -5,6 +5,7 @@ var temp = require('temp');
 var path = require('path');
 
 var helpers = require('../helpers');
+var App = helpers.require('app');
 var db = helpers.require('db');
 var Config = helpers.require('config');
 var Connection = helpers.require('rtc/connection');
@@ -42,8 +43,8 @@ var initConnection = function(serverConnection, clientConnection) {
     });
 };
 
-var startConnection = function(config) {
-    var serverConnection = new Connection(config);
+var startConnection = function(app) {
+    var serverConnection = new Connection(app);
     serverConnection.start();
 
     var clientConnection = new wrtc.RTCPeerConnection();
@@ -91,16 +92,18 @@ var bootUpConnection = function() {
         }
     };
     db.init(config.database);
+    var app = new App(config);
 
     var connections;
     return db.sync().then(function () {
-        return startConnection(config).then(function (c) {
+        return startConnection(app).then(function (c) {
             connections = c;
         });
     }).then(function () {
         return createEventPromise(connections.clientChannel, 'open');
     }).then(function() {
         return {
+            app: app,
             config: config,
             directory: directory,
             fileDirectory: fileDirectory,
