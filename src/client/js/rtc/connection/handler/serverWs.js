@@ -1,5 +1,5 @@
 var Q = require('q');
-var AbstractHandler = require('./abstract');
+var AbstractHandler = require('./abstract/caller');
 var WebSocketWrapper = require('./serverWs/channel');
 
 class ServerWsHandler extends AbstractHandler {
@@ -8,6 +8,12 @@ class ServerWsHandler extends AbstractHandler {
         super();
         var self = this;
         self.wsURL = wsURL;
+    }
+
+    get _rightFlags() {
+        return {
+            rtc: true
+        };
     }
 
     _getNegotiationChannel() {

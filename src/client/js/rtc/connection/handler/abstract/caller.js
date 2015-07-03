@@ -1,7 +1,10 @@
-var _ = require('underscore');
 var Q = require('q');
-var events = require('events');
-var Connection = require('../../connection');
+var _ = require('underscore');
+var handlerHelpers = require('./helpers');
+var Abstract = require('./base');
+
+var bindNegotiationChannelEvents = handlerHelpers.bindNegotiationChannelEvents;
+var releaseNegotiationChannelEvents = handlerHelpers.releaseNegotiationChannelEvents;
 
 /**
  * An abstract connection handler, which provides common functionality to
@@ -28,95 +31,48 @@ var Connection = require('../../connection');
  *     Frees up allocated resources if necessary. The channel is seen as no
  *     longer needed.
  */
-class AbstractConnectionHandler extends events.EventEmitter {
+class AbstractCallerConnectionHandler extends Abstract {
 
-    constructor() {
-        super();
-        var self = this;
-        self._initEvents();
-    }
-
-    _initEvents() {
-        var self = this;
-        self.on('icecandidate', self.handleIceCandidate.bind(self));
-    }
-
-    _newConnection() {
-        var self = this;
-        if (self.connection && self.connection.close) {
-            // Cleanup old connections.
-            self.connection.close();
-        }
-        self.connection = new Connection();
-        return self.connection;
-    }
-
-    handleIceCandidate(candidate) {
-        var self = this;
-        var connection = self.connection;
-        if (connection && connection.addIceCandidate) {
-            connection.addIceCandidate(candidate);
-        }
-    }
-
-    connect() {
+    _connect() {
         var self = this;
         var connection;
         var channel;
         var dataChannelOpened = Q.defer();
         var negotiationChannel;
 
-        var relayOffer = function (offer) {
-            self.emit('offer', offer);
-        };
-        var relayIceCandidate = function (candidate) {
-            self.emit('icecandidate', candidate);
-        };
-        var sendIceCandidate = function(candidate) {
-            negotiationChannel.sendIceCandidate(candidate);
-        };
-
-        var bindNegotiationChannelEvents = function (negotiationChannel, connection) {
-            negotiationChannel.on('offer', relayOffer);
-            negotiationChannel.on('icecandidate', relayIceCandidate);
-
-            connection.on('icecandidate', sendIceCandidate);
-        };
-        var releaseNegotiationChannelEvents = function (negotiationChannel, connection) {
-            negotiationChannel.removeListener('offer', relayOffer);
-            negotiationChannel.removeListener('icecandidate', relayIceCandidate);
-
-            connection.removeListener('icecandidate', sendIceCandidate);
-        };
-
-
         var releaseNegotiationChannel = function () {
             if (_.isFunction(self._releaseNegotiationChannel)) {
                 self._releaseNegotiationChannel(negotiationChannel);
             }
-            releaseNegotiationChannelEvents.call(this, negotiationChannel, connection);
+            releaseNegotiationChannelEvents.call(self);
             negotiationChannel = null;
         };
 
         return self._getNegotiationChannel().then(function (socket) {
             connection = self._newConnection();
             self.channel = channel = connection.createDataChannel('p2pcdn');
-            channel.onopen = function() {
-                channel.onopen = function() {};
+            channel.onopen = function () {
+                channel.onopen = function () {
+                };
                 dataChannelOpened.resolve();
             };
 
             negotiationChannel = socket;
-            bindNegotiationChannelEvents.call(this, negotiationChannel, connection);
+            bindNegotiationChannelEvents.call(self, negotiationChannel, connection);
 
             return connection.createOfferAndSetLocalDescription();
         }).then(function (offer) {
-            negotiationChannel.sendOffer(offer);
+            var promises = [];
+            promises.push(negotiationChannel.sendOffer(offer));
             var defer = Q.defer();
             self.once('offer', function (remoteOffer) {
                 defer.resolve(remoteOffer);
             });
-            return defer.promise;
+            promises.push(defer.promise);
+            return Q.all(promises).then(function(results) {
+                // Only interested in the remote offer as of now
+                return results[1];
+            });
         }).then(function (remoteOffer) {
             return connection.setRemoteDescription(remoteOffer);
         }).thenResolve(
@@ -137,6 +93,7 @@ class AbstractConnectionHandler extends events.EventEmitter {
             });
     }
 
+
 }
 
-export default AbstractConnectionHandler;
+export default AbstractCallerConnectionHandler;

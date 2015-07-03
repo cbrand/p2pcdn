@@ -29,9 +29,9 @@ describe('Connection', function () {
 
         it('should be able to connect to the server', function () {
             return connectionHandler.connect().then(function (channel) {
-                channel.onclose = function() {
+                channel.once('close', function() {
                     connectionHandler.connection.close();
-                };
+                });
                 channel.close();
             });
         });
