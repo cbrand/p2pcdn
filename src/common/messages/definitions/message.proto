@@ -11,8 +11,8 @@ message Message {
         GET_CHUNK = 2002;
         GET_FILE_INFO = 2003;
 
-        FILE_INFO = 2001;
-        CHUNK = 2002;
+        FILE_INFO = 3001;
+        CHUNK = 3002;
     }
     required Type type = 1;
 
