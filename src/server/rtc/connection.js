@@ -2,8 +2,8 @@ var Q = require('q');
 var events = require('events');
 var wrtc = require('wrtc');
 
-var App = require('../app');
 var ChannelHandler = require('./channelHandler');
+
 
 class Connection extends events.EventEmitter {
     constructor(app) {

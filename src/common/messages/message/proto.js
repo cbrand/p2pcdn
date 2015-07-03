@@ -1,4 +1,3 @@
-var path = require('path');
 var ProtoBuf = require('../helpers').ProtoBuf;
 var Proto = ProtoBuf.loadJson(require('../definitions/message.proto'));
 

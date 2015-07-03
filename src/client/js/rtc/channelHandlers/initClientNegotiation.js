@@ -31,9 +31,7 @@ class InitClientNegotiation extends FileHandler {
             self.channel,
             self.app
         );
-        return handler.connect().then(function(channel) {
-            channel
-        }).thenResolve(null);
+        return handler.connect().thenResolve(null);
     }
 
 }

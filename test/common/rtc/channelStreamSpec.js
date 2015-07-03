@@ -24,8 +24,8 @@ describe('ChannelStream', function() {
         var promises = rtcChannel.messages.map(function(data) {
             return messages.Message.deserialize(data);
         });
-        return Q.all(promises).then(function(messages) {
-            return messages.filter(function(message) {
+        return Q.all(promises).then(function(resolvedMessages) {
+            return resolvedMessages.filter(function(message) {
                 return message.streamId === st.streamId;
             });
         });

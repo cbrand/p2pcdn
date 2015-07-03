@@ -7,7 +7,6 @@ var expressWs = require('express-ws');
 var FileHandler = require('../handlers/file');
 var apiRouter = require('./api');
 var negotiationHandler = require('./api/negotiation');
-var App = require('../app');
 
 var app = exports.app = express();
 expressWs(app);
