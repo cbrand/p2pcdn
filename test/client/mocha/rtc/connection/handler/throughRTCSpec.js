@@ -61,8 +61,6 @@ describe('Connection', function () {
                 negotiationId,
                 app);
 
-            rtcCalleeConnectionHandler;
-
             var promises = [];
 
             return new Q.Promise(function(resolve, reject) {
@@ -80,33 +78,29 @@ describe('Connection', function () {
                     }
                 });
                 promises.push(rtcCallerConnectionHandler.connect());
-                return Q.all(promises);
+            }).then(function() {
+                    return Q.all(promises);
+                });
+        };
+
+        var cleanUpChannels = function(promise) {
+            return promise.then(function(channels) {
+                channels.forEach(function(channel) {
+                    channel.close();
+                });
+            }).then(function() {
+                rtcCallerConnectionHandler.connection.close();
+                rtcCalleeConnectionHandler.connection.close();
             });
         };
 
         it('should be able to connect two clients together', function() {
-            connect().then(function(channels) {
-                    channels.forEach(function(channel) {
-                        channel.close();
-                    });
-                }).then(function() {
-                    rtcCallerConnectionHandler.connection.close();
-                    rtcCalleeConnectionHandler.connection.close();
-                });
+            return cleanUpChannels(connect());
 
         });
 
         it('should trigger the channel event on the passed app if an app is passed.', function() {
-            connect().thenResolve(appTriggered)
-                .then(function(channels) {
-                    channels.forEach(function(channel) {
-                        channel.close();
-                    });
-                }).then(function() {
-                    rtcCallerConnectionHandler.connection.close();
-                    rtcCalleeConnectionHandler.connection.close();
-                });
-
+            return cleanUpChannels(connect()).thenResolve(appTriggered);
         });
 
     });
