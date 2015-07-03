@@ -3,7 +3,6 @@ var temp = require('temp');
 var connectionHelper = require('../connectionHelpers');
 
 var helpers = require('../../helpers');
-var FileHandler = helpers.require('handlers/file');
 var messages = helpers.require('rtc/messages');
 
 require('should');
@@ -12,7 +11,6 @@ describe('Connection', function () {
     var clientConnection;
     var serverConnection;
     var clientChannel;
-    var config;
 
     beforeEach(function () {
         temp.track();
@@ -20,7 +18,6 @@ describe('Connection', function () {
             clientConnection = data.clientConnection;
             serverConnection = data.serverConnection;
             clientChannel = data.clientChannel;
-            config = data.config;
         });
     });
 
