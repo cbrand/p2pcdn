@@ -6,7 +6,6 @@ var rtcHelpers = require('./helpers');
 var RTCChannelMock = rtcHelpers.RTCChannelMock;
 
 var RTCChannelHandler = helpers.require('rtc/channel_handler');
-var WSConnectionHandler = helpers.require('rtc/connection/handler/serverWs');
 var RTCCallerConnectionHandler = helpers.require('rtc/connection/handler/throughRTC/caller');
 var RTCCalleeConnectionHandler = helpers.require('rtc/connection/handler/throughRTC/callee');
 

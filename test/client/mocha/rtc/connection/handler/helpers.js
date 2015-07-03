@@ -1,5 +1,4 @@
 var helpers = require('../../../helpers');
-var messages = helpers.require('messages/message');
 
 var RTCChannelMock = function () {
 

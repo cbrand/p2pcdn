@@ -57,7 +57,7 @@ class WebsocketRTCNegotiationChannel extends events.EventEmitter {
             default:
             {
                 console.warning(
-                    'Unkown message type for negotiating peer connection: ' + message.type
+                    'Unkown message type for negotiating peer connection: ' + negotiation.type
                 );
             }
         }

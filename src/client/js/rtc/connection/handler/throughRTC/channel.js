@@ -1,4 +1,3 @@
-var Q = require('q');
 var events = require('events');
 var messages = require('../../../../messages/message');
 var Negotiation = messages.ClientNegotiation;

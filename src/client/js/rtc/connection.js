@@ -19,7 +19,7 @@ class Connection extends events.EventEmitter {
             }
             self.emit('icecandidate', candidate.candidate);
         };
-        connection.ondatachannel = self.onDataChannel.bind(self)
+        connection.ondatachannel = self.onDataChannel.bind(self);
     }
 
     createOffer(options) {
