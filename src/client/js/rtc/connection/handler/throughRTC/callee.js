@@ -4,8 +4,8 @@ var Channel = require('./channel');
 
 class CalleeThroughRTCHandler extends AbstractHandler {
 
-    constructor(rtcChannel, negotiationId, offer) {
-        super(offer);
+    constructor(rtcChannel, negotiationId, offer, app) {
+        super(offer, app);
         var self = this;
         self.rtcChannel = rtcChannel;
         self.negotiationId = negotiationId;

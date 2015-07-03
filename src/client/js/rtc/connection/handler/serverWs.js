@@ -4,8 +4,8 @@ var WebSocketWrapper = require('./serverWs/channel');
 
 class ServerWsHandler extends AbstractHandler {
 
-    constructor(wsURL) {
-        super();
+    constructor(wsURL, app) {
+        super(app);
         var self = this;
         self.wsURL = wsURL;
     }

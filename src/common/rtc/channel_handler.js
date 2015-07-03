@@ -81,6 +81,12 @@ class ChannelHandler extends events.EventEmitter {
     onHandler(handler) {
         var self = this;
         var handleResponse = function(resp) {
+            if(!resp) {
+                // There are commands having no response, thus
+                // no one should be sent.
+                return;
+            }
+
             if(resp instanceof messages.Message) {
                 return self.send(resp);
             } else {

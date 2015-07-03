@@ -2,9 +2,11 @@
 class Handler {
     /**
      * @param {Message} message
+     * @param {Channel} channel
      */
-    constructor(message) {
+    constructor(message, channel) {
         this.message = message;
+        this.channel = channel;
     }
 
     /**

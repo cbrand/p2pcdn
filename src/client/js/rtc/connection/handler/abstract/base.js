@@ -28,10 +28,11 @@ var ChannelHandler = require('../../../channel_handler');
  *     longer needed.
  */
 class AbstractBaseConnectionHandler extends events.EventEmitter {
-    constructor() {
+    constructor(app) {
         super();
         var self = this;
         self._initEvents();
+        self._app = app;
     }
 
     _initEvents() {
@@ -66,7 +67,15 @@ class AbstractBaseConnectionHandler extends events.EventEmitter {
     connect() {
         var self = this;
         return self._connect().then(function(channel) {
-            return new ChannelHandler(channel, self._rightFlags);
+            return new ChannelHandler(channel, {
+                rights: self._rightFlags,
+                app: self._app
+            });
+        }).then(function(channelHandler) {
+            if(self._app && self._app.emit) {
+                self._app.emit('channel', channelHandler);
+            }
+            return channelHandler;
         });
     }
 }

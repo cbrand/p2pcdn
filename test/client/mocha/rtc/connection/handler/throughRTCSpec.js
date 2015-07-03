@@ -1,4 +1,5 @@
 var Q = require('q');
+var events = require('events');
 var helpers = require('../../../helpers');
 helpers.emulateBrowser();
 
@@ -13,34 +14,54 @@ var RTCCalleeConnectionHandler = helpers.require('rtc/connection/handler/through
 describe('Connection', function () {
 
     describe('throughRTCHandler', function () {
+        var negotiationId;
+
+        var app;
+        var appTriggered;
+
         var calleeRTCChannelMock;
         var callerRTCChannelMock;
 
         var rtcCalleeChannelHandler;
         var rtcCallerChannelHandler;
 
+        var rtcCallerConnectionHandler;
+        var rtcCalleeConnectionHandler;
+
         beforeEach(function() {
+            negotiationId = 'this-is-just-random-data';
+
+            app = new events.EventEmitter();
+            appTriggered = new Q.Promise(function(resolve) {
+                app.on('channel', function(channel) {
+                    resolve(channel);
+                });
+            });
+
             callerRTCChannelMock = new RTCChannelMock();
             calleeRTCChannelMock = new RTCChannelMock();
             calleeRTCChannelMock.connect(callerRTCChannelMock);
             callerRTCChannelMock.connect(calleeRTCChannelMock);
 
             rtcCalleeChannelHandler = new RTCChannelHandler(calleeRTCChannelMock, {
-                rtc: true
+                rights: {
+                    rtc: true
+                }
             });
             rtcCallerChannelHandler = new RTCChannelHandler(callerRTCChannelMock, {
-                rtc: true
+                rights: {
+                    rtc: true
+                }
             });
         });
 
-        it('should be able to connect two clients together', function() {
-            var negotiationId = 'this-is-just-random-data';
-
-            var rtcCallerConnectionHandler = new RTCCallerConnectionHandler(
+        var connect = function() {
+            rtcCallerConnectionHandler = new RTCCallerConnectionHandler(
                 rtcCallerChannelHandler,
-                negotiationId);
+                negotiationId,
+                app);
 
-            var rtcCalleeConnectionHandler;
+            rtcCalleeConnectionHandler;
 
             var promises = [];
 
@@ -59,9 +80,25 @@ describe('Connection', function () {
                     }
                 });
                 promises.push(rtcCallerConnectionHandler.connect());
-            }).then(function() {
-                    return Q.all(promises);
-                }).then(function(channels) {
+                return Q.all(promises);
+            });
+        };
+
+        it('should be able to connect two clients together', function() {
+            connect().then(function(channels) {
+                    channels.forEach(function(channel) {
+                        channel.close();
+                    });
+                }).then(function() {
+                    rtcCallerConnectionHandler.connection.close();
+                    rtcCalleeConnectionHandler.connection.close();
+                });
+
+        });
+
+        it('should trigger the channel event on the passed app if an app is passed.', function() {
+            connect().thenResolve(appTriggered)
+                .then(function(channels) {
                     channels.forEach(function(channel) {
                         channel.close();
                     });

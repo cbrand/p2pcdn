@@ -39,8 +39,8 @@ class AbstractCalleeConnectionHandler extends Abstract {
      * @param offer {object} The offer which should be used to initialize
      *                       the connection.
      */
-    constructor(offer) {
-        super();
+    constructor(offer, app) {
+        super(app);
         var self = this;
         self.offer = offer;
     }
