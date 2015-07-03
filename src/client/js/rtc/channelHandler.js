@@ -1,11 +1,11 @@
 var _ = require('underscore');
 var messages = require('../messages/message');
-var AbstractChannelHandler = require('../common/rtc/channel_handler');
+var AbstractChannelHandler = require('../common/rtc/channelHandler');
 var Negotiation = messages.ClientNegotiation;
 var NegotiationType = Negotiation.NegotiationType;
 
 var handlers = [
-    require('./channel_handlers/file_handler')
+    require('./channelHandlers/fileHandler')
 ];
 
 var isNegotiation = function (message) {

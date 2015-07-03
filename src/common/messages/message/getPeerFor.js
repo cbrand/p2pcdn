@@ -20,7 +20,6 @@ class GetPeerFor extends Message {
      */
     _updateProto(protoMessage) {
         super._updateProto(protoMessage);
-        protoMessage.set('type', type);
         var requestGetChunk = new proto.GetPeerFor();
         requestGetChunk.set('forFileUUID', this.uuid);
 

@@ -3,10 +3,8 @@ var ProtoBuf = require('protobufjs/dist/ProtoBuf-light.js');
 
 var serialize = function(instance, protoClass) {
     var protoObj = new protoClass();
-    var deferred = Q.defer();
-    setImmediate(deferred.resolve);
 
-    return deferred.promise.then(function() {
+    return Q().then(function() {
         return instance._updateProto(protoObj);
     }).then(function() {
         return protoObj.toArrayBuffer();
@@ -14,9 +12,7 @@ var serialize = function(instance, protoClass) {
 };
 
 var deserialize = function(Class, protoInstance) {
-    var deferred = Q.defer();
-    setTimeout(deferred.resolve, 0);
-    return deferred.promise.then(function() {
+    return Q().then(function() {
         return Class._fromProto(protoInstance);
     });
 };

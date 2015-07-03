@@ -20,7 +20,6 @@ class GetFileInfo extends Message {
      */
     _updateProto(protoMessage) {
         super._updateProto(protoMessage);
-        protoMessage.set('type', type);
         var requestGetChunk = new proto.GetFileInfo();
         requestGetChunk.set('UUID', this.uuid);
 

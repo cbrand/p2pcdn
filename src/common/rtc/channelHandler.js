@@ -1,5 +1,7 @@
+var _ = require('underscore');
 var events = require('events');
 var messages = require('../messages/message');
+var ChannelStream = require('./channelStream');
 var Message = messages.Message;
 
 /**
@@ -12,7 +14,47 @@ class ChannelHandler extends events.EventEmitter {
         super();
         var self = this;
         self.channel = channel;
+        self.streams = {};
         self._initEvents();
+    }
+
+    _unusedStreamID() {
+        var self = this;
+
+        var streamID = 0;
+        var currentStreamIDs = _.keys(self.streams);
+
+        while(_.contains(currentStreamIDs, streamID)) {
+            streamID = streamID + 1;
+        }
+
+        return streamID;
+    }
+
+    /**
+     * Returns a new stream with a unique stream ID for this
+     * channel.
+     */
+    newStream() {
+        var self = this;
+        var newStreamID = self._unusedStreamID();
+        var stream = self.streams[newStreamID] = new ChannelStream(newStreamID, self);
+        stream.once('close', function() {
+            delete self.streams[newStreamID];
+        });
+        return stream;
+    }
+
+    getStream(streamID) {
+        var self = this;
+        var stream = self.streams[streamID];
+        if(!stream) {
+            stream = self.streams[streamID] = new ChannelStream(streamID, self);
+            stream.once('close', function() {
+                delete self.streams[streamID];
+            });
+        }
+        return stream;
     }
 
     /**
@@ -94,7 +136,17 @@ class ChannelHandler extends events.EventEmitter {
             }
         };
 
-        handler.handle().then(handleResponse, handleResponse);
+        handler.handle().then(function(responseMessage) {
+            if(!responseMessage) {
+                return responseMessage;
+            }
+            var streamId = handler.message.streamId;
+
+            if(streamId) {
+                responseMessage.streamId = streamId;
+            }
+            return responseMessage;
+        }).then(handleResponse, handleResponse);
     }
 
 }

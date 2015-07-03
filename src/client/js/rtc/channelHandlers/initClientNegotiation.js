@@ -1,4 +1,4 @@
-var FileHandler = require('./file_handler');
+var FileHandler = require('./fileHandler');
 var messages = require('../../messages/message');
 var InitClientNegotiationMessage = messages.InitiateClientNegotiation;
 var RTCCallerHandler = require('../../rtc/connection/handler/throughRTC/caller');

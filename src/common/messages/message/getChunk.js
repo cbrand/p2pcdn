@@ -26,7 +26,6 @@ class GetChunk extends Message {
      */
     _updateProto(protoMessage) {
         super._updateProto(protoMessage);
-        protoMessage.set('type', type);
         var requestGetChunk = new proto.GetChunk();
         requestGetChunk.set('UUID', this.uuid);
         requestGetChunk.set('chunk', this.chunk);

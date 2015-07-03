@@ -1,13 +1,13 @@
 var messages = require('./messages/message');
-var AbstractChannelHandler = require('../common/rtc/channel_handler');
+var AbstractChannelHandler = require('../common/rtc/channelHandler');
 
 /**
  * @TODO: Some dependency injection mechanisms would be preferable to this.
  */
 var handlers = [
-    require('./channel_handlers/chunk'),
-    require('./channel_handlers/file_info'),
-    require('./channel_handlers/init')
+    require('./channelHandlers/chunk'),
+    require('./channelHandlers/fileInfo'),
+    require('./channelHandlers/init')
 ];
 
 class ChannelHandler extends AbstractChannelHandler {

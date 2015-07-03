@@ -1,6 +1,6 @@
 var events = require('events');
 var Connection = require('../../../connection');
-var ChannelHandler = require('../../../channel_handler');
+var ChannelHandler = require('../../../channelHandler');
 
 /**
  * An abstract connection handler, which provides common functionality to

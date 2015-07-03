@@ -1,1 +1,1 @@
-require('./channel_handlers/tests');
+require('./channelHandlers/tests');

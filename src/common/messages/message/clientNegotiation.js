@@ -27,7 +27,6 @@ class ClientNegotiation extends Message {
     _updateProto(protoMessage) {
         super._updateProto(protoMessage);
         var self = this;
-        protoMessage.set('type', type);
         var protoClientNegotiation = new proto.ClientNegotiation();
 
         protoClientNegotiation.set('id', self.id);

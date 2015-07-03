@@ -3,7 +3,7 @@ var dbHelpers = require('../../db/helpers');
 var expect = helpers.chai.expect;
 var File = require('db/file');
 var messages = require('messages/message');
-var FileInfoHandler = require('rtc/channel_handlers/file_info');
+var FileInfoHandler = require('rtc/channelHandlers/fileInfo');
 var ErrorResponse = messages.Error;
 var ErrorCode = ErrorResponse.Code;
 

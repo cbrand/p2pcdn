@@ -16,7 +16,6 @@ class Init extends Message {
      */
     _updateProto(protoMessage) {
         super._updateProto(protoMessage);
-        protoMessage.set('type', type);
         var initChunk = new proto.Init();
 
         protoMessage.set('.Init.message', initChunk);
@@ -31,7 +30,6 @@ class Init extends Message {
      * @returns Init
      */
     static _fromProto(protoMessage) {
-        protoMessage.get('.Init.message');
         return new Init()._setFromProto(protoMessage);
     }
 

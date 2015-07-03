@@ -45,6 +45,9 @@ class Message {
      * @protected
      */
     _updateProto(protoMessage) {
+        if(!protoMessage.get('type')) {
+            protoMessage.set('type', this.type);
+        }
         protoMessage.set('streamId', this.streamId);
     }
 
@@ -76,5 +79,6 @@ class Message {
         registerType(name, cl);
     }
 }
+Message.Type = ProtoMessage.Type;
 
 export default Message;

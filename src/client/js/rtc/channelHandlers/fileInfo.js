@@ -1,4 +1,4 @@
-var FileHandler = require('./file_handler');
+var FileHandler = require('./fileHandler');
 var messages = require('../../messages/message');
 var GetFileInfo = messages.GetFileInfo;
 var FileResponse = messages.FileInfo;

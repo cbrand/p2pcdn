@@ -84,6 +84,7 @@
       "serverDist": "dist/server",
       "serverTest": "test/server",
       "common": "src/common",
+      "commonTest": "test/common",
       "commonLinkClient": "src/client/js/common",
       "commonLinkServer": "src/server/common"
     }

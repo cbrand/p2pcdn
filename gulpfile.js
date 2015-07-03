@@ -214,15 +214,19 @@ gulp.task('copy:server:json', function () {
         .pipe(gulp.dest(dirs.serverDist));
 });
 
+var lintFiles = [
+    'gulpfile.js',
+    dirs.src + '/js/**/*.js',
+    '!' + dirs.src + '/js/vendor/**/*.js',
+    dirs.test + '/**/*.js',
+    dirs.server + '/**/*.js',
+    dirs.serverTest + '/**/*.js',
+    dirs.common + '/**/*.js',
+    dirs.commonTest + '/**/*.js'
+];
+
 gulp.task('lint:js', function () {
-    return gulp.src([
-        'gulpfile.js',
-        dirs.src + '/js/**/*.js',
-        '!' + dirs.src + '/js/vendor/**/*.js',
-        dirs.test + '/**/*.js',
-        dirs.server + '/**/*.js',
-        dirs.serverTest + '/**/*.js'
-    ]).pipe(plugins.eslint({
+    return gulp.src(lintFiles).pipe(plugins.eslint({
         useEslintrc: true
     }))
         .pipe(plugins.eslint.format())
@@ -232,14 +236,7 @@ gulp.task('lint:js', function () {
 gulp.task('lint:js:report', function () {
     mkdirp('testresults');
     var reportFile = fs.createWriteStream('testresults/lint-checkstyle.xml');
-    return gulp.src([
-        'gulpfile.js',
-        dirs.src + '/js/**/*.js',
-        '!' + dirs.src + '/js/vendor/**/*.js',
-        dirs.test + '/**/*.js',
-        dirs.server + '/**/*.js',
-        dirs.serverTest + '/**/*.js'
-    ]).pipe(plugins.eslint({
+    return gulp.src(lintFiles).pipe(plugins.eslint({
         useEslintrc: true
     }))
         .pipe(plugins.eslint.format('checkstyle', reportFile))
@@ -368,7 +365,8 @@ gulp.task('compile:protobuf:server', function () {
 gulp.task('mocha:run:console:node', function () {
     return gulp.src([
         dirs.test + '/**/*.js',
-        dirs.serverTest + '/**/*.js'
+        dirs.serverTest + '/**/*.js',
+        dirs.commonTest + '/**/*Spec.js'
     ]).pipe(mocha());
 });
 
@@ -396,7 +394,8 @@ gulp.task('mocha:run:junit:node', function (done) {
         .on('finish', function () {
             return gulp.src([
                 dirs.serverTest + '/**/*.js',
-                dirs.test + '/**/*.js'
+                dirs.test + '/**/*.js',
+                dirs.commonTest + '/**/*Spec.js'
             ])
                 .pipe(mocha({
                     reporter: 'xunit',
@@ -458,14 +457,17 @@ gulp.task('mocha:coverage:node', function (done) {
     gulp.src([
         dirs.dist + '/js/**/*.js',
         '!' + dirs.dist + '/js/vendor/**/*.js',
-        dirs.serverDist + '/**/*.js'
+        dirs.serverDist + '/**/*.js',
+        dirs.common + '/**/*.js'
     ])
         .pipe(istanbul())
         .pipe(istanbul.hookRequire())
         .on('finish', function () {
             gulp.src([
                 dirs.test + '/**/*.js',
-                dirs.serverTest + '/**/*.js'
+                dirs.serverTest + '/**/*.js',
+                dirs.commonTest + '/**/*.js',
+                '!' + dirs.commonTest + '/**/test.js'
             ])
                 .pipe(mocha())
                 .pipe(istanbul.writeReports({
@@ -563,6 +565,7 @@ gulp.task('watch:tests', function () {
     gulp.watch([
         dirs.phantomTest + '/**/*.js',
         '!' + dirs.phantomTest + '/compiled/**/*.js',
+        dirs.commonTest + '/**/*.js',
         dirs.src + '/**/*.js'
     ], ['build:tests']);
 });
