@@ -46,6 +46,7 @@ class FileInfo extends Message {
         response.mimeType = protoFileInfo.get('mimeType');
         response.numChunks = protoFileInfo.get('numChunks');
         response.missingChunks = protoFileInfo.get('missingChunks') || [];
+        response._setFromProto(protoMessage);
 
         return response;
     }

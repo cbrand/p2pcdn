@@ -44,7 +44,10 @@ class GetChunk extends Message {
      */
     static _fromProto(protoMessage) {
         var protoGetChunk = protoMessage.get('.GetChunk.message');
-        return new GetChunk(protoGetChunk.get('UUID'), protoGetChunk.get('chunk'));
+        return new GetChunk(
+            protoGetChunk.get('UUID'),
+            protoGetChunk.get('chunk')
+        )._setFromProto(protoMessage);
     }
 
 }

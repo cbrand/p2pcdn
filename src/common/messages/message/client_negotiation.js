@@ -49,6 +49,8 @@ class ClientNegotiation extends Message {
     static _fromProto(protoMessage) {
         var protoNegotiation = protoMessage.get('.ClientNegotiation.message');
         var negotiation = new ClientNegotiation(protoNegotiation.id);
+        negotiation._setFromProto(protoMessage);
+
         negotiation.negotiationType = protoNegotiation.get('type');
         var payload = protoNegotiation.get('payload');
         negotiation.payload = JSON.parse(payload.toString('utf8'));

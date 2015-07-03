@@ -37,7 +37,7 @@ class GetFileInfo extends Message {
      */
     static _fromProto(protoMessage) {
         var protoGetChunk = protoMessage.get('.GetFileInfo.message');
-        return new GetFileInfo(protoGetChunk.get('UUID'));
+        return new GetFileInfo(protoGetChunk.get('UUID'))._setFromProto(protoMessage);
     }
 }
 Message.registerType(type, GetFileInfo);

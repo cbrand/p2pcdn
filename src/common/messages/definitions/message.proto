@@ -15,6 +15,7 @@ message Message {
         CHUNK = 3002;
     }
     required Type type = 1;
+    optional int32 streamId = 2;
 
 }
 

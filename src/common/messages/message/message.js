@@ -12,6 +12,13 @@ var registerType = function(name, cl) {
 class Message {
 
     /**
+     * Creates the message.
+     */
+    constructor() {
+       this.streamId = null;
+    }
+
+    /**
      * Serializes the request and returns the byte representation of it.
      * @returns Promise.<ArrayBuffer>
      */
@@ -30,7 +37,6 @@ class Message {
         return protoHelpers.deserializeWithTypes(arrayBuffer, ProtoMessage, types);
     }
 
-    /*eslint-disable no-unused-vars */
     /**
      * Updates a protocol buffer with the representation of the given
      * javascript object.
@@ -39,9 +45,16 @@ class Message {
      * @protected
      */
     _updateProto(protoMessage) {
-        protoMessage.set('type', this.type);
+        protoMessage.set('streamId', this.streamId);
     }
 
+    _setFromProto(protoMessage) {
+        var self = this;
+        self.streamId = protoMessage.get('streamId');
+        return self;
+    }
+
+    /*eslint-disable no-unused-vars */
     /**
      * Updates this object with the data being provided
      * by the proto request.

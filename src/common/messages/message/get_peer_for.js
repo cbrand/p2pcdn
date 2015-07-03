@@ -37,7 +37,7 @@ class GetPeerFor extends Message {
      */
     static _fromProto(protoMessage) {
         var protoGetChunk = protoMessage.get('.GetPeerFor.message');
-        return new GetPeerFor(protoGetChunk.get('forFileUUID'));
+        return new GetPeerFor(protoGetChunk.get('forFileUUID'))._setFromProto(protoMessage);
     }
 }
 Message.registerType(type, GetPeerFor);

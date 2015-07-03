@@ -32,7 +32,7 @@ class Init extends Message {
      */
     static _fromProto(protoMessage) {
         protoMessage.get('.Init.message');
-        return new Init();
+        return new Init()._setFromProto(protoMessage);
     }
 
 }

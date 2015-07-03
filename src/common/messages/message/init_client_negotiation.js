@@ -42,7 +42,7 @@ class InitClientNegotiation extends Message {
      */
     static _fromProto(protoMessage) {
         var protoNegotiation = protoMessage.get('.InitClientNegotiation.message');
-        return new InitClientNegotiation(protoNegotiation.id);
+        return new InitClientNegotiation(protoNegotiation.id)._setFromProto(protoMessage);
     }
 
 }

@@ -33,12 +33,13 @@ class Chunk extends Message {
      * Updates this object with the data being provided
      * by the proto request.
      *
-     * @param {ProtoResponse} protoMessage
+     * @param {proto.Message} protoMessage
      * @returns Chunk
      */
     static _fromProto(protoMessage) {
         var protoChunk = protoMessage.get('.Chunk.message');
         var response = new Chunk(protoChunk.get('UUID'), protoChunk.get('chunk'));
+        response._setFromProto(protoMessage);
         response.data = protoChunk.get('data');
 
         return response;
