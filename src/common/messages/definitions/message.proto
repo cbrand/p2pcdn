@@ -30,6 +30,7 @@ message Error {
         UUID_NOT_FOUND = 2;
         CHUNK_NOT_FOUND = 3;
         CHUNK_OUT_OF_BOUNDS = 4;
+        TIMEOUT = 5;
     }
     required Code code = 1;
 }
