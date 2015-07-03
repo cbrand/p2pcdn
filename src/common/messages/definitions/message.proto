@@ -3,8 +3,9 @@ message Message {
     extensions 1000 to max;
     enum Type {
         ERROR = 1000;
-        CLIENT_NEGOTIATION = 1001;
-        INIT = 1002;
+        INIT = 1001;
+        INIT_CLIENT_NEGOTIATION = 1002;
+        CLIENT_NEGOTIATION = 1003;
 
         GET_PEER_FOR = 2001;
         GET_CHUNK = 2002;
@@ -32,9 +33,25 @@ message Error {
     required Code code = 1;
 }
 
+message Init {
+    extend Message {
+        optional Init message = 1001;
+    }
+}
+
+message InitClientNegotiation {
+    extend Message {
+        optional InitClientNegotiation message = 1002;
+    }
+
+    // Negotiation id which is used to identify this negotiation
+    // process on the server side.
+    required string id = 1;
+}
+
 message ClientNegotiation {
     extend Message {
-        optional ClientNegotiation message = 1001;
+        optional ClientNegotiation message = 1003;
     }
 
     enum Type {
@@ -49,12 +66,6 @@ message ClientNegotiation {
 
     required Type type = 2;
     required bytes payload = 3;
-}
-
-message Init {
-    extend Message {
-        optional Init message = 1002;
-    }
 }
 
 message GetPeerFor {

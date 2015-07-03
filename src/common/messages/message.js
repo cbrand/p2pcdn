@@ -8,6 +8,7 @@ var GetChunk = require('./message/get_chunk');
 var GetFileInfo = require('./message/get_file_info');
 var GetPeerFor = require('./message/get_peer_for');
 var Init = require('./message/init');
+var InitClientNegotiation = require('./message/init_client_negotiation');
 
 export {
     Message,
@@ -18,5 +19,6 @@ export {
     GetChunk,
     GetFileInfo,
     GetPeerFor,
-    Init
+    Init,
+    InitClientNegotiation
 };
