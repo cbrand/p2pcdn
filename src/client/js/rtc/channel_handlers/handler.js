@@ -9,6 +9,10 @@ class Handler {
         this.channel = channel;
     }
 
+    get app() {
+        return this.channel.app;
+    }
+
     /**
      * returns if the channel handler does support
      * the given request.

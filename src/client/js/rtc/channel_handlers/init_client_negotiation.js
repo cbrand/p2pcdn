@@ -28,7 +28,8 @@ class InitClientNegotiation extends FileHandler {
         var self = this;
         var handler = new RTCCallerHandler(
             self.message.id,
-            self.channel
+            self.channel,
+            self.app
         );
         return handler.connect().then(function(channel) {
             channel
