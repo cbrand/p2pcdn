@@ -10,6 +10,7 @@ var Init = Proto.build('Init');
 
 var GetChunk = Proto.build('GetChunk');
 var GetFileInfo = Proto.build('GetFileInfo');
+var GetPeerFor = Proto.build('GetPeerFor');
 
 var Chunk = Proto.build('Chunk');
 var FileInfo = Proto.build('FileInfo');
@@ -24,6 +25,7 @@ export {
 
     GetChunk,
     GetFileInfo,
+    GetPeerFor,
 
     Chunk,
     FileInfo

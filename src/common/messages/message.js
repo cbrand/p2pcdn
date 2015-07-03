@@ -6,6 +6,7 @@ var ResponseError = require('./message/error');
 var FileInfo = require('./message/file_info');
 var GetChunk = require('./message/get_chunk');
 var GetFileInfo = require('./message/get_file_info');
+var GetPeerFor = require('./message/get_peer_for');
 var Init = require('./message/init');
 
 export {
@@ -16,5 +17,6 @@ export {
     FileInfo,
     GetChunk,
     GetFileInfo,
+    GetPeerFor,
     Init
 };

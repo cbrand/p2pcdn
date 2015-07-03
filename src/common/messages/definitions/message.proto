@@ -2,12 +2,13 @@ message Message {
 
     extensions 1000 to max;
     enum Type {
-        ERROR = 0;
-        CLIENT_NEGOTIATION = 1;
-        INIT = 2;
+        ERROR = 1000;
+        CLIENT_NEGOTIATION = 1001;
+        INIT = 1002;
 
-        GET_CHUNK = 1001;
-        GET_FILE_INFO = 1002;
+        GET_PEER_FOR = 2001;
+        GET_CHUNK = 2002;
+        GET_FILE_INFO = 2003;
 
         FILE_INFO = 2001;
         CHUNK = 2002;
@@ -56,9 +57,17 @@ message Init {
     }
 }
 
+message GetPeerFor {
+    extend Message {
+        optional GetPeerFor message = 2001;
+    }
+
+    required string forFileUUID = 1;
+}
+
 message GetChunk {
     extend Message {
-        optional GetChunk message = 2001;
+        optional GetChunk message = 2002;
     }
 
     required string UUID = 1;
@@ -67,7 +76,7 @@ message GetChunk {
 
 message GetFileInfo {
     extend Message {
-        optional GetFileInfo message = 2002;
+        optional GetFileInfo message = 2003;
     }
 
     required string UUID = 1;
