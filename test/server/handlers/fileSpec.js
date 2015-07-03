@@ -4,12 +4,12 @@ var temp = require('temp');
 var Q = require('q');
 
 var helpers = require('../helpers');
+var expect = helpers.chai.expect;
 
 var Config = helpers.require('config');
 var db = helpers.require('db');
 var FileHandler = helpers.require('handlers/file');
 
-require('should');
 
 describe('FileHandler', function () {
     var directory;
@@ -54,37 +54,37 @@ describe('FileHandler', function () {
             var fileHandler = new FileHandler(config);
             var stream = sendReadableStream('Testfile', 'More stuff');
             return fileHandler.add('test.txt', stream, null).then(function (obj) {
-                obj.should.be.ok;
+                expect(obj).to.be.ok;
             });
         });
 
         it('should return a uuid.', function () {
             return addData().then(function (obj) {
-                obj.uuid.should.be.ok;
+                expect(obj.uuid).to.be.ok;
             });
         });
 
         it('should return the correct filename', function () {
             return addData({ fileName: 'test.txt' }).then(function (obj) {
-                obj.fileName.should.equal('test.txt');
+                expect(obj.fileName).to.equal('test.txt');
             });
         });
 
         it('should automatically set the correct mimetype (for text)', function () {
             return addData({ fileName: 'test.txt' }).then(function (obj) {
-                obj.mimeType.should.equal('text/plain');
+                expect(obj.mimeType).to.equal('text/plain');
             });
         });
 
         it('should automatically set the correct mimetype (for pdf)', function () {
             return addData({ fileName: 'test.pdf' }).then(function (obj) {
-                obj.mimeType.should.equal('application/pdf');
+                expect(obj.mimeType).to.equal('application/pdf');
             });
         });
 
         it('should be able to manually overwrite the mimetype', function () {
             return addData({ fileName: 'test.pdf', mimeType: 'text/plain' }).then(function (obj) {
-                obj.mimeType.should.equal('text/plain');
+                expect(obj.mimeType).to.equal('text/plain');
             });
         });
 
@@ -92,7 +92,7 @@ describe('FileHandler', function () {
             return addData({ fileName: 'test.pdf', mimeType: 'text/plain' }).then(function (obj) {
                 var uuidPath = path.join(fileDirectory, obj.uuid);
                 fs.exists(uuidPath, function (exists) {
-                    exists.should.be.ok();
+                    expect(exists).to.equal(true);
                 });
             });
         });
@@ -101,7 +101,7 @@ describe('FileHandler', function () {
             addData({ fileName: 'test.pdf', mimeType: 'text/plain' }).then(function (obj) {
                 var uuidPath = path.join(fileDirectory, obj.uuid);
                 fs.readFile(uuidPath, { encoding: 'utf-8' }, function (_, data) {
-                    data.should.equal('TestfileMore stuffAnd much more stuff');
+                    expect(data).to.equal('TestfileMore stuffAnd much more stuff');
                     done();
                 });
             });
@@ -112,9 +112,9 @@ describe('FileHandler', function () {
                 addData({ fileName: 'test.txt' }, sendReadableStream('test', '123')),
                 addData({ fileName: 'test.txt' }, sendReadableStream('test', '456'))
             ]).then(function (data) {
-                data[0].fileName.should.equal('test.txt');
-                data[1].fileName.should.equal('test.txt');
-                data[0].uuid.should.not.equal(data[1].uuid);
+                expect(data[0].fileName).to.equal('test.txt');
+                expect(data[1].fileName).to.equal('test.txt');
+                expect(data[0].uuid).to.not.equal(data[1].uuid);
             });
         });
     });
@@ -142,13 +142,13 @@ describe('FileHandler', function () {
 
         it('should return true if the uuid exists', function () {
             return fileHandler.has(addedUUID).then(function (hasUUID) {
-                hasUUID.should.be.ok;
+                expect(hasUUID).to.be.ok;
             });
         });
 
         it('should return false if the uuid does not exist', function () {
             return fileHandler.has(mangleUUID(addedUUID)).then(function (hasUUID) {
-                hasUUID.should.be.false;
+                expect(hasUUID).to.not.be.ok;
             });
         });
 
@@ -156,7 +156,7 @@ describe('FileHandler', function () {
             return wrapperFile.dbFile.destroy().then(function () {
                 return fileHandler.has(addedUUID);
             }).then(function (hasUUID) {
-                hasUUID.should.be.false;
+                expect(hasUUID).to.not.be.ok;
             });
         });
 
@@ -165,7 +165,7 @@ describe('FileHandler', function () {
             fs.unlinkSync(pathToUUID);
             return fileHandler.has(addedUUID)
                 .then(function (hasUUID) {
-                    hasUUID.should.be.false;
+                    expect(hasUUID).to.not.be.ok;
                 });
         });
 
@@ -185,13 +185,13 @@ describe('FileHandler', function () {
 
         it('should return the file', function () {
             return fileHandler.get(addedUUID).then(function (model) {
-                model.uuid.should.equal(addedUUID);
+                expect(model.uuid).to.equal(addedUUID);
             });
         });
 
         it('should return an error if the file could not be found', function () {
             return fileHandler.get(mangleUUID(addedUUID)).catch(function (err) {
-                err.should.be.ok;
+                expect(err).to.be.ok;
             });
         });
     });
