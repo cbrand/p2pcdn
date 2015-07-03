@@ -1,4 +1,3 @@
-var helpers = require('../../../helpers');
 
 var RTCChannelMock = function () {
 
