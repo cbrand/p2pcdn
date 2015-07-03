@@ -52,9 +52,9 @@ describe('ChannelStream', function() {
         it('should be able to send data through the stream', function() {
             return stream.send(message).then(function() {
                 return messagesFor(stream);
-            }).then(function(messages) {
-                expect(messages.length).to.equal(1);
-                return messages[0];
+            }).then(function(resolvedMessages) {
+                expect(resolvedMessages.length).to.equal(1);
+                return resolvedMessages[0];
             }).then(function(data) {
                 expect(data.type).to.equal(messages.Message.Type.INIT);
             });
