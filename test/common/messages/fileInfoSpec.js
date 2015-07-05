@@ -1,4 +1,3 @@
-var Q = require('q');
 var helpers = require('../helpers');
 var expect = helpers.chai.expect;
 
