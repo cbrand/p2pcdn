@@ -24,7 +24,7 @@ class ChannelHandler extends events.EventEmitter {
         var streamID = 0;
         var currentStreamIDs = _.keys(self.streams);
 
-        while(_.contains(currentStreamIDs, streamID)) {
+        while (_.contains(currentStreamIDs, streamID)) {
             streamID = streamID + 1;
         }
 
@@ -39,7 +39,7 @@ class ChannelHandler extends events.EventEmitter {
         var self = this;
         var newStreamID = self._unusedStreamID();
         var stream = self.streams[newStreamID] = new ChannelStream(newStreamID, self);
-        stream.once('close', function() {
+        stream.once('close', function () {
             delete self.streams[newStreamID];
         });
         return stream;
@@ -48,9 +48,9 @@ class ChannelHandler extends events.EventEmitter {
     getStream(streamID) {
         var self = this;
         var stream = self.streams[streamID];
-        if(!stream) {
+        if (!stream) {
             stream = self.streams[streamID] = new ChannelStream(streamID, self);
-            stream.once('close', function() {
+            stream.once('close', function () {
                 delete self.streams[streamID];
             });
         }
@@ -66,9 +66,11 @@ class ChannelHandler extends events.EventEmitter {
      */
     send(message) {
         var self = this;
-        return message.serialize().then(function(data) {
-            self.channel.send(data);
-        });
+        return message
+            .serialize()
+            .then(function (data) {
+                self.channel.send(data);
+            });
     }
 
     error(code) {
@@ -89,13 +91,13 @@ class ChannelHandler extends events.EventEmitter {
     _initEvents() {
         var self = this;
         self.channel.onmessage = self.onEvent.bind(self);
-        self.channel.onclose = function() {
+        self.channel.onclose = function () {
             self.emit('close');
         };
-        self.channel.onerror = function(err) {
+        self.channel.onerror = function (err) {
             self.emit('error', err);
         };
-        self.channel.onopen = function() {
+        self.channel.onopen = function () {
             self.emit('open');
         };
 
@@ -106,31 +108,31 @@ class ChannelHandler extends events.EventEmitter {
     onEvent(event) {
         var self = this;
         var data = event.data;
-        if(data) {
+        if (data) {
             self.emit('data', data);
         }
     }
 
     onData(data) {
         var self = this;
-        Message.deserialize(data).then(function(message) {
+        Message.deserialize(data).then(function (message) {
             self.emit('message', message);
-        }, function() {
+        }, function () {
             self.error(messages.Error.Code.UNKNOWN_COMMAND);
         });
     }
 
     onHandler(handler) {
         var self = this;
-        var handleResponse = function(resp) {
+        var handleResponse = function (resp) {
             var result = null;
-            if(!resp) {
+            if (!resp) {
                 // There are commands having no response, thus
                 // no one should be sent.
                 return result;
             }
 
-            if(resp instanceof messages.Message) {
+            if (resp instanceof messages.Message) {
                 result = self.send(resp);
             } else {
                 result = self.error(messages.Error.Code.UNKNOWN);
@@ -138,17 +140,22 @@ class ChannelHandler extends events.EventEmitter {
             return result;
         };
 
-        handler.handle().then(function(responseMessage) {
-            if(!responseMessage) {
+        handler.handle().then(function (responseMessage) {
+            if (!responseMessage) {
                 return responseMessage;
             }
             var streamId = handler.message.streamId;
 
-            if(streamId) {
+            if (streamId) {
                 responseMessage.streamId = streamId;
             }
             return responseMessage;
         }).then(handleResponse, handleResponse);
+    }
+
+    static messageRequiresResponse(message) {
+        // Messages between 2000 and 3000 require a handler.
+        return message.type >= 2000 && message.type < 3000;
     }
 
 }

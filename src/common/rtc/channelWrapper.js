@@ -20,7 +20,6 @@ class ChannelWrapper extends events.EventEmitter {
         var self = this;
         var channel = self.channel;
         self.close = channel.close.bind(channel);
-        self.send = channel.send.bind(self);
 
         var bindChannelFunc = function (name) {
             self.channel.on(name, function () {
@@ -33,6 +32,10 @@ class ChannelWrapper extends events.EventEmitter {
         });
 
         self.on('message', self.onMessage.bind(self));
+    }
+
+    send(message) {
+        this.channel.send(message);
     }
 
     onMessage(message) {
@@ -51,7 +54,7 @@ class ChannelWrapper extends events.EventEmitter {
      * Returns a new stream from the underlying channel.
      * @private
      */
-    _newStream() {
+    newMessage() {
         return this.channel.newStream();
     }
 
@@ -62,13 +65,13 @@ class ChannelWrapper extends events.EventEmitter {
     requestFileInfo(UUID) {
         var self = this;
         var request = new messages.GetFileInfo(UUID);
-        var stream = self._newStream();
+        var stream = self.newMessage();
 
         return stream.sendAndExpectMessage(request).then(function(message) {
             if(message.type === MessageType.FILE_INFO) {
-                if(message.UUID === UUID) {
+                if(message.uuid !== UUID) {
                     throw new Error('The message returned has the wrong file UUID (got ' +
-                        message.UUID + ' expected ' + UUID +
+                        message.uuid + ' expected ' + UUID +
                         ')');
                 }
 
@@ -89,7 +92,7 @@ class ChannelWrapper extends events.EventEmitter {
     getChunk(UUID, chunkNum) {
         var self = this;
         var request = new messages.GetChunk(UUID, chunkNum);
-        var stream = self._newStream();
+        var stream = self.newMessage();
         return stream.sendAndExpectMessage(request).then(function(message) {
             if(message.type === MessageType.CHUNK) {
                 return message;
@@ -99,7 +102,7 @@ class ChannelWrapper extends events.EventEmitter {
         }).then(function(message) {
             if(message.uuid !== UUID || message.chunk !== chunkNum) {
                 throw new Error(
-                    'Requested chunk number ' + chunkNum + ' and uuid ' + UUID + ' from the remote peer,' +
+                    'Requested chunk number ' + chunkNum + ' and uuid ' + UUID + ' from the remote peer, ' +
                     'but got chunk number ' + message.chunk + ' with uuid ' + message.uuid
                 );
             }
@@ -107,6 +110,23 @@ class ChannelWrapper extends events.EventEmitter {
         }).finally(function() {
             stream.close();
         });
+    }
+
+    /**
+     * Requests against the server a peer which has chunks from the given data.
+     *
+     * @param UUID {string} The uuid being requested
+     * @param missingChunks {Array.<Number>} The chunks still necessary to locally get.
+     * @returns {Promise.<messages.InitClientNegotiation>}
+     */
+    getPeerFor(UUID, missingChunks) {
+        var self = this;
+        var requestPeerMessage = new messages.GetPeerFor(UUID, missingChunks);
+        var stream = self.newMessage();
+        return stream.sendAndExpectMessage(requestPeerMessage)
+            .finally(function() {
+                stream.close();
+            });
     }
 
 }

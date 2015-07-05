@@ -22,4 +22,30 @@ var blobToBase64 = function(blob) {
 module.exports.chai = chai;
 module.exports.blobToBase64URL = blobToBase64URL;
 module.exports.blobToBase64 = blobToBase64;
+exports.connectedChannels = function(app) {
+    var RTCChannelMock = require('../../common/rtc/helpers').RTCChannelMock;
+    var ChannelHandler = require('rtc/channelHandler');
 
+    var firstChannelMock = new RTCChannelMock();
+    var secondChannelMock = new RTCChannelMock();
+    firstChannelMock.connect(secondChannelMock);
+    secondChannelMock.connect(firstChannelMock);
+
+    var firstChannelWrapper = new ChannelHandler(firstChannelMock, {
+        app: app || null
+    });
+    var secondChannelWrapper = new ChannelHandler(secondChannelMock, {
+        app: app || null
+    });
+
+    return {
+        channel: {
+            left: firstChannelMock,
+            right: secondChannelMock
+        },
+        handler: {
+            left: firstChannelWrapper,
+            right: secondChannelWrapper
+        }
+    };
+};

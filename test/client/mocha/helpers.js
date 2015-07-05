@@ -1,8 +1,12 @@
+var _ = require('underscore');
 var Q = require('q');
 var path = require('path');
 var apiHelpers = require('../../server/http/api/helpers');
 var serverHelpers = require('../../server/helpers');
 var portfinder = require('portfinder');
+Q.longStackSupport = true;
+var sinon = require('sinon');
+require('sinon-mocha').enhance(sinon);
 
 var distRequire = function(p) {
     return require(path.join(__dirname, '../../../dist/client/js/' + p));
@@ -78,3 +82,32 @@ exports.emulateBrowser = function() {
     });
 };
 exports.chai = serverHelpers.chai;
+exports.connectedChannels = function(options) {
+    options = _.extend({
+        rights: {
+            rtc: true
+        }
+    }, options);
+
+    var RTCChannelMock = require('../../common/rtc/helpers').RTCChannelMock;
+    var ChannelHandler = distRequire('rtc/channelHandler');
+
+    var firstChannelMock = new RTCChannelMock();
+    var secondChannelMock = new RTCChannelMock();
+    firstChannelMock.connect(secondChannelMock);
+    secondChannelMock.connect(firstChannelMock);
+
+    var firstChannelWrapper = new ChannelHandler(firstChannelMock, options);
+    var secondChannelWrapper = new ChannelHandler(secondChannelMock, options);
+
+    return {
+        channel: {
+            left: firstChannelMock,
+            right: secondChannelMock
+        },
+        handler: {
+            left: firstChannelWrapper,
+            right: secondChannelWrapper
+        }
+    };
+};

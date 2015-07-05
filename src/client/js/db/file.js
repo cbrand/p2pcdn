@@ -1,3 +1,4 @@
+var _ = require('underscore');
 var Q = require('q');
 var persistence = require('./persistence/file');
 var ChunkHandler = require('./handler/chunk');
@@ -122,6 +123,19 @@ class File extends persistence.Base {
 
         return Q.all(promises).then(function() {
             return missingChunks;
+        });
+    }
+
+    existingChunks() {
+        var self = this;
+        return this.missingChunks().then(function(missingChunks) {
+            var existingChunks = [];
+            for(var chunkNum = 0; chunkNum < self.numChunks; chunkNum++) {
+                if(!_.contains(missingChunks, chunkNum)) {
+                    existingChunks.push(chunkNum);
+                }
+            }
+            return existingChunks;
         });
     }
 

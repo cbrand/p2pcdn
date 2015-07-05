@@ -23,7 +23,9 @@ class ChannelHandler extends AbstractChannelHandler {
             rtc: false
         }, options.rights);
         self.app = options.app || null;
-        self.on('message', self.onMessage.bind(self));
+        var onMessage = self.onMessage.bind(self);
+        self.on('message', onMessage);
+        self.sendNotFound = true;
     }
 
     onMessage(message) {
@@ -43,7 +45,9 @@ class ChannelHandler extends AbstractChannelHandler {
             return;
         }
 
-        if (!handlerFound) {
+        if (self.sendNotFound &&
+            !handlerFound &&
+            ChannelHandler.messageRequiresResponse(message)) {
             self.error(messages.Error.Code.UNKNOWN_COMMAND);
         }
     }

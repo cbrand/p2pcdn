@@ -86,7 +86,7 @@ message GetChunk {
     }
 
     required string UUID = 1;
-    required int64 chunk = 2;
+    required int32 chunk = 2;
 }
 
 message GetFileInfo {
@@ -115,6 +115,6 @@ message Chunk {
     }
 
     required string UUID = 1;
-    required int64 chunk = 2;
+    required int32 chunk = 2;
     required bytes data = 3;
 }
