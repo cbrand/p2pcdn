@@ -24,15 +24,15 @@ describe('Messages', function() {
                 fileInfo.name = 'test.txt';
                 fileInfo.mimeType = 'plain/text';
                 fileInfo.numChunks = 6;
-                fileInfo.missingChunks = [1, 2, 3];
+                fileInfo.missingChunks = [0, 1, 2];
             });
 
             it('should be initialized with the uuid', function() {
-                expect(fileInfo).to.equal('abc');
+                expect(fileInfo.uuid).to.equal('abc');
             });
 
             it('should correctly calculate the existing chunks', function() {
-                expect(fileInfo.existingChunks).to.deep.equal([4, 5, 6]);
+                expect(fileInfo.existingChunks).to.deep.equal([3, 4, 5]);
             });
 
             describe('when serializing and deserializing the message', function() {
@@ -47,7 +47,7 @@ describe('Messages', function() {
                 });
 
                 it('should correctly set the uuid', function() {
-                    expect(deserializedFileInfo).to.equal('abc');
+                    expect(deserializedFileInfo.uuid).to.equal('abc');
                 });
 
                 it('should correctly set the file name', function() {
@@ -59,7 +59,7 @@ describe('Messages', function() {
                 });
 
                 it('should correctly set the missingChunks', function() {
-                    expect(deserializedFileInfo.missingChunks).to.deep.equal([1, 2, 3]);
+                    expect(deserializedFileInfo.missingChunks).to.deep.equal([0, 1, 2]);
                 });
             });
         });
