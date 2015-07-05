@@ -28,7 +28,9 @@ class ChannelHandler extends AbstractChannelHandler {
                 self.emit('handler', handler);
             }
         });
-        if(!handlerFound) {
+        // Messages between 2000 and 3000 require a handler.
+        var handlerRequired = message.type >= 2000 && message.type < 3000;
+        if(!handlerFound && handlerRequired) {
             self.error(messages.Error.Code.UNKNOWN_COMMAND);
         }
     }

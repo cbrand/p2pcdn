@@ -1,7 +1,10 @@
+var currentChannelId = 0;
 
 var RTCChannelMock = function () {
     var self = this;
     self.messages = [];
+    self.channelId = currentChannelId;
+    currentChannelId++;
 };
 
 RTCChannelMock.prototype.connect = function (serverRTCChannel) {
