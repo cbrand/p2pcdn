@@ -1,1 +1,2 @@
 require('./fileInfoSpec');
+require('./requestPeersForSpec');
