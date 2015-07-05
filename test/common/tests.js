@@ -5,3 +5,4 @@
 
 window.isNode = false;
 require('./rtc/tests');
+require('./messages/tests');
