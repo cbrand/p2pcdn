@@ -1,4 +1,3 @@
-
 var Message = require('./message/message');
 var Chunk = require('./message/chunk');
 var ClientNegotiation = require('./message/clientNegotiation');
@@ -9,6 +8,7 @@ var GetFileInfo = require('./message/getFileInfo');
 var GetPeerFor = require('./message/getPeerFor');
 var Init = require('./message/init');
 var InitClientNegotiation = require('./message/initClientNegotiation');
+var RequestPeersFor = require('./message/requestPeersFor');
 
 export {
     Message,
@@ -20,5 +20,6 @@ export {
     GetFileInfo,
     GetPeerFor,
     Init,
-    InitClientNegotiation
+    InitClientNegotiation,
+    RequestPeersFor
 };

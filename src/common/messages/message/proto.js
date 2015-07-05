@@ -7,6 +7,7 @@ var ClientNegotiation = Proto.build('ClientNegotiation');
 var ProtoError = Proto.build('Error');
 var Init = Proto.build('Init');
 var InitClientNegotiation = Proto.build('InitClientNegotiation');
+var RequestPeersFor = Proto.build('RequestPeersFor');
 
 var GetChunk = Proto.build('GetChunk');
 var GetFileInfo = Proto.build('GetFileInfo');
@@ -23,6 +24,7 @@ export {
     ProtoError as Error,
     Init,
     InitClientNegotiation,
+    RequestPeersFor,
 
     GetChunk,
     GetFileInfo,
