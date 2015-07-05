@@ -1,3 +1,4 @@
+var _ = require('underscore');
 var proto = require('./proto');
 var Message = require('./message');
 
@@ -10,6 +11,21 @@ class FileInfo extends Message {
         this.mimeType = null;
         this.numChunks = 0;
         this.missingChunks = [];
+    }
+
+    /**
+     * Returns all chunk numbers which are existing.
+     * @returns {Array.<Number>}
+     */
+    get existingChunks() {
+        var self = this;
+        var existingChunks = [];
+        for(var chunkNum = 0; chunkNum < self.numChunks; chunkNum++) {
+            if(!_.contains(self.missingChunks, chunkNum)) {
+                existingChunks.push(chunkNum);
+            }
+        }
+        return existingChunks;
     }
 
     /**
