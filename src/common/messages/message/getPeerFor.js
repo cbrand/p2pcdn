@@ -1,14 +1,15 @@
 var Message = require('./message');
 var proto = require('./proto');
-var type = proto.Message.Type.GET_PEER_FOR;
 
 class GetPeerFor extends Message {
     /**
-     * @param {String} uuid the uuid of the file
+     * @param {String} UUID the uuid of the file
+     * @param {Array.<Number>} neededChunks The chunks still needed by the peer.
      */
-    constructor(uuid) {
+    constructor(UUID, neededChunks) {
         super();
-        this.uuid = uuid;
+        this.UUID = UUID;
+        this.neededChunks = neededChunks || [];
     }
 
     /**
@@ -21,7 +22,8 @@ class GetPeerFor extends Message {
     _updateProto(protoMessage) {
         super._updateProto(protoMessage);
         var requestGetChunk = new proto.GetPeerFor();
-        requestGetChunk.set('forFileUUID', this.uuid);
+        requestGetChunk.set('forFileUUID', this.UUID);
+        requestGetChunk.set('neededChunks', this.neededChunks);
 
         protoMessage.set('.GetPeerFor.message', requestGetChunk);
         return protoMessage;
@@ -36,9 +38,14 @@ class GetPeerFor extends Message {
      */
     static _fromProto(protoMessage) {
         var protoGetChunk = protoMessage.get('.GetPeerFor.message');
-        return new GetPeerFor(protoGetChunk.get('forFileUUID'))._setFromProto(protoMessage);
+        var peerFor = new GetPeerFor(
+            protoGetChunk.get('forFileUUID'),
+            protoGetChunk.get('neededChunks')
+        );
+        peerFor._setFromProto(protoMessage);
+        return peerFor;
     }
 }
-Message.registerType(type, GetPeerFor);
+Message.registerType(proto.Message.Type.GET_PEER_FOR, GetPeerFor);
 
 export default GetPeerFor;

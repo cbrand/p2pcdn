@@ -31,6 +31,11 @@ class Error extends Message {
         ;
     }
 
+    get isNoPeers() {
+        var self = this;
+        return self.code === ErrorCodes.NO_PEERS_AVAILABLE;
+    }
+
     /**
      * Updates a protocol buffer with the representation of the given
      * javascript object.

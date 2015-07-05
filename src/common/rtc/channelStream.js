@@ -10,7 +10,7 @@ class ChannelStream extends events.EventEmitter {
      *
      * @param streamId {Number} the id of the stream which is being used to track
      *                          the messages in this stream.
-     * @param channel {ChannelHandler} The default channel handler.
+     * @param channel {ChannelWrapper} The default channel handler.
      */
     constructor(streamId, channel) {
         super();
