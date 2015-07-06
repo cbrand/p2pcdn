@@ -27,6 +27,9 @@ class GetFileOrchestrator extends BaseOrchestrator {
                 }
             }).done();
         });
+        setTimeout(function() {
+            self.handlePeer(self.serverRtcChannel);
+        }, 10);
 
         var requestFileInfo = self.serverRtcChannel
             .requestFileInfo(UUID)
