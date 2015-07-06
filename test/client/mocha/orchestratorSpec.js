@@ -68,7 +68,7 @@ describe('Client: Orchestrator', function() {
     };
     var prepareForClientConnectionResolve = function() {
         rtcChannel.on('message', function(message) {
-            if(message instanceof messages.GetPeerFor) {
+            if(message instanceof messages.GetPeerFor || message instanceof messages.RequestPeersFor) {
                 var initClientConnection = new messages.InitClientNegotiation(negotiationId);
                 initClientConnection.streamId = message.streamId;
                 rtcChannel.send(initClientConnection);
@@ -117,6 +117,25 @@ describe('Client: Orchestrator', function() {
                 });
             });
 
+        });
+
+    });
+
+    describe('requestPeerConnections', function() {
+
+        beforeEach(prepareForClientConnectionResolve);
+
+        it('should connect to a channel', function() {
+            this.timeout(5000);
+            var emitter = orchestrator.requestPeerConnections(requestedFileID, missingChunks);
+
+            return Q.Promise(function(resolve) {
+                emitter.on('connection', function(channel) {
+                    expect(channel).to.be.ok;
+                    channel.close();
+                    resolve();
+                });
+            });
         });
 
     });

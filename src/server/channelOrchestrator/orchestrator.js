@@ -6,6 +6,8 @@ var ErrorCodes = require('../common/errorCodes');
 var Connections = require('./connections');
 var NegotiationOrchestrator = require('./orchestrator/negotiation');
 
+const DEFAULT_NUM_PEERS = 5;
+
 
 class Orchestrator {
     constructor(app) {
@@ -37,8 +39,10 @@ class Orchestrator {
         });
     }
 
-    requestPeersWithChunks(fromPeer, UUID, chunks) {
+    requestPeersWithChunks(fromPeer, UUID, chunks, numPeers) {
+        numPeers = numPeers || DEFAULT_NUM_PEERS;
         var self = this;
+        var peersFound = 0;
         self.connections.forEach(function (connection) {
             if(fromPeer === connection) {
                 // We don't have to ask the same peer about the
@@ -48,24 +52,33 @@ class Orchestrator {
             connection.hasFileWithOneChunk(UUID, chunks)
                 .then(function (existingChunks) {
                     if (existingChunks) {
+                        if(peersFound >= numPeers) {
+                            return;
+                        }
                         self.emit('connection-partial-peer', {
                             connection: connection,
                             UUID: UUID,
                             chunks: existingChunks
                         });
+                        peersFound++;
                     }
                 });
         });
     }
 
-    requestPeerWithChunks(fromPeer, UUID, chunks) {
+    requestPeerWithChunks(fromPeer, UUID, chunks, numPeers) {
         var self = this;
         var defer = Q.defer();
-        self.requestPeersWithChunks(fromPeer, UUID, chunks);
+        self.requestPeersWithChunks(fromPeer, UUID, chunks, numPeers);
+        var peersFound = 0;
         var peerHandler = function(data) {
             if(data.UUID === UUID) {
                 if(_.intersection(chunks, data.chunks).length > 0) {
+                    peersFound++;
                     defer.resolve(data.connection);
+                    if(peersFound > numPeers) {
+                        self.removeListener('connection-partial-peer', peerHandler);
+                    }
                 }
             }
         };

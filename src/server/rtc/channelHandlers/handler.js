@@ -3,10 +3,12 @@ class Handler {
     /**
      * @param {App} app
      * @param {Message} message
+     * @param {Channel} channel
      */
-    constructor(app, message) {
+    constructor(app, message, channel) {
         this.app = app;
         this.message = message;
+        this.channel = channel;
     }
 
     /**

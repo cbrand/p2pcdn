@@ -1,5 +1,6 @@
 var events = require('events');
 var PeerConnectionOrchestrator = require('./orchestrator/peerConnection');
+var PeerConnectionsOrchestrator = require('./orchestrator/peerConnections');
 var RequestFileOrchestrator = require('./orchestrator/getFile');
 var ChannelWrapper = require('./channel/wrapper');
 
@@ -27,6 +28,12 @@ class Orchestrator extends events.EventEmitter {
                 self.connections.push(channel);
                 return channel;
             });
+    }
+
+    requestPeerConnections(UUID, missingChunks) {
+        var self = this;
+        var peerConnectionsOrchestrator = self._initOrchestrator(PeerConnectionsOrchestrator);
+        return peerConnectionsOrchestrator.init(UUID, missingChunks);
     }
 
     requestFile(UUID) {

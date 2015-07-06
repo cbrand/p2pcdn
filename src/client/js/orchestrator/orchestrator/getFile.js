@@ -25,24 +25,26 @@ class GetFileOrchestrator extends BaseOrchestrator {
                 if(err !== DownloadErrors.NoMorePeerData) {
                     self.defer.reject(err);
                 }
-            });
+            }).done();
         });
-        self.file.on('finish', self.defer.resolve.bind(undefined, self.file));
 
         var requestFileInfo = self.serverRtcChannel
             .requestFileInfo(UUID)
             .then(self.setFileInfo.bind(self))
         ;
 
-        var loadFile = self.loadFile();
+        var loadFile = self.loadFile().then(function(file) {
+            self.file.on('finish', function() {
+                self.defer.resolve(self.file);
+            });
+            return file;
+        });
 
-        return Q.all([requestFileInfo, loadFile])
+        Q.all([requestFileInfo, loadFile])
             .then(self.updateLocalFile.bind(self))
             .then(self.getPeers.bind(self))
-            .then(self.handleDownload.bind(self))
-            .then(function() {
-                return self.file;
-            });
+            .done();
+        return self.defer.promise;
     }
 
     loadFile() {
@@ -64,26 +66,22 @@ class GetFileOrchestrator extends BaseOrchestrator {
          * TODO: Request a list of peers instead of only one.
          */
         return this.file.missingChunks().then(function(missingChunks) {
-            return self.parentOrchestrator.requestPeerConnection(
+            return self.parentOrchestrator.requestPeerConnections(
                 self.UUID,
                 missingChunks
-            ).then(function(peer) {
-                    peer.once('close', function() {
-                        self.peers = _.without(
-                            self.peers,
-                            peer
-                        );
-                    });
-                    self.peers.push(peer);
-                    return peer;
-                }).catch(function(err) {
-                    if(err.isNoPeers) {
-                        // Fallback to server;
-                        self.peers.push(self.serverRtcChannel);
-                    } else {
-                        throw err;
-                    }
+            );
+        }).then(function(eventChannel) {
+            eventChannel.on('connection', function(peer) {
+                peer.once('close', function() {
+                    self.peers = _.without(
+                        self.peers,
+                        peer
+                    );
                 });
+                self.peers.push(peer);
+                self.emit('peer', peer);
+                return peer;
+            });
         });
     }
 
@@ -97,23 +95,8 @@ class GetFileOrchestrator extends BaseOrchestrator {
         return file.save();
     }
 
-    handleDownload() {
-        var self = this;
-        var peerDownloadHandlers = [];
-        self.peers.forEach(function(peer) {
-            var downloadOrchestrator = self._initOrchestrator(DownloadOrchestrator);
-            peerDownloadHandlers.push(
-                downloadOrchestrator.init(
-                    self.file,
-                    peer
-                )
-            );
-        });
-
-        return Q.all(peerDownloadHandlers);
-    }
-
     handlePeer(peer) {
+        var self = this;
         self.peers.push(peer);
         var downloadOrchestrator = self._initOrchestrator(DownloadOrchestrator);
         return downloadOrchestrator.init(

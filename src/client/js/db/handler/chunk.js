@@ -11,6 +11,7 @@ class ChunkHandler extends persistence.Base {
         super();
         var self = this;
         self._file = file;
+        self._lock = false;
     }
 
     get _dbFile() {
@@ -34,13 +35,40 @@ class ChunkHandler extends persistence.Base {
     set(chunkNum, chunk) {
         var self = this;
         var attachmentName = chunkNumToAttachmentName(chunkNum);
+        var defer = Q.defer();
 
-        return ChunkHandler.db.putAttachment(
-            self._dbFile._id, attachmentName, self._dbFile._rev, chunk, 'application/octet-stream'
-        ).then(function (result) {
-                // Necessity to reload the file with the given rev.
-                return self._file.refresh(result.rev);
-            });
+        var putAttachment = function() {
+            self._lock = true;
+            self.emit('lock');
+            return Q(ChunkHandler.db.putAttachment(
+                self._dbFile._id, attachmentName, self._dbFile._rev, chunk, 'application/octet-stream'
+            )).then(function (result) {
+                    // Necessity to reload the file with the given rev.
+                    return self._file.refresh(result.rev);
+                }).finally(function() {
+                    self._lock = false;
+                    self.emit('unlock');
+                }).then(function(result) {
+                    defer.resolve(result);
+                }).catch(function(err) {
+                    defer.reject(err);
+                }).done();
+        };
+        var lockCheck = function() {
+            if(self._lock) {
+                self.once('unlock', function() {
+                    if(self._lock) {
+                        return lockCheck();
+                    } else {
+                        putAttachment();
+                    }
+                });
+            } else {
+                putAttachment();
+            }
+        };
+        lockCheck();
+        return defer.promise;
     }
 
     get(chunkNum) {

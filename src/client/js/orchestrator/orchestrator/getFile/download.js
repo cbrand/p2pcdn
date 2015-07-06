@@ -33,7 +33,7 @@ class DownloadOrchestrator extends BaseOrchestrator {
                 );
                 if (requestChunks.length === 0) {
                     if(missingChunks.length === 0) {
-                        self.file.trigger('finish');
+                        self.file.emit('finish');
                         throw NoMoreData;
                     } else {
                         throw NoMorePeerData;
@@ -45,7 +45,6 @@ class DownloadOrchestrator extends BaseOrchestrator {
                  * TODO: Implement notification to handle peer handling.
                  */
                 toProcessChunk = requestChunks[randomChunkIndex];
-                console.log(toProcessChunk);
 
                 return self.peerConnection.getChunk(self.file.id, toProcessChunk).then(function(chunk) {
                     return new Blob([chunk]);

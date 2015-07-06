@@ -3,6 +3,8 @@ var messages = require('../messages/message');
 var Message = messages.Message;
 var MessageType = Message.Type;
 
+const REQUEST_NUM_PEERS = 5;
+
 /**
  * Wrapper around a common channel handler implementing functions to send information
  * data and should be used as a "client" interface for the communication with a server.
@@ -54,7 +56,7 @@ class ChannelWrapper extends events.EventEmitter {
      * Returns a new stream from the underlying channel.
      * @private
      */
-    newMessage() {
+    newStream() {
         return this.channel.newStream();
     }
 
@@ -65,7 +67,7 @@ class ChannelWrapper extends events.EventEmitter {
     requestFileInfo(UUID) {
         var self = this;
         var request = new messages.GetFileInfo(UUID);
-        var stream = self.newMessage();
+        var stream = self.newStream();
 
         return stream.sendAndExpectMessage(request).then(function(message) {
             if(message.type === MessageType.FILE_INFO) {
@@ -92,7 +94,7 @@ class ChannelWrapper extends events.EventEmitter {
     getChunk(UUID, chunkNum) {
         var self = this;
         var request = new messages.GetChunk(UUID, chunkNum);
-        var stream = self.newMessage();
+        var stream = self.newStream();
         return stream.sendAndExpectMessage(request).then(function(message) {
             if(message.type === MessageType.CHUNK) {
                 return message;
@@ -122,11 +124,31 @@ class ChannelWrapper extends events.EventEmitter {
     getPeerFor(UUID, missingChunks) {
         var self = this;
         var requestPeerMessage = new messages.GetPeerFor(UUID, missingChunks);
-        var stream = self.newMessage();
+        var stream = self.newStream();
         return stream.sendAndExpectMessage(requestPeerMessage)
             .finally(function() {
                 stream.close();
             });
+    }
+
+    getPeersFor(UUID, missingChunks) {
+        var self = this;
+        var emitter = new events.EventEmitter();
+        var stream = self.newStream();
+
+        var requestPeerMessage = new messages.RequestPeersFor(UUID, missingChunks);
+        requestPeerMessage.numPeers = REQUEST_NUM_PEERS;
+
+        stream.on('message', function(message) {
+            emitter.emit('peer', message);
+        });
+        stream.send(requestPeerMessage);
+
+        setTimeout(function() {
+            stream.close();
+        }, 5000);
+
+        return emitter;
     }
 
 }

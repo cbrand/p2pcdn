@@ -7,7 +7,8 @@ var AbstractChannelHandler = require('../common/rtc/channelHandler');
 var handlers = [
     require('./channelHandlers/chunk'),
     require('./channelHandlers/fileInfo'),
-    require('./channelHandlers/init')
+    require('./channelHandlers/init'),
+    require('./channelHandlers/requestPeersFor')
 ];
 
 class ChannelHandler extends AbstractChannelHandler {
@@ -22,7 +23,7 @@ class ChannelHandler extends AbstractChannelHandler {
         var self = this;
         var handlerFound = false;
         handlers.forEach(function(Handler) {
-            var handler = new Handler(self.app, message);
+            var handler = new Handler(self.app, message, self.channel);
             if(handler.supports()) {
                 handlerFound = true;
                 self.emit('handler', handler);

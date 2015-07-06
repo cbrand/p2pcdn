@@ -1,3 +1,4 @@
+var events = require('events');
 var PouchDB = require('pouchdb');
 var db = new PouchDB('files');
 var truncate = function() {
@@ -12,7 +13,7 @@ var getDB = function() {
     return db;
 };
 
-class FileBase {
+class FileBase extends events.EventEmitter {
     static get db() {
         return getDB();
     }

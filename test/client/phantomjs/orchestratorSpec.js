@@ -13,7 +13,7 @@ var Orchestrator = require('orchestrator/orchestrator');
 var ChannelWrapper = require('common/rtc/channelWrapper');
 
 
-describe('Client: Orchestrator', function() {
+describe('Client: Orchestrator', function () {
 
     var rtcChannel;
     var serverRtcChannel;
@@ -26,18 +26,18 @@ describe('Client: Orchestrator', function() {
     ];
     var b64chunks = dbHelpers.createBase64Chunks(chunks);
 
-    var handleMessage = function(channel, message, exceptChunks) {
+    var handleMessage = function (channel, message, exceptChunks) {
         exceptChunks = exceptChunks || [];
         var data;
-        if(message instanceof messages.GetFileInfo) {
+        if (message instanceof messages.GetFileInfo) {
             data = new messages.FileInfo();
             data.uuid = message.uuid;
             data.name = 'test.txt';
             data.mimeType = 'plain/text';
             data.numChunks = 5;
             data.missingChunks = exceptChunks;
-        } else if(message instanceof messages.GetChunk) {
-            if(_.contains(exceptChunks, message.chunk)) {
+        } else if (message instanceof messages.GetChunk) {
+            if (_.contains(exceptChunks, message.chunk)) {
                 data = new messages.Error(messages.Error.Code.CHUNK_NOT_FOUND);
             } else {
                 data = new messages.Chunk();
@@ -53,13 +53,13 @@ describe('Client: Orchestrator', function() {
                 );
             }
         }
-        if(data) {
+        if (data) {
             data.streamId = message.streamId;
             channel.send(data).done();
         }
     };
 
-    beforeEach(function() {
+    beforeEach(function () {
         receivedMessagesFromClient = [];
         var connectedChannel = helpers.connectedChannels();
         rtcChannel = connectedChannel.handler.left;
@@ -69,48 +69,85 @@ describe('Client: Orchestrator', function() {
 
         app = new events.EventEmitter();
 
-        rtcChannel.on('message', function(message) {
+        rtcChannel.on('message', function (message) {
             receivedMessagesFromClient.push(message);
         });
 
         orchestrator = new Orchestrator(serverRtcChannel, app);
 
-        sinon.stub(orchestrator, 'requestPeerConnection', function() {
+        sinon.stub(orchestrator, 'requestPeerConnections', function () {
             var peerConnectionChannel = helpers.connectedChannels();
 
             rtcCalleeChannel = peerConnectionChannel.handler.left;
-            peerConnectionChannel.handler.right.on('message', function(message) {
+            peerConnectionChannel.handler.right.on('message', function (message) {
                 handleMessage(peerConnectionChannel.handler.right, message);
             });
-            return Q(new ChannelWrapper(rtcCalleeChannel));
+            var emitter = new events.EventEmitter();
+            setTimeout(function () {
+                emitter.emit('connection', new ChannelWrapper(rtcCalleeChannel));
+            }, 0);
+
+            return Q(emitter);
         });
 
     });
 
-    afterEach(function() {
+    afterEach(function () {
         return dbHelpers.truncate();
     });
 
-    describe('requestFile', function() {
+    describe('requestFile', function () {
 
         var requestedUUID;
 
-        beforeEach(function() {
+        beforeEach(function () {
             requestedUUID = 'abc-abc';
 
-            rtcChannel.on('message', function(message) {
+            rtcChannel.on('message', function (message) {
                 handleMessage(rtcChannel, message);
             });
         });
 
-        it('should be able to request data', function() {
-            return orchestrator.requestFile(requestedUUID).then(function(file) {
+        it('should be able to request data', function () {
+            this.timeout(5000);
+            return orchestrator.requestFile(requestedUUID).then(function (file) {
                 expect(file).to.have.property('id', requestedUUID);
                 return expect(file.existingChunks()).to.eventually.deep.equal([0, 1, 2, 3, 4]);
             });
         });
 
+        describe('if several peers exist', function () {
 
+            beforeEach(function () {
+                orchestrator = new Orchestrator(serverRtcChannel, app);
+
+                sinon.stub(orchestrator, 'requestPeerConnections', function () {
+                    var emitter = new events.EventEmitter();
+                    var initPeerConnection = function(missingChunks) {
+                        var peerConnectionChannel = helpers.connectedChannels();
+                        var connectionChannel = peerConnectionChannel.handler.left;
+                        peerConnectionChannel.handler.right.on('message', function (message) {
+                            handleMessage(peerConnectionChannel.handler.right, message, missingChunks);
+                        });
+                        setTimeout(function () {
+                            emitter.emit('connection', new ChannelWrapper(connectionChannel));
+                        }, 0);
+                    };
+                    initPeerConnection([0, 4]);
+                    initPeerConnection([1, 2, 3]);
+                    return Q(emitter);
+                });
+            });
+
+            it('should be able to get data from several peers', function () {
+                this.timeout(5000);
+                return orchestrator.requestFile(requestedUUID).then(function (file) {
+                    expect(file).to.have.property('id', requestedUUID);
+                    return expect(file.existingChunks()).to.eventually.deep.equal([0, 1, 2, 3, 4]);
+                });
+            });
+
+        });
 
     });
 

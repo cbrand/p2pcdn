@@ -7,6 +7,8 @@
 var events = require('events');
 var db = require('./db');
 var FileHandler = require('./handlers/file');
+var Orchestrator = require('./channelOrchestrator/orchestrator');
+
 
 class App extends events.EventEmitter {
 
@@ -15,6 +17,7 @@ class App extends events.EventEmitter {
         this.config = config;
         this.db = db.db;
         this.fileHandler = new FileHandler(config);
+        this.orchestrator = new Orchestrator(this);
     }
 
 }
