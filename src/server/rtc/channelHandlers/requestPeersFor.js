@@ -1,12 +1,12 @@
 var Handler = require('./handler');
 var messages = require('../messages');
-var RequestPeersFor = messages.RequestPeersFor;
+var RequestPeersForMessage = messages.RequestPeersFor;
 
 
 class RequestPeersFor extends Handler {
 
     supports() {
-        return this.message instanceof RequestPeersFor;
+        return this.message instanceof RequestPeersForMessage;
     }
 
     get orchestrator() {
