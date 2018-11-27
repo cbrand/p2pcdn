@@ -14,7 +14,7 @@
     "mime": "^1.3.4",
     "node-argument-parser": "^0.1.0",
     "pouchdb": "~>6.0.5",
-    "protobufjs": "^4.0.0-b3",
+    "protobufjs": "~> 5.0.3",
     "q": "~1.4.1",
     "sequelize": "^3.1.1",
     "sqlite3": "^3.0.8",
