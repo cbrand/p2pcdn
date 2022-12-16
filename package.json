@@ -5,7 +5,7 @@
     "blob-polyfill": "^1.0.20150320",
     "del": "^1.1.1",
     "detectrtc": "^1.0.6",
-    "express": "~4.12.4",
+    "express": "~4.17.3",
     "express-ws": "^0.2.6",
     "filesaver.js": "^0.1.1",
     "glob": "^5.0.5",
