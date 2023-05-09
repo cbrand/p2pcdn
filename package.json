@@ -13,7 +13,7 @@
     "ini": "~1.3.3",
     "mime": "^1.3.4",
     "node-argument-parser": "^0.1.0",
-    "pouchdb": "~6.3.0",
+    "pouchdb": "~7.0.0",
     "protobufjs": "~> 6",
     "q": "~1.4.1",
     "sequelize": "~6.29.0",
