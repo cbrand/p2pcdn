@@ -16,7 +16,7 @@
     "pouchdb": "~>6.0.5",
     "protobufjs": "~> 6",
     "q": "~1.4.1",
-    "sequelize": "~>5",
+    "sequelize": "~6.29.0",
     "sqlite3": "^3.0.8",
     "text-encoding": "^0.5.2",
     "underscore": "^1.8.3",
